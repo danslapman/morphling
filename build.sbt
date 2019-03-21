@@ -45,9 +45,25 @@ val `morphling-circe` = (project in file("circe"))
     )
   )
 
+val `morphling-reactivemongo` = (project in file("reactivemongo"))
+  .dependsOn(morphling % "test->test;compile->compile", `morphling-scalacheck` % "test->test")
+  .settings(Settings.common)
+  .settings(
+    name := "morphling-reactivemongo",
+    parallelExecution in ThisBuild := false,
+    libraryDependencies ++= Seq(
+      "org.reactivemongo" %% "reactivemongo-bson" % "0.16.4",
+      "com.github.mpilquist" %% "simulacrum" % "0.15.0",
+      "org.typelevel" %% "mouse" % "0.20",
+      "org.scalatest" %% "scalatest" % "3.0.6" % Test,
+      "org.scalacheck" %% "scalacheck"  % "1.14.0" % Test
+    ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+  )
+
 val root = (project in file("."))
-  .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`)
-  .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`)
+  .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`)
+  .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`)
   .settings(Settings.common)
   .settings(
     publish := {},
