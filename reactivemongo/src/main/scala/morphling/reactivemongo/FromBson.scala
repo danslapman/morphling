@@ -4,7 +4,8 @@ import cats._
 import cats.data.EitherK
 import cats.free._
 import morphling.HFunctor.HAlgebra
-import morphling.{Alt, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
+import morphling.Schema.Schema
+import morphling.{Alt, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import ops._
 import reactivemongo.bson._
@@ -14,13 +15,21 @@ import scala.util.Try
 
 @typeclass
 trait FromBson[S[_]] {
-  def decoder: S ~> BSONReader[BSONValue, ?]
+  def reader: S ~> BSONReader[BSONValue, ?]
 }
 
 object FromBson {
   implicit class FromBsonOps[F[_], A](fa: F[A]) {
     def fromJson(a: BSONValue)(implicit FJ: FromBson[F]): Try[A] = {
-      FJ.decoder(fa).readTry(a)
+      FJ.reader(fa).readTry(a)
+    }
+  }
+
+  implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, ?]] = new FromBson[Schema[P, ?]] {
+    def reader = new (Schema[P, ?] ~> BSONReader[BSONValue, ?]) {
+      override def apply[I](schema: Schema[P, I]) = {
+        HFix.cataNT[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]](decoderAlg[P]).apply(schema)
+      }
     }
   }
 
@@ -28,7 +37,7 @@ object FromBson {
     new HAlgebra[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]] {
       def apply[I](s: SchemaF[P, BSONReader[BSONValue, ?], I]): BSONReader[BSONValue, I] = s match {
         case PrimSchema(p) =>
-          FromBson[P].decoder(p)
+          FromBson[P].reader(p)
 
         case OneOfSchema(alts) =>
           BSONReader[BSONDocument, I] { doc =>
@@ -86,11 +95,11 @@ object FromBson {
   }
 
   implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson] = new FromBson[EitherK[P, Q, ?]] {
-    val decoder = new (EitherK[P, Q, ?] ~> BSONReader[BSONValue, ?]) {
+    val reader = new (EitherK[P, Q, ?] ~> BSONReader[BSONValue, ?]) {
       def apply[A](p: EitherK[P, Q, A]): BSONReader[BSONValue, A] = {
         p.run.fold(
-          FromBson[P].decoder(_),
-          FromBson[Q].decoder(_),
+          FromBson[P].reader(_),
+          FromBson[Q].reader(_),
         )
       }
     }
