@@ -18,7 +18,7 @@ trait ToBson[S[_]] {
 
 object ToBson {
   implicit class ToBsonOps[F[_], A](fa: F[A]) {
-    def toJson(a: A)(implicit TB: ToBson[F]): BSONValue = TB.serialize(fa)(a)
+    def toBson(a: A)(implicit TB: ToBson[F]): BSONValue = TB.serialize(fa)(a)
   }
 
   implicit def schemaToBson[P[_]: ToBson]: ToBson[Schema[P, ?]] = new ToBson[Schema[P, ?]] {

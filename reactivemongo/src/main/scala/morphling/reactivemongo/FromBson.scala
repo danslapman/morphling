@@ -20,7 +20,7 @@ trait FromBson[S[_]] {
 
 object FromBson {
   implicit class FromBsonOps[F[_], A](fa: F[A]) {
-    def fromJson(a: BSONValue)(implicit FJ: FromBson[F]): Try[A] = {
+    def fromBson(a: BSONValue)(implicit FJ: FromBson[F]): Try[A] = {
       FJ.reader(fa).readTry(a)
     }
   }
@@ -73,8 +73,7 @@ object FromBson {
       override def pure[T](a: T) = BSONReader[BSONValue, T](_ => a)
 
       override def ap[T, U](ff: BSONReader[BSONValue, T => U])(fa: BSONReader[BSONValue, T]): BSONReader[BSONValue, U] =
-        // In fact BSONReader[BSONValue, T => U] is a result of pure(f: T => U)
-        fa.afterRead(a => ff.read(BSONNull)(a))
+        (v: BSONValue) => ff.read(v)(fa.read(v))
     }
 
     rb.foldMap(
@@ -82,7 +81,7 @@ object FromBson {
         def apply[B](ps: PropSchema[I, BSONReader[BSONValue, ?], B]): BSONReader[BSONValue, B] = ps match {
           case Required(field, base, _, _) =>
             BSONReader[BSONDocument, B](doc =>
-              doc.getAs[B](field)(base).get
+              doc.getAs[B](field)(base).getOrElse(throw exceptions.DocumentKeyNotFound(field))
             ).widenReader
 
           case opt: Optional[I, BSONReader[BSONValue, ?], i] =>
