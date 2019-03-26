@@ -3,6 +3,7 @@ package morphling.tschema
 import cats._
 import cats.free._
 import cats.syntax.functor._
+import cats.syntax.option._
 import morphling.HFunctor._
 import morphling._
 import morphling.Schema.Schema
@@ -33,12 +34,13 @@ object ToTypeable {
       def apply[I](schema: SchemaF[P, SwaggerTypeable, I]): SwaggerTypeable[I] = schema match {
         case s: PrimSchema[P, SwaggerTypeable, I] => ToTypeable[P].toTypeable(s.prim)
         case s: OneOfSchema[P, SwaggerTypeable, I] =>
-          val altGens = s.alts.map({ case Alt(_, b, p) => b.map(p.reverseGet) })
-          altGens.tail.headOption.cata(th =>
-            SwaggerTypeable.make(SwaggerOneOf(
-                altGens.toList.map(tpbl => Option.empty[String] -> Eval.now(tpbl.typ)).toVector
-            )),
-            altGens.head
+          SwaggerTypeable.make(
+            SwaggerOneOf(
+              s.alts.map {
+                case Alt(field, b, p) =>
+                  field.some -> Eval.now(b.map(p.reverseGet).typ)
+              }.toList.toVector
+            )
           )
 
         case s: RecordSchema[P, SwaggerTypeable, I] => recordTypeable[P,I](s.props)
