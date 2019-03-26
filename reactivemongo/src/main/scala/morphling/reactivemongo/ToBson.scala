@@ -76,7 +76,7 @@ object ToBson {
             } yield ps.getter.get(value)
           }
         }
-      ).run(document).value._1
+      ).runS(document).value
     )
   }
 

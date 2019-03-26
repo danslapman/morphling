@@ -75,7 +75,7 @@ object ToJson {
             } yield ps.getter.get(value)
           }
         }
-      ).run(JsonObject.empty).value._1
+      ).runS(JsonObject.empty).value
     )
   }
 
