@@ -7,7 +7,9 @@ import morphling._
 import morphling.Schema.Schema
 import mouse.option._
 import org.scalacheck.Gen
+import simulacrum.typeclass
 
+@typeclass
 trait ToGen[S[_]] {
   def toGen: S ~> Gen
 }
@@ -28,7 +30,7 @@ object ToGen {
   def genAlg[P[_]: ToGen]: HAlgebra[SchemaF[P, ?[_], ?], Gen] =
     new HAlgebra[SchemaF[P, ?[_], ?], Gen] {
       def apply[I](schema: SchemaF[P, Gen, I]): Gen[I] = schema match {
-        case s: PrimSchema[P, Gen, I] => implicitly[ToGen[P]].toGen(s.prim)
+        case s: PrimSchema[P, Gen, I] => ToGen[P].toGen(s.prim)
         case s: OneOfSchema[P, Gen, I] =>
           val altGens = s.alts.map({ case Alt(_, b, p) => b.map(p.reverseGet) })
           altGens.tail.headOption.cata(

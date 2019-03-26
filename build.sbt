@@ -25,8 +25,10 @@ val `morphling-scalacheck` = (project in file("scalacheck"))
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "mouse" % "0.20",
+      "com.github.mpilquist" %% "simulacrum" % "0.15.0",
       "org.scalacheck" %% "scalacheck"  % "1.14.0"
-    )
+    ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
 val `morphling-circe` = (project in file("circe"))
@@ -39,10 +41,12 @@ val `morphling-circe` = (project in file("circe"))
       "io.circe" %% "circe-core" % "0.11.1",
       "io.circe" %% "circe-literal" % "0.11.1" % Test,
       "org.typelevel" %% "mouse" % "0.20",
+      "com.github.mpilquist" %% "simulacrum" % "0.15.0",
       "org.typelevel" %% "jawn-parser" % "0.14.1" % Test,
       "org.scalatest" %% "scalatest" % "3.0.6" % Test,
       "org.scalacheck" %% "scalacheck"  % "1.14.0" % Test
-    )
+    ),
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
 val `morphling-reactivemongo` = (project in file("reactivemongo"))

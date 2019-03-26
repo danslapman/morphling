@@ -8,7 +8,9 @@ import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
 import mouse.boolean._
+import simulacrum.typeclass
 
+@typeclass
 trait FromJson[S[_]] {
   def decoder: S ~> Decoder
 }
@@ -31,8 +33,7 @@ object FromJson {
   def decoderAlg[P[_]: FromJson]: HAlgebra[SchemaF[P, ?[_], ?], Decoder] =
     new HAlgebra[SchemaF[P, ?[_], ?], Decoder] {
       def apply[I](s: SchemaF[P, Decoder, I]): Decoder[I] = s match {
-        case PrimSchema(p) =>
-          implicitly[FromJson[P]].decoder(p)
+        case PrimSchema(p) => FromJson[P].decoder(p)
 
         case OneOfSchema(alts) =>
           Decoder.instance { (c: HCursor) =>
@@ -87,8 +88,8 @@ object FromJson {
     val decoder = new (EitherK[P, Q, ?] ~> Decoder) {
       def apply[A](p: EitherK[P, Q, A]): Decoder[A] = {
         p.run.fold(
-          implicitly[FromJson[P]].decoder(_),
-          implicitly[FromJson[Q]].decoder(_),
+          FromJson[P].decoder(_),
+          FromJson[Q].decoder(_),
         )
       }
     }

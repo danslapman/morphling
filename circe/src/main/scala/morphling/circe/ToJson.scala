@@ -9,7 +9,9 @@ import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
 import mouse.option._
+import simulacrum.typeclass
 
+@typeclass
 trait ToJson[S[_]] {
   def serialize: S ~> (? => Json)
 }
@@ -31,8 +33,7 @@ object ToJson {
     new HAlgebra[SchemaF[P, ?[_], ?], ? => Json] {
       def apply[I](schema: SchemaF[P, ? => Json, I]): I => Json = {
         schema match {
-          case s: PrimSchema[P, ? => Json, I] =>
-            implicitly[ToJson[P]].serialize(s.prim)
+          case s: PrimSchema[P, ? => Json, I] => ToJson[P].serialize(s.prim)
 
           case s: OneOfSchema[P, ? => Json, I] =>
             (value: I) => {
@@ -82,8 +83,8 @@ object ToJson {
     val serialize = new (EitherK[P, Q, ?] ~> (? => Json)) {
       def apply[A](p: EitherK[P, Q, A]): A => Json = {
         p.run.fold(
-          implicitly[ToJson[P]].serialize(_),
-          implicitly[ToJson[Q]].serialize(_)
+          ToJson[P].serialize(_),
+          ToJson[Q].serialize(_)
         )
       }
     }
