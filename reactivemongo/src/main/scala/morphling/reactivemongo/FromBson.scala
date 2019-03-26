@@ -20,8 +20,8 @@ trait FromBson[S[_]] {
 
 object FromBson {
   implicit class FromBsonOps[F[_], A](fa: F[A]) {
-    def fromBson(a: BSONValue)(implicit FJ: FromBson[F]): Try[A] = {
-      FJ.reader(fa).readTry(a)
+    def fromBson(a: BSONValue)(implicit FB: FromBson[F]): Try[A] = {
+      FB.reader(fa).readTry(a)
     }
   }
 
