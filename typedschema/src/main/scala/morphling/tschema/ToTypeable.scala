@@ -38,17 +38,25 @@ object ToTypeable {
             SwaggerOneOf(
               s.alts.map {
                 case Alt(field, b, p) =>
-                  field.some -> Eval.now(b.map(p.reverseGet).typ)
+                  field.some -> Eval.now(b.typ)
               }.toList.toVector
             )
           )
 
         case s: RecordSchema[P, SwaggerTypeable, I] => recordTypeable[P,I](s.props)
-        case s: IsoSchema[P, SwaggerTypeable, i0, I] => s.base.map(s.iso.get(_))
+        case s: IsoSchema[P, SwaggerTypeable, i0, I] => s.base.as[I]
       }
     }
 
   def recordTypeable[P[_]: ToTypeable, I](rb: FreeApplicative[PropSchema[I, SwaggerTypeable, ?], I]): SwaggerTypeable[I] = {
+    implicit val stap: Applicative[SwaggerTypeable] = new Applicative[SwaggerTypeable] {
+      override def pure[T](x: T): SwaggerTypeable[T] = SwaggerTypeable.swaggerTypeableUnit.as[T]
+
+      override def ap[T, U](ff: SwaggerTypeable[T => U])(fa: SwaggerTypeable[T]): SwaggerTypeable[U] = {
+        fa.as[U]
+      }
+    }
+
     rb.foldMap(
       new (PropSchema[I, SwaggerTypeable, ?] ~> SwaggerTypeable) {
         def apply[B](ps: PropSchema[I, SwaggerTypeable, B]): SwaggerTypeable[B] = ps match {
@@ -57,13 +65,5 @@ object ToTypeable {
         }
       }
     )
-  }
-
-  implicit val stap: Applicative[SwaggerTypeable] = new Applicative[SwaggerTypeable] {
-    override def pure[T](x: T): SwaggerTypeable[T] = SwaggerTypeable.swaggerTypeableUnit.as[T]
-
-    override def ap[T, U](ff: SwaggerTypeable[T => U])(fa: SwaggerTypeable[T]): SwaggerTypeable[U] = {
-      fa.as[U]
-    }
   }
 }
