@@ -1,11 +1,10 @@
 package morphling.samples
 
 import cats.syntax.apply._
-import monocle.macros.{GenLens, GenPrism}
+import monocle.macros.GenLens
 import morphling.Schema
 import morphling.Schema._
 import morphling.json.JType._
-import shapeless.HNil
 import java.time.Instant
 
 import monocle.Iso

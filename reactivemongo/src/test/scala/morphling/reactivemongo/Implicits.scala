@@ -7,8 +7,6 @@ import morphling.json._
 import ops._
 import reactivemongo.bson._
 
-import scala.collection.generic.CanBuildFrom
-
 object Implicits {
   implicit val primToBson: ToBson[JSchema] = new ToBson[JSchema] { self =>
     override def serialize: JSchema ~> (? => BSONValue) = new (JSchema ~> (? => BSONValue)) {
