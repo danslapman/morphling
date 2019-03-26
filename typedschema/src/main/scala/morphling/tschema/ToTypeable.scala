@@ -2,12 +2,10 @@ package morphling.tschema
 
 import cats._
 import cats.free._
-import cats.syntax.functor._
 import cats.syntax.option._
 import morphling.HFunctor._
 import morphling._
 import morphling.Schema.Schema
-import mouse.option._
 import ru.tinkoff.tschema.swagger.{SwaggerOneOf, SwaggerTypeable}
 import simulacrum.typeclass
 
