@@ -8,8 +8,6 @@ sealed trait JType[F[_], I]
 case class JNullT[F[_]]()   extends JType[F, Unit]
 case class JBoolT[F[_]]()   extends JType[F, Boolean]
 
-case class JByteT[F[_]]()   extends JType[F, Byte]
-case class JShortT[F[_]]()  extends JType[F, Short]
 case class JIntT[F[_]]()    extends JType[F, Int]
 case class JLongT[F[_]]()   extends JType[F, Long]
 
@@ -26,7 +24,6 @@ object JType {
 
   val jNull = prim(HMutu[JType, Schema, Unit](JNullT()))
   val jBool = prim(HMutu[JType, Schema, Boolean](JBoolT()))
-  val jShort = prim(HMutu[JType, Schema, Short](JShortT()))
   val jInt = prim(HMutu[JType, Schema, Int](JIntT()))
   val jLong = prim(HMutu[JType, Schema, Long](JLongT()))
   val jFloat = prim(HMutu[JType, Schema, Float](JFloatT()))

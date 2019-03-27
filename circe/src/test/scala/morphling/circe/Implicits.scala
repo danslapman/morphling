@@ -12,8 +12,6 @@ object Implicits {
       def apply[I](s: JSchema[I]): I => Json = s.unmutu match {
         case JNullT()    => (_: I) => Json.Null
         case JBoolT()    => Json.fromBoolean(_)
-        case JByteT()    => i => Json.fromInt(i.toInt)
-        case JShortT()   => i => Json.fromInt(i.toInt)
         case JIntT()     => Json.fromInt(_)
         case JLongT()    => Json.fromLong(_)
         case JFloatT()   => Json.fromFloatOrString(_)
@@ -33,8 +31,6 @@ object Implicits {
       def apply[I](s: JSchema[I]): Decoder[I] = s.unmutu match {
         case JNullT()    => Decoder.decodeUnit
         case JBoolT()    => Decoder.decodeBoolean
-        case JByteT()    => Decoder.decodeInt.map(_.toByte)
-        case JShortT()   => Decoder.decodeShort
         case JIntT()     => Decoder.decodeInt
         case JLongT()    => Decoder.decodeLong
         case JFloatT()   => Decoder.decodeFloat

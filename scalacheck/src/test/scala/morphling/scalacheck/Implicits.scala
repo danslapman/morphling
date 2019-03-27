@@ -14,8 +14,6 @@ object Implicits {
       def apply[A](s: JSchema[A]): Gen[A] = s.unmutu match {
         case JNullT()   => arbitrary[Unit]
         case JBoolT()   => arbitrary[Boolean]
-        case JByteT()   => arbitrary[Byte]
-        case JShortT()  => arbitrary[Short]
         case JIntT()    => arbitrary[Int]
         case JLongT()   => Gen.chooseNum(Long.MinValue + 808L, Long.MaxValue) // Magic number to circumvent Instant#toEpochMillis throwing exceptions
         case JFloatT()  => arbitrary[Float]

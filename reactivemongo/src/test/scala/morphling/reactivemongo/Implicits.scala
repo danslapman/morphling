@@ -13,8 +13,6 @@ object Implicits {
       override def apply[I](s: JSchema[I]): I => BSONValue = s.unmutu match {
         case JNullT()    => _: I => BSONNull
         case JBoolT()    => BSONBoolean(_)
-        case JByteT()    => i => BSONInteger(i.toInt)
-        case JShortT()   => i => BSONInteger(i.toInt)
         case JIntT()     => BSONInteger(_)
         case JLongT()    => BSONLong(_)
         case JFloatT()   => BSONDouble(_)
@@ -34,8 +32,6 @@ object Implicits {
       def apply[I](s: JSchema[I]): BSONReader[BSONValue, I] = s.unmutu match {
         case JNullT()    => BSONReader[BSONValue, I](_ => ())
         case JBoolT()    => bsonBooleanLikeReader.afterRead(_.toBoolean)
-        case JByteT()    => bsonNumberLikeReader.afterRead(_.toInt.toByte)
-        case JShortT()   => bsonNumberLikeReader.afterRead(_.toInt.toShort)
         case JIntT()     => bsonNumberLikeReader.afterRead(_.toInt)
         case JLongT()    => bsonNumberLikeReader.afterRead(_.toLong)
         case JFloatT()   => bsonNumberLikeReader.afterRead(_.toFloat)

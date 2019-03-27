@@ -12,8 +12,6 @@ object Implicits {
       def apply[A](s: JSchema[A]): SwaggerTypeable[A] = s.unmutu match {
         case JNullT()   => SwaggerTypeable.swaggerTypeableUnit
         case JBoolT()   => SwaggerTypeable.swaggerTypeableBoolean
-        case JByteT()   => SwaggerTypeable.swaggerTypeableByte
-        case JShortT()  => SwaggerTypeable.swaggerTypeableInteger.as[Short]
         case JIntT()    => SwaggerTypeable.swaggerTypeableInteger
         case JLongT()   => SwaggerTypeable.swaggerTypeableLong
         case JFloatT()  => SwaggerTypeable.swaggerTypeableFloat
