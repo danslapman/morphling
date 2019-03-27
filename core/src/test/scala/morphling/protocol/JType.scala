@@ -1,4 +1,4 @@
-package morphling.json
+package morphling.protocol
 
 import morphling.HMutu
 import morphling.Schema._

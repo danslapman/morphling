@@ -2,8 +2,8 @@ package morphling.scalacheck
 
 import cats._
 import morphling.Schema.Schema
-import morphling.json._
-import morphling.json.JType.JSchema
+import morphling.protocol._
+import morphling.protocol.JType.JSchema
 
 object Implicits {
   implicit val toGen: ToGen[JSchema] = new ToGen[JSchema] { self =>

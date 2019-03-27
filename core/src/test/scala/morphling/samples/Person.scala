@@ -4,7 +4,7 @@ import cats.syntax.apply._
 import monocle.macros.GenLens
 import morphling.Schema
 import morphling.Schema._
-import morphling.json.JType._
+import morphling.protocol.JType._
 import java.time.Instant
 
 import monocle.Iso

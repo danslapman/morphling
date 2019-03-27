@@ -2,8 +2,8 @@ package morphling.circe
 
 import cats._
 import io.circe.{Decoder, Json}
-import morphling.json._
-import morphling.json.JType.JSchema
+import morphling.protocol._
+import morphling.protocol.JType.JSchema
 import morphling.Schema.Schema
 
 object Implicits {

@@ -4,7 +4,7 @@ import cats.syntax.apply._
 import monocle.macros.{GenLens, GenPrism}
 import morphling.Schema
 import morphling.Schema._
-import morphling.json.JType._
+import morphling.protocol.JType._
 import shapeless.HNil
 
 sealed trait Role

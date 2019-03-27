@@ -2,8 +2,8 @@ package morphling.reactivemongo
 
 import cats.~>
 import morphling.Schema.Schema
-import morphling.json.JType.JSchema
-import morphling.json._
+import morphling.protocol.JType.JSchema
+import morphling.protocol._
 import ops._
 import reactivemongo.bson._
 
