@@ -9,8 +9,8 @@ import reactivemongo.bson._
 
 object Implicits {
   implicit val primToBson: ToBson[JSchema] = new ToBson[JSchema] { self =>
-    override def serialize: JSchema ~> (? => BSONValue) = new (JSchema ~> (? => BSONValue)) {
-      override def apply[I](s: JSchema[I]): I => BSONValue = s.unmutu match {
+    override def writer: JSchema ~> BSONWriter[?, BSONValue] = new (JSchema ~> BSONWriter[?, BSONValue]) {
+      override def apply[I](s: JSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
         case JNullT()    => _: I => BSONNull
         case JBoolT()    => BSONBoolean(_)
         case JIntT()     => BSONInteger(_)
@@ -20,7 +20,7 @@ object Implicits {
         case JCharT()    => c => BSONString(c.toString)
         case JStrT()     => BSONString(_)
         case JArrayT(elem) =>
-          xs => BSONArray(xs.map(sToB.serialize(elem)).toList)
+          xs => BSONArray(xs.map(sToB.writer(elem).write).toList)
       }
     }
 
