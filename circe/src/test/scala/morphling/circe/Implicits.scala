@@ -1,25 +1,25 @@
 package morphling.circe
 
 import cats._
-import io.circe.{Decoder, Json}
+import io.circe.{Decoder, Encoder, Json}
 import morphling.protocol._
 import morphling.protocol.JType.JSchema
 import morphling.Schema.Schema
 
 object Implicits {
   implicit val primToJson: ToJson[JSchema] = new ToJson[JSchema] { self =>
-    val serialize = new (JSchema ~> (? => Json)) {
-      def apply[I](s: JSchema[I]): I => Json = s.unmutu match {
-        case JNullT()    => (_: I) => Json.Null
-        case JBoolT()    => Json.fromBoolean(_)
-        case JIntT()     => Json.fromInt(_)
-        case JLongT()    => Json.fromLong(_)
-        case JFloatT()   => Json.fromFloatOrString(_)
-        case JDoubleT()  => Json.fromDoubleOrString(_)
-        case JCharT()    => c => Json.fromString(c.toString)
-        case JStrT()     => Json.fromString(_)
+    val encoder = new (JSchema ~> Encoder) {
+      def apply[I](s: JSchema[I]): Encoder[I] = s.unmutu match {
+        case JNullT()    => Encoder.encodeUnit
+        case JBoolT()    => Encoder.encodeBoolean
+        case JIntT()     => Encoder.encodeInt
+        case JLongT()    => Encoder.encodeLong
+        case JFloatT()   => Encoder.encodeFloat
+        case JDoubleT()  => Encoder.encodeDouble
+        case JCharT()    => Encoder.encodeChar
+        case JStrT()     => Encoder.encodeString
         case JArrayT(elem) =>
-          xs => Json.fromValues(xs.map(sToJ.serialize(elem)).toList)
+          xs => Json.fromValues(xs.map(sToJ.encoder(elem)(_)).toList)
       }
     }
 
