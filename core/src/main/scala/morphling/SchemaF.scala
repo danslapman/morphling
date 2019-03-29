@@ -54,7 +54,7 @@ object SchemaF {
   *  of allowed primitive types.
   *
   *  The underlying GADT defines a set of types via GADT constructors;
-  *  see [[morphling.json.JType]] for an example. This set of types
+  *  see [[morphling.protocol.SType]] for an example. This set of types
   *  defines what types may be treated as primitive (and have parsing/
   *  serialization/etc deferred to an external handler) when interpreting
   *  a schema value. For example, one might want to construct a GADT for
@@ -129,10 +129,10 @@ final case class PrimSchema[P[_], F[_], I](prim: P[I]) extends SchemaF[P, F, I] 
   *    alt[Unit, Prim, Role, Administrator](
   *      "administrator",
   *      rec[Prim, Administrator](
-  *        ^[Schema.Prop[Unit, Prim, Administrator, ?], String, Int, Administrator](
+  *        (
   *          required("department", Prim.str, (_: Administrator).department),
   *          required("subordinateCount", Prim.int, (_: Administrator).subordinateCount)
-  *        )(Administrator(_, _))
+  *        ).mapN(Administrator.apply)
   *      ),
   *      identity,
   *      {
