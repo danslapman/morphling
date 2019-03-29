@@ -7,24 +7,24 @@ import cats.syntax.traverse._
 import io.circe.Json
 import morphling.Schema.Schema
 import morphling.protocol._
-import morphling.protocol.JType.JSchema
+import morphling.protocol.SType.SSchema
 import ru.tinkoff.tschema.swagger.SwaggerTypeable
 
 object Implicits {
-  implicit val toTypeable: ToTypeable[JSchema] = new ToTypeable[JSchema] { self =>
-    override def toTypeable: JSchema ~> SwaggerTypeable = new (JSchema ~> SwaggerTypeable) {
-      def apply[A](s: JSchema[A]): SwaggerTypeable[A] = s.unmutu match {
-        case JNullT()   => SwaggerTypeable.swaggerTypeableUnit
-        case JBoolT()   => SwaggerTypeable.swaggerTypeableBoolean
-        case JIntT()    => SwaggerTypeable.swaggerTypeableInteger
-        case JLongT()   => SwaggerTypeable.swaggerTypeableLong
-        case JFloatT()  => SwaggerTypeable.swaggerTypeableFloat
-        case JDoubleT() => SwaggerTypeable.swaggerTypeableDouble
-        case JCharT()   => SwaggerTypeable.swaggerTypeableString.as[Char]
-        case JStrT()    => SwaggerTypeable.swaggerTypeableString
-        case arr: JArrayT[Schema[JSchema, ?], i] =>
+  implicit val toTypeable: ToTypeable[SSchema] = new ToTypeable[SSchema] { self =>
+    override def toTypeable: SSchema ~> SwaggerTypeable = new (SSchema ~> SwaggerTypeable) {
+      def apply[A](s: SSchema[A]): SwaggerTypeable[A] = s.unmutu match {
+        case SNullT()   => SwaggerTypeable.swaggerTypeableUnit
+        case SBoolT()   => SwaggerTypeable.swaggerTypeableBoolean
+        case SIntT()    => SwaggerTypeable.swaggerTypeableInteger
+        case SLongT()   => SwaggerTypeable.swaggerTypeableLong
+        case SFloatT()  => SwaggerTypeable.swaggerTypeableFloat
+        case SDoubleT() => SwaggerTypeable.swaggerTypeableDouble
+        case SCharT()   => SwaggerTypeable.swaggerTypeableString.as[Char]
+        case SStrT()    => SwaggerTypeable.swaggerTypeableString
+        case arr: SArrayT[Schema[SSchema, ?], i] =>
           val baseTyp: SwaggerTypeable[i] =
-            ToTypeable.schemaToTypeable[JSchema](self).toTypeable(arr.elem)
+            ToTypeable.schemaToTypeable[SSchema](self).toTypeable(arr.elem)
           SwaggerTypeable.swaggerVectorTypeable(baseTyp)
       }
     }

@@ -4,19 +4,19 @@ import cats.syntax.apply._
 import monocle.macros.{GenLens, GenPrism}
 import morphling.Schema
 import morphling.Schema._
-import morphling.protocol.JType._
+import morphling.protocol.SType._
 import shapeless.HNil
 
 sealed trait Role
 
 object Role {
-  val schema: Schema[JSchema, Role] = Schema.oneOf(
-    alt[JSchema, Role, User.type](
+  val schema: Schema[SSchema, Role] = Schema.oneOf(
+    alt[SSchema, Role, User.type](
       "user",
       Schema.const(User),
       User.prism
     ) ::
-    alt[JSchema, Role, Administrator](
+    alt[SSchema, Role, Administrator](
       "administrator",
       rec(
         (

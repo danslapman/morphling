@@ -2,47 +2,47 @@ package morphling.reactivemongo
 
 import cats.~>
 import morphling.Schema.Schema
-import morphling.protocol.JType.JSchema
+import morphling.protocol.SType.SSchema
 import morphling.protocol._
 import ops._
 import reactivemongo.bson._
 
 object Implicits {
-  implicit val primToBson: ToBson[JSchema] = new ToBson[JSchema] { self =>
-    override def writer: JSchema ~> BSONWriter[?, BSONValue] = new (JSchema ~> BSONWriter[?, BSONValue]) {
-      override def apply[I](s: JSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
-        case JNullT()    => _: I => BSONNull
-        case JBoolT()    => BSONBoolean(_)
-        case JIntT()     => BSONInteger(_)
-        case JLongT()    => BSONLong(_)
-        case JFloatT()   => BSONDouble(_)
-        case JDoubleT()  => BSONDouble(_)
-        case JCharT()    => c => BSONString(c.toString)
-        case JStrT()     => BSONString(_)
-        case JArrayT(elem) =>
+  implicit val primToBson: ToBson[SSchema] = new ToBson[SSchema] { self =>
+    override def writer: SSchema ~> BSONWriter[?, BSONValue] = new (SSchema ~> BSONWriter[?, BSONValue]) {
+      override def apply[I](s: SSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
+        case SNullT()    => _: I => BSONNull
+        case SBoolT()    => BSONBoolean(_)
+        case SIntT()     => BSONInteger(_)
+        case SLongT()    => BSONLong(_)
+        case SFloatT()   => BSONDouble(_)
+        case SDoubleT()  => BSONDouble(_)
+        case SCharT()    => c => BSONString(c.toString)
+        case SStrT()     => BSONString(_)
+        case SArrayT(elem) =>
           xs => BSONArray(xs.map(sToB.writer(elem).write).toList)
       }
     }
 
-    val sToB: ToBson[Schema[JSchema, ?]] = ToBson.schemaToBson(self)
+    val sToB: ToBson[Schema[SSchema, ?]] = ToBson.schemaToBson(self)
   }
 
-  implicit val primFromBson: FromBson[JSchema] = new FromBson[JSchema] { self =>
-    val reader = new (JSchema ~> BSONReader[BSONValue, ?]) {
-      def apply[I](s: JSchema[I]): BSONReader[BSONValue, I] = s.unmutu match {
-        case JNullT()    => BSONReader[BSONValue, I](_ => ())
-        case JBoolT()    => bsonBooleanLikeReader.afterRead(_.toBoolean)
-        case JIntT()     => bsonNumberLikeReader.afterRead(_.toInt)
-        case JLongT()    => bsonNumberLikeReader.afterRead(_.toLong)
-        case JFloatT()   => bsonNumberLikeReader.afterRead(_.toFloat)
-        case JDoubleT()  => bsonNumberLikeReader.afterRead(_.toDouble)
-        case JCharT()    => BSONStringHandler.afterRead(_.head).widenReader
-        case JStrT()     => BSONStringHandler.widenReader
-        case JArrayT(elem) =>
+  implicit val primFromBson: FromBson[SSchema] = new FromBson[SSchema] { self =>
+    val reader = new (SSchema ~> BSONReader[BSONValue, ?]) {
+      def apply[I](s: SSchema[I]): BSONReader[BSONValue, I] = s.unmutu match {
+        case SNullT()    => BSONReader[BSONValue, I](_ => ())
+        case SBoolT()    => bsonBooleanLikeReader.afterRead(_.toBoolean)
+        case SIntT()     => bsonNumberLikeReader.afterRead(_.toInt)
+        case SLongT()    => bsonNumberLikeReader.afterRead(_.toLong)
+        case SFloatT()   => bsonNumberLikeReader.afterRead(_.toFloat)
+        case SDoubleT()  => bsonNumberLikeReader.afterRead(_.toDouble)
+        case SCharT()    => BSONStringHandler.afterRead(_.head).widenReader
+        case SStrT()     => BSONStringHandler.widenReader
+        case SArrayT(elem) =>
           BSONReader[BSONArray, I]((arr: BSONArray) => arr.values.map(sFromB.reader(elem).read).toVector).widenReader
       }
     }
 
-    val sFromB: FromBson[Schema[JSchema, ?]] = FromBson.schemaFromBson(self)
+    val sFromB: FromBson[Schema[SSchema, ?]] = FromBson.schemaFromBson(self)
   }
 }
