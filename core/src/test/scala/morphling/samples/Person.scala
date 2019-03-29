@@ -22,12 +22,12 @@ object Person {
 
   val schema: Schema[SSchema, Person] = rec(
     (
-      required("name", jStr, Person.name.asGetter),
+      required("name", sStr, Person.name.asGetter),
       required(
-        "birthDate", jLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
+        "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
         Person.birthDate.asGetter
       ),
-      required("roles", jArray(Role.schema), Person.roles.asGetter)
+      required("roles", sArray(Role.schema), Person.roles.asGetter)
     ).mapN(Person.apply)
   )
 }

@@ -22,15 +22,14 @@ case class SArrayT[F[_], I](elem: F[I]) extends SType[F, Vector[I]]
 object SType {
   type SSchema[I] = HMutu[SType, Schema, I]
 
-  val jNull = prim(HMutu[SType, Schema, Unit](SNullT()))
-  val jBool = prim(HMutu[SType, Schema, Boolean](SBoolT()))
-  val jInt = prim(HMutu[SType, Schema, Int](SIntT()))
-  val jLong = prim(HMutu[SType, Schema, Long](SLongT()))
-  val jFloat = prim(HMutu[SType, Schema, Float](SFloatT()))
-  val jDouble = prim(HMutu[SType, Schema, Double](SDoubleT()))
-  val jChar = prim(HMutu[SType, Schema, Char](SCharT()))
-  val jStr = prim(HMutu[SType, Schema, String](SStrT()))
+  val sNull = prim(HMutu[SType, Schema, Unit](SNullT()))
+  val sBool = prim(HMutu[SType, Schema, Boolean](SBoolT()))
+  val sInt = prim(HMutu[SType, Schema, Int](SIntT()))
+  val sLong = prim(HMutu[SType, Schema, Long](SLongT()))
+  val sFloat = prim(HMutu[SType, Schema, Float](SFloatT()))
+  val sDouble = prim(HMutu[SType, Schema, Double](SDoubleT()))
+  val sChar = prim(HMutu[SType, Schema, Char](SCharT()))
+  val sStr = prim(HMutu[SType, Schema, String](SStrT()))
 
-  def jArray[I](elem: Schema[SSchema, I]) = prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)))
-
+  def sArray[I](elem: Schema[SSchema, I]) = prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)))
 }
