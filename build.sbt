@@ -88,26 +88,9 @@ val `morphling-typed-schema` = (project in file("typedschema"))
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )
 
-val `morphling-typesafe-config` = (project in file("typesafeconfig"))
-  .dependsOn(morphling % "test->test;compile->compile")
-  .settings(Settings.common)
-  .settings(
-    name := "morphling-typesafe-config",
-    parallelExecution in ThisBuild := false,
-    libraryDependencies ++= Seq(
-      "com.typesafe" % "config" % "1.3.2",
-      "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
-      "org.typelevel" %% "mouse" % versions("mouse"),
-      "org.scalatest" %% "scalatest" % versions("scalatest") % Test
-    ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
-  )
-
 val root = (project in file("."))
-  .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`,
-    `morphling-typesafe-config`)
-  .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`,
-    `morphling-typesafe-config`)
+  .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
+  .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
   .settings(Settings.common)
   .settings(
     publish := {},
