@@ -24,7 +24,7 @@ object Person {
     (
       required("name", jStr, Person.name.asGetter),
       required(
-        "birthDate", jLong.composeIso(Iso(Instant.ofEpochMilli(_:Long))((_ : Instant).toEpochMilli)),
+        "birthDate", jLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
         Person.birthDate.asGetter
       ),
       required("roles", jArray(Role.schema), Person.roles.asGetter)
