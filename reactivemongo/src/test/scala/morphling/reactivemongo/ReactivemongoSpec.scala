@@ -16,7 +16,7 @@ import scala.util.Success
 
 class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Checkers {
   test("A value should serialise to BSON") {
-    val result = Person.schema.toBson(person)
+    val result = Person.schema.writer.write(person)
     result shouldBe document(
       "roles" -> array(
         document(
@@ -32,15 +32,14 @@ class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Check
   }
 
   test("A value should be deserialised from BSON"){
-    val result = Person.schema.toBson(person)
-    Person.schema.fromBson(result) shouldBe Success(person)
+    val result = Person.schema.writer.write(person)
+    Person.schema.reader.readTry(result) shouldBe Success(person)
   }
 
   test("Serialization should round-trip values produced by a generator"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.toGen)
     check {
-      (p: Person) =>
-        Person.schema.fromBson(Person.schema.toBson(p)).toOption == Some(p)
+      (p: Person) => Person.schema.reader.readOpt(Person.schema.writer.write(p)) == Some(p)
     }
   }
 }

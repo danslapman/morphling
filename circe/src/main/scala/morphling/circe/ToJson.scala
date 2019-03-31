@@ -17,12 +17,12 @@ trait ToJson[S[_]] {
 }
 
 object ToJson {
-  implicit class ToJsonOps[F[_], A](fa: F[A]) {
-    def toJson(a: A)(implicit TJ: ToJson[F]): Json = TJ.encoder(fa)(a)
+  implicit class ToJsonOps[F[_], A](private val fa: F[A]) {
+    def encoder(implicit TJ: ToJson[F]): Encoder[A] = TJ.encoder(fa)
   }
 
   implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, ?]] = new ToJson[Schema[P, ?]] {
-    def encoder = new (Schema[P, ?] ~> Encoder) {
+    def encoder: Schema[P, ?] ~> Encoder = new (Schema[P, ?] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, ?[_], ?], Encoder](serializeAlg).apply(schema)
       }

@@ -11,8 +11,6 @@ import ops._
 import reactivemongo.bson._
 import simulacrum.typeclass
 
-import scala.util.Try
-
 @typeclass
 trait FromBson[S[_]] {
   def reader: S ~> BSONReader[BSONValue, ?]
@@ -20,13 +18,11 @@ trait FromBson[S[_]] {
 
 object FromBson {
   implicit class FromBsonOps[F[_], A](fa: F[A]) {
-    def fromBson(a: BSONValue)(implicit FB: FromBson[F]): Try[A] = {
-      FB.reader(fa).readTry(a)
-    }
+    def reader(implicit FB: FromBson[F]): BSONReader[BSONValue, A] = FB.reader(fa)
   }
 
   implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, ?]] = new FromBson[Schema[P, ?]] {
-    def reader = new (Schema[P, ?] ~> BSONReader[BSONValue, ?]) {
+    def reader: Schema[P, ?] ~> BSONReader[BSONValue, ?] = new (Schema[P, ?] ~> BSONReader[BSONValue, ?]) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]](decoderAlg[P]).apply(schema)
       }

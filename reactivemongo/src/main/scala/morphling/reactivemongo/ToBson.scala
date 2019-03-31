@@ -18,11 +18,11 @@ trait ToBson[S[_]] {
 
 object ToBson {
   implicit class ToBsonOps[F[_], A](fa: F[A]) {
-    def toBson(a: A)(implicit TB: ToBson[F]): BSONValue = TB.writer(fa).write(a)
+    def writer(implicit TB: ToBson[F]): BSONWriter[A, BSONValue] = TB.writer(fa)
   }
 
   implicit def schemaToBson[P[_]: ToBson]: ToBson[Schema[P, ?]] = new ToBson[Schema[P, ?]] {
-    def writer = new (Schema[P, ?] ~> BSONWriter[?, BSONValue]) {
+    def writer: Schema[P, ?] ~> BSONWriter[?, BSONValue] = new (Schema[P, ?] ~> BSONWriter[?, BSONValue]) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, ?[_], ?], BSONWriter[?, BSONValue]](serializeAlg).apply(schema)
       }

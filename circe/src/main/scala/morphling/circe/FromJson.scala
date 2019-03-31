@@ -3,7 +3,7 @@ package morphling.circe
 import cats._
 import cats.data.EitherK
 import cats.free._
-import io.circe.{Decoder, DecodingFailure, HCursor, Json}
+import io.circe.{Decoder, DecodingFailure, HCursor}
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
@@ -17,13 +17,11 @@ trait FromJson[S[_]] {
 
 object FromJson {
   implicit class FromJsonOps[F[_], A](fa: F[A]) {
-    def fromJson(a: Json)(implicit FJ: FromJson[F]): Decoder.Result[A] = {
-      FJ.decoder(fa).decodeJson(a)
-    }
+    def decoder(implicit FJ: FromJson[F]): Decoder[A] = FJ.decoder(fa)
   }
 
   implicit def schemaFromJson[P[_]: FromJson]: FromJson[Schema[P, ?]] = new FromJson[Schema[P, ?]] {
-    def decoder = new (Schema[P, ?] ~> Decoder) {
+    def decoder: Schema[P, ?] ~> Decoder = new (Schema[P, ?] ~> Decoder) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, ?[_], ?], Decoder](decoderAlg[P]).apply(schema)
       }
