@@ -5,6 +5,7 @@ import cats.data.{EitherK, State}
 import cats.data.State._
 import cats.free._
 import io.circe.{Encoder, Json, JsonObject}
+import io.circe.syntax._
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
@@ -37,15 +38,15 @@ object ToJson {
 
           case s: OneOfSchema[P, Encoder, I] =>
             (value: I) => {
-              val results = s.alts.toList flatMap {
-                case alt: Alt[Encoder, I, i] => {
-                  alt.prism.getOption(value).map(alt.base(_)).toList map { json =>
-                    Json.fromJsonObject(JsonObject.singleton(alt.id, json))
-                  }
-                }
-              }
-
-              results.head //yeah, I know
+              s.discriminator.cata(
+                discriminator =>
+                  s.alts.map { case alt @ Alt(id, base, prism) =>
+                    prism.getOption(value).map(alt.base(_).mapObject((discriminator := alt.id) +: _))
+                  }.collect { case Some(json) => json }.head,
+                s.alts.map { case Alt(id, base, prism) =>
+                  prism.getOption(value).map(base(_)).map(json => Json.obj(id -> json))
+                }.collect { case Some(json) => json }.head
+              )
             }
 
           case s: RecordSchema[P, Encoder, I] =>

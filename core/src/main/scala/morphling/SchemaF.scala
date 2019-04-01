@@ -147,7 +147,7 @@ final case class PrimSchema[P[_], F[_], I](prim: P[I]) extends SchemaF[P, F, I] 
   *  @tparam F $FDefn
   *  @tparam I $IDefn
   */
-final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, _]]) extends SchemaF[P, F, I] {
+final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, _]], discriminator: Option[String] = None) extends SchemaF[P, F, I] {
   def hfmap[G[_]](nt: F ~> G) = OneOfSchema[P, G, I](alts.map(_.hfmap(nt)))
   def pmap[Q[_]](nt: P ~> Q) = OneOfSchema[Q, F, I](alts)
 }

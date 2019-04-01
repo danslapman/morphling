@@ -52,7 +52,8 @@ val `morphling-circe` = (project in file("circe"))
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4")
   )
 
 val `morphling-reactivemongo` = (project in file("reactivemongo"))
@@ -68,7 +69,8 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4")
   )
 
 val `morphling-typed-schema` = (project in file("typedschema"))

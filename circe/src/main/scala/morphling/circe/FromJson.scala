@@ -33,8 +33,8 @@ object FromJson {
       def apply[I](s: SchemaF[P, Decoder, I]): Decoder[I] = s match {
         case PrimSchema(p) => FromJson[P].decoder(p)
 
-        case OneOfSchema(alts) =>
-          Decoder.instance { (c: HCursor) =>
+        case OneOfSchema(alts, None) =>
+          Decoder.instance { c: HCursor =>
             val results = for {
               fields <- c.keys.toList.map(_.toList)
               altResult <- alts.toList flatMap {
@@ -49,8 +49,18 @@ object FromJson {
             results match {
               case x :: Nil => x
               case Nil => Left(DecodingFailure(s"No fields found matching any of $altIds", c.history))
-              case _ => Left(DecodingFailure(s"More than one matching field found among $altIds}", c.history))
+              case _ => Left(DecodingFailure(s"More than one matching field found among $altIds", c.history))
             }
+          }
+
+        case OneOfSchema(alts, Some(discriminatorField)) =>
+          Decoder.instance { c: HCursor =>
+            for {
+              altId <- c.downField(discriminatorField).as[String]
+              Alt(_, base, prism) <- alts.find(_.id == altId)
+                .toRight(DecodingFailure(s"No '$discriminatorField' case of value '$altId'", c.history))
+              altResult <- c.as(base).map(prism.reverseGet)
+            } yield altResult
           }
 
         case RecordSchema(rb) =>

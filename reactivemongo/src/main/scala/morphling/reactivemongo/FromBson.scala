@@ -7,6 +7,7 @@ import morphling.HFunctor.HAlgebra
 import morphling.Schema.Schema
 import morphling.{Alt, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
+import mouse.option._
 import ops._
 import reactivemongo.bson._
 import simulacrum.typeclass
@@ -35,7 +36,7 @@ object FromBson {
         case PrimSchema(p) =>
           FromBson[P].reader(p)
 
-        case OneOfSchema(alts) =>
+        case OneOfSchema(alts, None) =>
           BSONReader[BSONDocument, I] { doc =>
             val results = for {
               fields <- doc.elements.map(_.name).toList
@@ -54,6 +55,16 @@ object FromBson {
               case Nil => throw exceptions.DocumentKeyNotFound(s"No fields found matching any of $altIds")
               //case _ => Left(DecodingFailure(s"More than one matching field found among $altIds}", c.history))
             }
+          }.widenReader
+
+        case OneOfSchema(alts, Some(discriminatorField)) =>
+          BSONReader[BSONDocument, I] { doc =>
+            (for {
+              altId <- doc.getAsTry[String](discriminatorField)
+              Alt(_, base, prism) <- alts.find(_.id == altId)
+                .toTry(exceptions.DocumentKeyNotFound(s"No '$discriminatorField' case of value '$altId'"))
+              altResult <- doc.asTry(base.beforeRead(_.asInstanceOf[BSONValue])).map(prism.reverseGet)
+            } yield altResult).get
           }.widenReader
 
         case RecordSchema(rb) =>

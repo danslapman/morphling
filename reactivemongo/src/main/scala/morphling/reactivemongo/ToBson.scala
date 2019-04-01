@@ -11,6 +11,8 @@ import mouse.option._
 import reactivemongo.bson._
 import simulacrum.typeclass
 
+import scala.util.Success
+
 @typeclass
 trait ToBson[S[_]] {
   def writer: S ~> BSONWriter[?, BSONValue]
@@ -38,15 +40,21 @@ object ToBson {
 
           case s: OneOfSchema[P, BSONWriter[?, BSONValue], I] =>
             (value: I) => {
-              val results = s.alts.toList flatMap {
-                case alt: Alt[BSONWriter[?, BSONValue], I, i] => {
-                  alt.prism.getOption(value).map(alt.base.write(_)).toList map { bson =>
-                    document(alt.id -> bson)
-                  }
-                }
-              }
-
-              results.head //yeah, I know
+              s.discriminator.cata(
+                dField => {
+                  s.alts.map { case alt: Alt[BSONWriter[?, BSONValue], I, i] =>
+                    alt.prism.getOption(value).map(v =>
+                      alt.base.write(v) match {
+                        case BSONDocument(elems) =>
+                          BSONDocument(Success(BSONElement(dField, BSONString(alt.id))) #:: elems)
+                        case other => other
+                      }
+                  )}.collect { case Some(doc) => doc}.head
+                },
+                s.alts.map { case alt: Alt[BSONWriter[?, BSONValue], I, i] =>
+                  alt.prism.getOption(value).map(alt.base.write(_)).map(bson => document(alt.id -> bson))
+                }.collect { case Some(bson) => bson }.head
+              )
             }
 
           case s: RecordSchema[P, BSONWriter[?, BSONValue], I] =>
