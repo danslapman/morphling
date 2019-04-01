@@ -90,4 +90,73 @@ class TSchemaSpec extends FunSuite with Matchers {
              }
         """
   }
+
+  test("Flat typeable should be generated") {
+    val personTypeableJson = Person.flatSchema.toTypeable.typ.asJson.dropNulls.run
+
+    personTypeableJson shouldEqual
+      json"""{
+                 "type" : "object",
+                 "required" : [
+                   "name",
+                   "birthDate",
+                   "roles"
+                 ],
+                 "properties" : {
+                   "roles" : {
+                     "type" : "array",
+                     "items" : {
+                       "type" : "object",
+                       "oneOf" : [
+                         {
+                           "type" : "object",
+                           "required" : [
+                             "type"
+                           ],
+                           "properties" : {
+                             "type" : {
+                               "type" : "string"
+                             }
+                           }
+                         },
+                         {
+                           "type" : "object",
+                           "required" : [
+                             "department",
+                             "subordinateCount",
+                             "type"
+                           ],
+                           "properties" : {
+                             "department" : {
+                               "type" : "string"
+                             },
+                             "subordinateCount" : {
+                               "format" : "int32",
+                               "type" : "integer"
+                             },
+                             "type" : {
+                               "type" : "string"
+                             }
+                           }
+                         }
+                       ],
+                       "discriminator" : {
+                         "propertyName" : "type",
+                         "mapping" : {
+
+                         }
+                       }
+                     }
+                   },
+                   "name" : {
+                     "type" : "string"
+                   },
+                   "birthDate" : {
+                     "format" : "int64",
+                     "type" : "integer"
+                   }
+                 }
+               }
+        """
+  }
 }

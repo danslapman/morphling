@@ -27,6 +27,24 @@ object Role {
       Administrator.prism
     ) :: HNil
   )
+
+  val flatSchema: Schema[SSchema, Role] = Schema.oneOfDiscr("type")(
+    alt[SSchema, Role, User.type](
+      "user",
+      Schema.const(User),
+      User.prism
+    ) ::
+      alt[SSchema, Role, Administrator](
+        "administrator",
+        rec(
+          (
+            required("department", sStr, Administrator.department.asGetter),
+            required("subordinateCount", sInt, Administrator.subordinateCount.asGetter)
+          ).mapN(Administrator.apply)
+        ),
+        Administrator.prism
+      ) :: HNil
+  )
 }
 
 case object User extends Role {

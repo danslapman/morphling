@@ -179,6 +179,19 @@ object Schema {
     }
   }
 
+  def oneOfDiscr[P[_], I](discriminatorField: String): ToOneOfWithDiscriminator[P, I] =
+    new ToOneOfWithDiscriminator[P, I](discriminatorField)
+
+  /** Builder class used to construct a OneOfSchema value with discriminator field
+    *  from an HList of alternatives which are proven to provide handling for
+    *  every constructor of the sum type `I`.
+    */
+  final class ToOneOfWithDiscriminator[P[_], I](discriminatorField: String) {
+    def apply[H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[Schema[P, ?], I, ?], H]): Schema[P, I] = {
+      schema(OneOfSchema[P, Schema[P, ?], I](ev.toNel(ctrs), Some(discriminatorField)))
+    }
+  }
+
   /** Builds an un-annotated schema for the sum type `I` from a list of alternatives.
     *
     *  Each alternative value in the list describes a single constructor of `I`.

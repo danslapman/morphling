@@ -30,4 +30,15 @@ object Person {
       required("roles", sArray(Role.schema), Person.roles.asGetter)
     ).mapN(Person.apply)
   )
+
+  val flatSchema: Schema[SSchema, Person] = rec(
+    (
+      required("name", sStr, Person.name.asGetter),
+      required(
+        "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
+        Person.birthDate.asGetter
+      ),
+      required("roles", sArray(Role.flatSchema), Person.roles.asGetter)
+    ).mapN(Person.apply)
+  )
 }
