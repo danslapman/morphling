@@ -5,7 +5,7 @@ import sbt.Keys._
 object Settings {
   val common = Seq(
     organization := "danslapman",
-    version := "1.0-beta1",
+    version := "1.0-beta2",
     scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.12.8"),
     scalacOptions ++= Seq(
