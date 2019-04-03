@@ -219,14 +219,15 @@ object Schema {
     *  @param base The schema for the `J` type
     *  @param prism Prism between the sum type and the selected constructor.
     */
-  def alt[P[_], I, J](id: String, base: Schema[P, J], prism: Prism[I, J]) =
+  def alt[P[_], I, J](id: String, base: Schema[P, J], prism: Prism[I, J]): Alt[Schema[P, ?], I, J] =
     Alt[Schema[P, ?], I, J](id, base, prism)
 
   /** HAlgebra for primitive type constructor transformation.
     */
-  def hfmapAlg[P[_], Q[_]](nt: P ~> Q) = new HAlgebra[SchemaF[P, ?[_], ?], Schema[Q, ?]] {
-    def apply[I](s: SchemaF[P, Schema[Q, ?], I]): Schema[Q, I] = hfix(s.pmap(nt))
-  }
+  def hfmapAlg[P[_], Q[_]](nt: P ~> Q): SchemaF[P, Schema[Q, ?], ?] ~> Schema[Q, ?] =
+    new HAlgebra[SchemaF[P, ?[_], ?], Schema[Q, ?]] {
+      def apply[I](s: SchemaF[P, Schema[Q, ?], I]): Schema[Q, I] = hfix(s.pmap(nt))
+    }
 
   /** Constructs the HFunctor instance for a Schema.
     *
@@ -237,7 +238,7 @@ object Schema {
     *  }}}
     */
   implicit def hfunctor: HFunctor[Schema] = new HFunctor[Schema] {
-    def hfmap[P[_], Q[_]](nt: P ~> Q) = cataNT(hfmapAlg(nt))
+    def hfmap[P[_], Q[_]](nt: P ~> Q): Schema[P, ?] ~> Schema[Q, ?] = cataNT(hfmapAlg(nt))
   }
 
   implicit class SchemaOps[P[_], I](base: Schema[P, I]) {

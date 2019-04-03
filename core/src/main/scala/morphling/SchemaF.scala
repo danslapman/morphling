@@ -44,9 +44,10 @@ sealed trait SchemaF[P[_], F[_], I] {
 
 object SchemaF {
   implicit def hfunctor[P[_]]: HFunctor[SchemaF[P, ?[_], ?]] = new HFunctor[SchemaF[P, ?[_], ?]] {
-    def hfmap[M[_], N[_]](nt: M ~> N) = new (SchemaF[P, M, ?] ~> SchemaF[P, N, ?]) {
-      def apply[I](fa: SchemaF[P, M, I]): SchemaF[P, N, I] = fa.hfmap(nt)
-    }
+    def hfmap[M[_], N[_]](nt: M ~> N): SchemaF[P, M, ?] ~> SchemaF[P, N, ?] =
+      new (SchemaF[P, M, ?] ~> SchemaF[P, N, ?]) {
+        def apply[I](fa: SchemaF[P, M, I]): SchemaF[P, N, I] = fa.hfmap(nt)
+      }
   }
 }
 
@@ -92,8 +93,8 @@ object SchemaF {
   *  @param prim value identifying a primitive type.
   */
 final case class PrimSchema[P[_], F[_], I](prim: P[I]) extends SchemaF[P, F, I] {
-  def hfmap[G[_]](nt: F ~> G) = PrimSchema[P, G, I](prim)
-  def pmap[Q[_]](nt: P ~> Q) = PrimSchema[Q, F, I](nt(prim))
+  def hfmap[G[_]](nt: F ~> G): PrimSchema[P, G, I] = PrimSchema[P, G, I](prim)
+  def pmap[Q[_]](nt: P ~> Q): PrimSchema[Q, F, I] = PrimSchema[Q, F, I](nt(prim))
 }
 
 /** Constructor that enables creation of schema for sum types.
@@ -148,8 +149,8 @@ final case class PrimSchema[P[_], F[_], I](prim: P[I]) extends SchemaF[P, F, I] 
   *  @tparam I $IDefn
   */
 final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, _]], discriminator: Option[String] = None) extends SchemaF[P, F, I] {
-  def hfmap[G[_]](nt: F ~> G) = OneOfSchema[P, G, I](alts.map(_.hfmap(nt)), discriminator)
-  def pmap[Q[_]](nt: P ~> Q) = OneOfSchema[Q, F, I](alts, discriminator)
+  def hfmap[G[_]](nt: F ~> G): OneOfSchema[P, G, I] = OneOfSchema[P, G, I](alts.map(_.hfmap(nt)), discriminator)
+  def pmap[Q[_]](nt: P ~> Q): OneOfSchema[Q, F, I] = OneOfSchema[Q, F, I](alts, discriminator)
 }
 
 /** A prism between a base type containing the arguments required by
@@ -188,8 +189,8 @@ final case class Alt[F[_], I, I0](id: String, base: F[I0], prism: Prism[I, I0]) 
   *  @param props the free applicative value composed of zero or more PropSchema instances
   */
 final case class RecordSchema[P[_], F[_], I](props: FreeApplicative[PropSchema[I, F, ?], I]) extends SchemaF[P, F, I] {
-  def hfmap[G[_]](nt: F ~> G) = RecordSchema[P, G, I](props.compile[PropSchema[I, G, ?]](PropSchema.instances[I].hfmap[F, G](nt)))
-  def pmap[Q[_]](nt: P ~> Q) = RecordSchema[Q, F, I](props)
+  def hfmap[G[_]](nt: F ~> G): RecordSchema[P, G, I] = RecordSchema[P, G, I](props.compile[PropSchema[I, G, ?]](PropSchema.instances[I].hfmap[F, G](nt)))
+  def pmap[Q[_]](nt: P ~> Q): RecordSchema[Q, F, I] = RecordSchema[Q, F, I](props)
 }
 
 /** Base trait for values which describe record properties.
@@ -247,19 +248,22 @@ final case class  Optional[O, F[_], I](
 }
 
 object PropSchema {
-  implicit def instances[O] = new HFunctor[PropSchema[O, ?[_], ?]] {
-    def hfmap[M[_], N[_]](nt: M ~> N) = new (PropSchema[O, M, ?] ~> PropSchema[O, N, ?]) {
-      def apply[I](ps: PropSchema[O, M, I]): PropSchema[O, N, I] = ps.hfmap(nt)
+  implicit def instances[O]: HFunctor[PropSchema[O, ?[_], ?]] =
+    new HFunctor[PropSchema[O, ?[_], ?]] {
+      def hfmap[M[_], N[_]](nt: M ~> N): PropSchema[O, M, ?] ~> PropSchema[O, N, ?] =
+        new (PropSchema[O, M, ?] ~> PropSchema[O, N, ?]) {
+          def apply[I](ps: PropSchema[O, M, I]): PropSchema[O, N, I] = ps.hfmap(nt)
+        }
     }
-  }
 
-  def contraNT[O, N, F[_]](f: N => O) = new (PropSchema[O, F, ?] ~> PropSchema[N, F, ?]) {
-    def apply[I](pso: PropSchema[O, F, I]): PropSchema[N, F, I] = {
-      pso match {
-        case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)
-        case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, Getter(f).composeGetter(opt.getter))
+  def contraNT[O, N, F[_]](f: N => O): PropSchema[O, F, ?] ~> PropSchema[N, F, ?] =
+    new (PropSchema[O, F, ?] ~> PropSchema[N, F, ?]) {
+      def apply[I](pso: PropSchema[O, F, I]): PropSchema[N, F, I] = {
+        pso match {
+          case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)
+          case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, Getter(f).composeGetter(opt.getter))
+        }
       }
-    }
   }
 }
 

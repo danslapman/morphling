@@ -7,7 +7,7 @@ trait HFunctor[F[_[_], _]] {
 }
 
 object HFunctor {
-  def apply[F[_[_], _]](implicit v: HFunctor[F]) = v
+  def apply[F[_[_], _]](implicit v: HFunctor[F]): HFunctor[F] = v
 
   final implicit class HFunctorOps[F[_[_], _], M[_], A](val fa: F[M, A])(implicit F: HFunctor[F]) {
     def hfmap[N[_]](nt: M ~> N): F[N, A] = F.hfmap(nt)(fa)
@@ -43,9 +43,10 @@ object HFix {
   /**
     * Algebra to discard the annotations from an HCofree structure.
     */
-  def forget[F[_[_], _], A] = new HAlgebra[HEnvT[A, F, ?[_], ?], HFix[F, ?]] {
-    def apply[I](env: HEnvT[A, F, HFix[F, ?], I]) = hfix(env.fa)
-  }
+  def forget[F[_[_], _], A]: HEnvT[A, F, HFix[F, ?], ?] ~> HFix[F, ?] =
+    new HAlgebra[HEnvT[A, F, ?[_], ?], HFix[F, ?]] {
+      def apply[I](env: HEnvT[A, F, HFix[F, ?], I]): HFix[F, I] = hfix(env.fa)
+    }
 
   /** Functor over the annotation type of an HCofree value */
   implicit def functor[F[_[_], _], I](implicit HF: HFunctor[F]): Functor[HCofree[F, ?, I]] =
@@ -53,7 +54,7 @@ object HFix {
       def map[A, B](fa: HCofree[F, A, I])(f: A => B): HCofree[F, B, I] = {
         val step = fa.unfix.value
         val hf = new (HCofree[F, A, ?] ~> HCofree[F, B, ?]) {
-          def apply[I0](gcf: HCofree[F, A, I0]) = functor(HF).map(gcf)(f)
+          def apply[I0](gcf: HCofree[F, A, I0]): HCofree[F, B, I0] = functor(HF).map(gcf)(f)
         }
 
         hcofree(
@@ -73,8 +74,9 @@ object HEnvT {
 
   implicit def hfunctor[E, F[_[_], _]: HFunctor]: HFunctor[HEnvT[E, F, ?[_], ?]] =
     new HFunctor[HEnvT[E, F, ?[_], ?]] {
-      def hfmap[M[_], N[_]](nt: M ~> N) = new (HEnvT[E, F, M, ?] ~> HEnvT[E, F, N, ?]) {
-        def apply[I](fm: HEnvT[E, F, M, I]) = HEnvT(fm.ask, fm.fa.hfmap[N](nt))
-      }
+      def hfmap[M[_], N[_]](nt: M ~> N):HEnvT[E, F, M, ?] ~> HEnvT[E, F, N, ?] =
+        new (HEnvT[E, F, M, ?] ~> HEnvT[E, F, N, ?]) {
+          def apply[I](fm: HEnvT[E, F, M, I]) = HEnvT(fm.ask, fm.fa.hfmap[N](nt))
+        }
     }
 }
