@@ -1,6 +1,6 @@
 package morphling.circe
 
-import io.circe.literal._
+import io.circe.Json
 import io.circe.syntax._
 import morphling.circe.FromJson._
 import morphling.circe.Implicits._
@@ -17,7 +17,19 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with Checkers {
   test("A value should serialise to JSON") {
     implicit val encoder = Person.schema.encoder
 
-    person.asJson shouldBe json"""{"roles":[{"administrator":{"subordinateCount":0,"department":"windmill-tilting"}}],"birthDate":20147028000,"name":"Kris Nuttycombe"}"""
+    person.asJson shouldBe Json.obj(
+      "updateCounter" := 42,
+      "roles" := Seq(
+        Json.obj(
+          "administrator" -> Json.obj(
+            "subordinateCount" := 0,
+            "department" := "windmill-tilting"
+          )
+        )
+      ),
+      "birthDate" := 20147028000L,
+      "name" := "Kris Nuttycombe"
+    )
   }
 
   test("A value should be deserialised from JSON"){
@@ -25,6 +37,13 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with Checkers {
     val decoder = Person.schema.decoder
 
     decoder.decodeJson(person.asJson).right.value shouldBe person
+  }
+
+  test("A default value should be applied during deserialization") {
+    implicit val encoder = Person.schema.encoder
+    val decoder = Person.schema.decoder
+
+    decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).right.value shouldBe person.copy(updateCounter = 0)
   }
 
   test("Serialization should round-trip values produced by a generator"){
@@ -39,7 +58,18 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with Checkers {
   test("A value should serialize to JSON flat") {
     implicit val encoder = Person.flatSchema.encoder
 
-    person.asJson shouldBe json"""{"roles": [{"type": "administrator", "subordinateCount":0,"department":"windmill-tilting"}],"birthDate":20147028000,"name":"Kris Nuttycombe"}"""
+    person.asJson shouldBe Json.obj(
+      "updateCounter" := 42,
+      "roles" := Seq(
+        Json.obj(
+          "type" := "administrator",
+          "subordinateCount" := 0,
+          "department" := "windmill-tilting"
+        )
+      ),
+      "birthDate" := 20147028000L,
+      "name" := "Kris Nuttycombe"
+    )
   }
 
   test("A value should be deserialized from JSON flat") {

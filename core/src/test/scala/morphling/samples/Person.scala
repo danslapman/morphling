@@ -12,13 +12,15 @@ import monocle.Iso
 case class Person(
   name: String,
   birthDate: Instant,
-  roles: Vector[Role]
+  roles: Vector[Role],
+  updateCounter: Int
 )
 
 object Person {
   val name = GenLens[Person](_.name)
   val birthDate = GenLens[Person](_.birthDate)
   val roles = GenLens[Person](_.roles)
+  val updateCounter = GenLens[Person](_.updateCounter)
 
   val schema: Schema[SSchema, Person] = rec(
     (
@@ -27,7 +29,8 @@ object Person {
         "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
         Person.birthDate.asGetter
       ),
-      required("roles", sArray(Role.schema), Person.roles.asGetter)
+      required("roles", sArray(Role.schema), Person.roles.asGetter),
+      property("updateCounter", sInt, 0, Person.updateCounter.asGetter)
     ).mapN(Person.apply)
   )
 
@@ -38,7 +41,8 @@ object Person {
         "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
         Person.birthDate.asGetter
       ),
-      required("roles", sArray(Role.flatSchema), Person.roles.asGetter)
+      required("roles", sArray(Role.flatSchema), Person.roles.asGetter),
+      property("updateCounter", sInt, 0, Person.updateCounter.asGetter)
     ).mapN(Person.apply)
   )
 }

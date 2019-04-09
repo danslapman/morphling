@@ -86,9 +86,14 @@ object FromBson {
     rb.foldMap(
       new (PropSchema[I, BSONReader[BSONValue, ?], ?] ~> BSONReader[BSONValue, ?]) {
         def apply[B](ps: PropSchema[I, BSONReader[BSONValue, ?], B]): BSONReader[BSONValue, B] = ps match {
-          case Required(field, base, _, _) =>
+          case Required(field, base, _, None) =>
             BSONReader[BSONDocument, B](doc =>
               doc.getAs[B](field)(base).getOrElse(throw exceptions.DocumentKeyNotFound(field))
+            ).widenReader
+
+          case Required(field, base, _, Some(default)) =>
+            BSONReader[BSONDocument, B](doc =>
+              doc.getAs[B](field)(base).getOrElse(default)
             ).widenReader
 
           case opt: Optional[I, BSONReader[BSONValue, ?], i] =>

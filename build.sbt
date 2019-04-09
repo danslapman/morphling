@@ -45,10 +45,8 @@ val `morphling-circe` = (project in file("circe"))
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % versions("circe"),
-      "io.circe" %% "circe-literal" % versions("circe") % Test,
       "org.typelevel" %% "mouse" % "0.20",
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
-      "org.typelevel" %% "jawn-parser" % "0.14.1" % Test,
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
     ),
@@ -84,8 +82,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
-      "io.circe" %% "circe-literal" % versions("circe") % Test,
-      "org.typelevel" %% "jawn-parser" % "0.14.1" % Test
+      "com.stephenn" %% "scalatest-circe" % "0.0.1" % Test
     ),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
   )

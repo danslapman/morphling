@@ -71,10 +71,10 @@ object ToTypeable {
       override def combine(x: SwaggerObject, y: SwaggerObject): SwaggerObject =
         SwaggerObject(
           (x.properties ++ y.properties).groupBy(_.name).map(_._2.head).toVector, //.distinctBy(_.name)
-          for {
+          (for {
             xr <- x.required
             yr <- y.required
-          } yield (xr ++ yr).distinct
+          } yield (xr ++ yr).distinct).memoize
         )
     }
 
@@ -84,8 +84,16 @@ object ToTypeable {
           def apply[B](ps: PropSchema[I, SwaggerTypeable, B]): Const[SwaggerObject, B] = {
             ps match {
               case req: Required[I, SwaggerTypeable, i] =>
-                val requiredField = SwaggerProperty(req.fieldName, None, Eval.now(req.base.typ))
-                Const.of(SwaggerObject(Vector(requiredField), Eval.now(Vector(req.fieldName))))
+                req.default.cata(
+                  default => {
+                    val optionalField = SwaggerProperty(req.fieldName, None, Eval.now(req.base.typ))
+                    Const.of(SwaggerObject(Vector(optionalField)))
+                  },
+                  {
+                    val requiredField = SwaggerProperty(req.fieldName, None, Eval.now(req.base.typ))
+                    Const.of(SwaggerObject(Vector(requiredField), Eval.now(Vector(req.fieldName))))
+                  }
+                )
 
               case opt: Optional[I, SwaggerTypeable, i] =>
                 val optionalField = SwaggerProperty(opt.fieldName, None, Eval.now(opt.base.typ))

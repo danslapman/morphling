@@ -82,8 +82,11 @@ object FromJson {
     rb.foldMap(
       new (PropSchema[I, Decoder, ?] ~> Decoder) {
         def apply[B](ps: PropSchema[I, Decoder, B]): Decoder[B] = ps match {
-          case Required(field, base, _, _) =>
+          case Required(field, base, _, None) =>
             Decoder(_.downField(field).as(base))
+
+          case Required(field, base, _, Some(default)) =>
+            Decoder(_.downField(field).as(base)).handleErrorWith(_ => Decoder.const(default))
 
           case opt: Optional[I, Decoder, i] =>
             Decoder(_.downField(opt.fieldName).as[B](Decoder.decodeOption(opt.base)))
