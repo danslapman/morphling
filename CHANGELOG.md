@@ -1,3 +1,9 @@
+## version 1.0-beta3
+
+> 11.04.2019
+
+Support for default values of required properties
+
 ## Version 1.0-beta2
 
 > 01.04.2019
