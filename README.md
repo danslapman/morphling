@@ -8,6 +8,9 @@ They can be `Int`s, `BigInt`s, `Instant`s, any type You mean to treat as scalar,
 You can find an example protocol in tests of `core` module:
 
 ```scala
+import morphling.HMutu
+import morphling.Schema._
+
 sealed trait SType[F[_], I]
 
 case class SNullT[F[_]]()   extends SType[F, Unit]
@@ -50,6 +53,9 @@ Now we can define a schema for an arbitrary type using our protocol:
 ```scala
 import cats.syntax.apply._
 import monocle.macros._
+import morphling.Schema
+import morphling.Schema._
+import SType._ //Defined above
 
 case @Lenses class Server(host: String, port: Int)
 object Server {
@@ -69,6 +75,11 @@ from schema instances. To use them You need to define an "implementation"
 of protocol You previously defined. Let's do it for circe Encoding:
 
 ```scala
+import cats._
+import io.circe.{Decoder, Encoder, Json}
+import SType.SSchema
+import morphling.Schema.Schema
+
 implicit val primToJson: ToJson[SSchema] = new ToJson[SSchema] { self =>
     val encoder = new (SSchema ~> Encoder) {
       def apply[I](s: SSchema[I]): Encoder[I] = s.unmutu match {
