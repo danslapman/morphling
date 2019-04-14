@@ -1,3 +1,9 @@
+## version 1.0-beta4
+
+> 14.04.2019
+
+Minor fix in reactivemongo module
+
 ## version 1.0-beta3
 
 > 11.04.2019
