@@ -53,7 +53,7 @@ object FromBson {
               case Some(x) :: Nil => x
               case None :: Nil => throw exceptions.TypeDoesNotMatch(s"Could not deserialize ${alts.head.id}")
               case Nil => throw exceptions.DocumentKeyNotFound(s"No fields found matching any of $altIds")
-              //case _ => Left(DecodingFailure(s"More than one matching field found among $altIds}", c.history))
+              case _ => throw MultipleKeysFound(s"More than one matching field found among $altIds}")
             }
           }.widenReader
 
