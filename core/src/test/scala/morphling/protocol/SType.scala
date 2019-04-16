@@ -31,5 +31,6 @@ object SType {
   val sChar = prim(HMutu[SType, Schema, Char](SCharT()))
   val sStr = prim(HMutu[SType, Schema, String](SStrT()))
 
-  def sArray[I](elem: Schema[SSchema, I]) = prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)))
+  def sArray[I](elem: Schema[SSchema, I]): Schema[SSchema, Vector[I]] =
+    prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)))
 }

@@ -1,7 +1,6 @@
 package morphling.reactivemongo
 
 import cats.~>
-import morphling.Schema.Schema
 import morphling.protocol.SType.SSchema
 import morphling.protocol._
 import ops._
@@ -9,6 +8,8 @@ import reactivemongo.bson._
 
 object Implicits {
   implicit val primToBson: ToBson[SSchema] = new ToBson[SSchema] { self =>
+    import ToBson._
+
     override def writer: SSchema ~> BSONWriter[?, BSONValue] = new (SSchema ~> BSONWriter[?, BSONValue]) {
       override def apply[I](s: SSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
         case SNullT()    => _: I => BSONNull
@@ -20,14 +21,14 @@ object Implicits {
         case SCharT()    => c => BSONString(c.toString)
         case SStrT()     => BSONString(_)
         case SArrayT(elem) =>
-          xs => BSONArray(xs.map(sToB.writer(elem).write).toList)
+          xs => BSONArray(xs.map(elem.writer.write).toList)
       }
     }
-
-    val sToB: ToBson[Schema[SSchema, ?]] = ToBson.schemaToBson(self)
   }
 
   implicit val primFromBson: FromBson[SSchema] = new FromBson[SSchema] { self =>
+    import FromBson._
+
     val reader = new (SSchema ~> BSONReader[BSONValue, ?]) {
       def apply[I](s: SSchema[I]): BSONReader[BSONValue, I] = s.unmutu match {
         case SNullT()    => BSONReader[BSONValue, I](_ => ())
@@ -39,10 +40,8 @@ object Implicits {
         case SCharT()    => BSONStringHandler.afterRead(_.head).widenReader
         case SStrT()     => BSONStringHandler.widenReader
         case SArrayT(elem) =>
-          BSONReader[BSONArray, I]((arr: BSONArray) => arr.values.map(sFromB.reader(elem).read).toVector).widenReader
+          BSONReader[BSONArray, I]((arr: BSONArray) => arr.values.map(elem.reader.read).toVector).widenReader
       }
     }
-
-    val sFromB: FromBson[Schema[SSchema, ?]] = FromBson.schemaFromBson(self)
   }
 }

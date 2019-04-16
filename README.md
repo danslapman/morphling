@@ -81,6 +81,8 @@ import SType.SSchema
 import morphling.Schema.Schema
 
 implicit val primToJson: ToJson[SSchema] = new ToJson[SSchema] { self =>
+    import ToJson._
+
     val encoder = new (SSchema ~> Encoder) {
       def apply[I](s: SSchema[I]): Encoder[I] = s.unmutu match {
         case SNullT()    => Encoder.encodeUnit
@@ -91,12 +93,9 @@ implicit val primToJson: ToJson[SSchema] = new ToJson[SSchema] { self =>
         case SDoubleT()  => Encoder.encodeDouble
         case SCharT()    => Encoder.encodeChar
         case SStrT()     => Encoder.encodeString
-        case SArrayT(elem) =>
-          xs => Json.fromValues(xs.map(sToJ.encoder(elem)(_)).toList)
+        case SArrayT(elem) => Encoder.encodeVector(elem.encoder)
       }
     }
-
-    val sToJ: ToJson[Schema[SSchema, ?]] = ToJson.schemaToJson(self)
   }
 ```
 
