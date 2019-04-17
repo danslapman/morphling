@@ -12,7 +12,7 @@ import ru.tinkoff.tschema.swagger.SwaggerTypeable
 
 object Implicits {
   implicit val toTypeable: ToTypeable[SSchema] = new ToTypeable[SSchema] { self =>
-    override def toTypeable: SSchema ~> SwaggerTypeable = new (SSchema ~> SwaggerTypeable) {
+    val toTypeable: SSchema ~> SwaggerTypeable = new (SSchema ~> SwaggerTypeable) {
       def apply[A](s: SSchema[A]): SwaggerTypeable[A] = s.unmutu match {
         case SNullT()   => SwaggerTypeable.swaggerTypeableUnit
         case SBoolT()   => SwaggerTypeable.swaggerTypeableBoolean

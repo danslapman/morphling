@@ -10,7 +10,7 @@ object Implicits {
   implicit val primToBson: ToBson[SSchema] = new ToBson[SSchema] { self =>
     import ToBson._
 
-    override def writer: SSchema ~> BSONWriter[?, BSONValue] = new (SSchema ~> BSONWriter[?, BSONValue]) {
+    val writer: SSchema ~> BSONWriter[?, BSONValue] = new (SSchema ~> BSONWriter[?, BSONValue]) {
       override def apply[I](s: SSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
         case SNullT()    => _: I => BSONNull
         case SBoolT()    => BSONBoolean(_)

@@ -10,7 +10,7 @@ object Implicits {
     import org.scalacheck.Arbitrary._
     import org.scalacheck.Gen
     import org.scalacheck.Gen._
-    def toGen = new (SSchema ~> Gen) {
+    val toGen = new (SSchema ~> Gen) {
       def apply[A](s: SSchema[A]): Gen[A] = s.unmutu match {
         case SNullT()   => arbitrary[Unit]
         case SBoolT()   => arbitrary[Boolean]
