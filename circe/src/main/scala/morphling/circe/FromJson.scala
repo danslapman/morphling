@@ -26,13 +26,13 @@ object FromJson {
   }
 
   implicit def schemaFromJson[P[_]: FromJson]: FromJson[Schema[P, ?]] = new FromJson[Schema[P, ?]] {
-    def decoder: Schema[P, ?] ~> Decoder = new (Schema[P, ?] ~> Decoder) {
+    val decoder: Schema[P, ?] ~> Decoder = new (Schema[P, ?] ~> Decoder) {
       override def apply[I](schema: Schema[P, I]): Decoder[I] = {
         HFix.cataNT[SchemaF[P, ?[_], ?], Decoder](decoderAlg[P]).apply(schema)
       }
     }
 
-    def accumulatingDecoder: Schema[P, ?] ~> AccumulatingDecoder = new (Schema[P, ?] ~> AccumulatingDecoder) {
+    val accumulatingDecoder: Schema[P, ?] ~> AccumulatingDecoder = new (Schema[P, ?] ~> AccumulatingDecoder) {
       override def apply[I](schema: Schema[P, I]): AccumulatingDecoder[I] = {
         HFix.cataNT[SchemaF[P, ?[_], ?], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(schema)
       }
@@ -169,7 +169,7 @@ object FromJson {
 
   implicit def eitherKFromJson[P[_]: FromJson, Q[_]: FromJson]: FromJson[EitherK[P, Q, ?]] = new FromJson[EitherK[P, Q, ?]] {
     override val decoder: EitherK[P, Q, ?] ~> Decoder = new (EitherK[P, Q, ?] ~> Decoder) {
-      def apply[A](p: EitherK[P, Q, A]): Decoder[A] = {
+      override def apply[A](p: EitherK[P, Q, A]): Decoder[A] = {
         p.run.fold(
           FromJson[P].decoder(_),
           FromJson[Q].decoder(_),

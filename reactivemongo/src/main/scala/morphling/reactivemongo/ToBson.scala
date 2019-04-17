@@ -24,7 +24,7 @@ object ToBson {
   }
 
   implicit def schemaToBson[P[_]: ToBson]: ToBson[Schema[P, ?]] = new ToBson[Schema[P, ?]] {
-    def writer: Schema[P, ?] ~> BSONWriter[?, BSONValue] = new (Schema[P, ?] ~> BSONWriter[?, BSONValue]) {
+    val writer: Schema[P, ?] ~> BSONWriter[?, BSONValue] = new (Schema[P, ?] ~> BSONWriter[?, BSONValue]) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, ?[_], ?], BSONWriter[?, BSONValue]](serializeAlg).apply(schema)
       }
@@ -88,7 +88,7 @@ object ToBson {
     )
   }
 
-  implicit def eitherKToBson[P[_]: ToBson, Q[_]: ToBson] =
+  implicit def eitherKToBson[P[_]: ToBson, Q[_]: ToBson]: ToBson[EitherK[P, Q, ?]] =
     new ToBson[EitherK[P, Q, ?]] {
       val writer = new (EitherK[P, Q, ?] ~> BSONWriter[?, BSONValue]) {
         def apply[A](p: EitherK[P, Q, A]): BSONWriter[A, BSONValue] = {

@@ -20,7 +20,7 @@ object ToGen {
   }
 
   implicit def schemaToGen[P[_]: ToGen]: ToGen[Schema[P, ?]] = new ToGen[Schema[P, ?]] {
-    def toGen: Schema[P, ?] ~> Gen = new (Schema[P, ?] ~> Gen) {
+    val toGen: Schema[P, ?] ~> Gen = new (Schema[P, ?] ~> Gen) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, ?[_], ?], Gen](genAlg).apply(schema)
       }

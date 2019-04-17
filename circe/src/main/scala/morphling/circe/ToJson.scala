@@ -23,7 +23,7 @@ object ToJson {
   }
 
   implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, ?]] = new ToJson[Schema[P, ?]] {
-    def encoder: Schema[P, ?] ~> Encoder = new (Schema[P, ?] ~> Encoder) {
+    val encoder: Schema[P, ?] ~> Encoder = new (Schema[P, ?] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, ?[_], ?], Encoder](serializeAlg).apply(schema)
       }
@@ -80,7 +80,7 @@ object ToJson {
     )
   }
 
-  implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson] =
+  implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson]: ToJson[EitherK[P, Q, ?]] =
     new ToJson[EitherK[P, Q, ?]] {
       val encoder = new (EitherK[P, Q, ?] ~> Encoder) {
         def apply[A](p: EitherK[P, Q, A]): Encoder[A] = {
