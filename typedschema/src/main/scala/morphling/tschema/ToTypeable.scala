@@ -23,8 +23,8 @@ object ToTypeable {
 
   implicit def schemaToTypeable[P[_]: ToTypeable]: ToTypeable[Schema[P, ?]] = new ToTypeable[Schema[P, ?]] {
     val toTypeable: Schema[P, ?] ~> SwaggerTypeable = new (Schema[P, ?] ~> SwaggerTypeable) {
-      override def apply[I](schema: Schema[P, I]) = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], SwaggerTypeable](typAlg).apply(schema)
+      override def apply[I](schema: Schema[P, I]): SwaggerTypeable[I] = {
+        HFix.cataNT[SchemaF[P, ?[_], ?], SwaggerTypeable](typAlg[P]).apply(schema)
       }
     }
   }
