@@ -52,7 +52,7 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
   }
 
   test("Serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.toGen)
+    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.gen)
     implicit val encoder = Person.schema.encoder
     val decoder = Person.schema.decoder
     val accDecoder = Person.schema.accumulatingDecoder
@@ -89,7 +89,7 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
   }
 
   test("Flat serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.toGen)
+    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.gen)
     implicit val encoder = Person.flatSchema.encoder
     val decoder = Person.flatSchema.decoder
     check {

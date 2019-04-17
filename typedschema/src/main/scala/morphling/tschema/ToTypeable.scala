@@ -18,7 +18,7 @@ trait ToTypeable[S[_]] {
 
 object ToTypeable {
   implicit class ToGenOps[S[_], A](s: S[A]) {
-    def toTypeable(implicit TT: ToTypeable[S]): SwaggerTypeable[A] = TT.toTypeable(s)
+    def typeable(implicit TT: ToTypeable[S]): SwaggerTypeable[A] = TT.toTypeable(s)
   }
 
   implicit def schemaToTypeable[P[_]: ToTypeable]: ToTypeable[Schema[P, ?]] = new ToTypeable[Schema[P, ?]] {

@@ -21,7 +21,7 @@ class TSchemaSpec extends FunSuite with Matchers with JsonMatchers {
     }
 
   test("Typeable should be generated") {
-    val personTypeableJson = Person.schema.toTypeable.typ.asJson.dropNulls.run
+    val personTypeableJson = Person.schema.typeable.typ.asJson.dropNulls.run
 
     personTypeableJson should matchJsonString(Json.obj(
       "type" := "object",
@@ -68,7 +68,7 @@ class TSchemaSpec extends FunSuite with Matchers with JsonMatchers {
   }
 
   test("Flat typeable should be generated") {
-    val personTypeableJson = Person.flatSchema.toTypeable.typ.asJson.dropNulls.run
+    val personTypeableJson = Person.flatSchema.typeable.typ.asJson.dropNulls.run
 
     personTypeableJson should matchJsonString(Json.obj(
       "type" := "object",

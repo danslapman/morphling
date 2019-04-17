@@ -44,7 +44,7 @@ class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Check
   }
 
   test("Serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.toGen)
+    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.gen)
     check {
       (p: Person) => Person.schema.reader.readOpt(Person.schema.writer.write(p)) == Some(p)
     }
@@ -72,7 +72,7 @@ class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Check
   }
 
   test("Flat serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.toGen)
+    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.gen)
     check {
       (p: Person) => Person.flatSchema.reader.readOpt(Person.flatSchema.writer.write(p)) == Some(p)
     }

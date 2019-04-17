@@ -16,7 +16,7 @@ trait ToGen[S[_]] {
 
 object ToGen {
   implicit class ToGenOps[S[_], A](s: S[A]) {
-    def toGen(implicit TG: ToGen[S]): Gen[A] = TG.toGen(s)
+    def gen(implicit TG: ToGen[S]): Gen[A] = TG.toGen(s)
   }
 
   implicit def schemaToGen[P[_]: ToGen]: ToGen[Schema[P, ?]] = new ToGen[Schema[P, ?]] {
