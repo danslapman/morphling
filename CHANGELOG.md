@@ -1,3 +1,10 @@
+## version 1.0-beta6
+
+> 18.04.2019
+
+- rename `toTypeable` into `typeable`
+- rename `toGen` into `gen` 
+
 ## version 1.0-beta5
 
 > 17.04.2019
