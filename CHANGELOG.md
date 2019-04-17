@@ -1,3 +1,9 @@
+## version 1.0-beta5
+
+> 17.04.2019
+
+Circe module can produce AccumulatedDecoders
+
 ## version 1.0-beta4
 
 > 14.04.2019

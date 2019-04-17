@@ -48,7 +48,8 @@ val `morphling-circe` = (project in file("circe"))
       "org.typelevel" %% "mouse" % "0.20",
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
-      "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
+      "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
+      "com.ironcorelabs" %% "cats-scalatest" % "2.4.0"
     ),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
     addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0-M4")

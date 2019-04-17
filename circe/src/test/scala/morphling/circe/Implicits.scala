@@ -1,7 +1,7 @@
 package morphling.circe
 
 import cats._
-import io.circe.{Decoder, Encoder}
+import io.circe.{AccumulatingDecoder, Decoder, Encoder}
 import morphling.protocol._
 import morphling.protocol.SType.SSchema
 
@@ -40,5 +40,8 @@ object Implicits {
         case SArrayT(elem) => Decoder.decodeVector(elem.decoder)
       }
     }
+
+    val accumulatingDecoder: SSchema ~> AccumulatingDecoder =
+      decoder.andThen(λ[Decoder ~> AccumulatingDecoder](AccumulatingDecoder.fromDecoder(_)))
   }
 }
