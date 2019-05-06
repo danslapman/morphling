@@ -14,6 +14,7 @@ object HFunctor {
   }
 
   type HAlgebra[F[_[_], _], G[_]] = F[G, ?] ~> G
+  type HCoAlgebra[F[_[_], _], G[_]] = G ~> F[G, ?]
 }
 
 /** Fixpoint data type that can preserve a type index through
@@ -31,6 +32,13 @@ object HFix {
     new (HFix[F, ?] ~> G) { self =>
       def apply[I](f: HFix[F, I]): G[I] = {
         alg.apply[I](f.unfix.value.hfmap[G](self))
+      }
+    }
+
+  def anaNT[F[_[_], _]: HFunctor, G[_]](alg: HCoAlgebra[F, G]): G ~> HFix[F, ?] =
+    new (G ~> HFix[F, ?]) { self =>
+      override def apply[I](fa: G[I]): HFix[F, I] = {
+        hfix(alg.apply[I](fa).hfmap(self))
       }
     }
 
