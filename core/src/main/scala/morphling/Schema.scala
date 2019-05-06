@@ -5,7 +5,7 @@ import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free._
 import cats.syntax.list._
-import monocle.{Optional => _, _}
+import monocle.{Optional => MOptional, _}
 import morphling.HFix._
 import morphling.HFunctor._
 
@@ -142,6 +142,20 @@ object Schema {
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], getter: Getter[O, Option[I]]): Prop[P, O, Option[I]] = {
     FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
       Optional[O, Schema[P, ?], I](fieldName, valueSchema, getter)
+    )
+  }
+
+  /** Smart constructor for optional Prop instances.
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param valueSchema schema for the record property's type
+    *  @param optional Optional lens from the record type to the property's value
+    */
+  def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], optional: MOptional[O, I]): Prop[P, O, Option[I]] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
+      Optional[O, Schema[P, ?], I](fieldName, valueSchema, Getter(optional.getOption))
     )
   }
 
