@@ -94,6 +94,8 @@ object FromJson {
 
           case opt: Optional[I, Decoder, i] =>
             Decoder.instance(_.downField(opt.fieldName).as[B](Decoder.decodeOption(opt.base)))
+
+          case Constant(_, value, _) => Decoder.const(value)
         }
       }
     )
@@ -162,6 +164,9 @@ object FromJson {
             AccumulatingDecoder.instance { hc =>
               hc.downField(opt.fieldName).acc(AccumulatingDecoder.decodeOption(opt.base)).orElse(Validated.valid(None))
             }
+
+          case Constant(_, value, _) =>
+            AccumulatingDecoder.fromDecoder(Decoder.const(value))
         }
       }
     )

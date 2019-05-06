@@ -38,8 +38,8 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
     val decoder = Person.schema.decoder
     val accDecoder = Person.schema.accumulatingDecoder
 
-    decoder.decodeJson(person.asJson).right.value shouldBe person
-    accDecoder.apply(person.asJson.hcursor).value shouldBe person
+    decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
+    accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
   test("A default value should be applied during deserialization") {
@@ -47,8 +47,8 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
     val decoder = Person.schema.decoder
     val accDecoder = Person.schema.accumulatingDecoder
 
-    decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).right.value shouldBe person.copy(updateCounter = 0)
-    accDecoder.apply(person.asJson.mapObject(_.filterKeys(_ != "updateCounter")).hcursor).value shouldBe person.copy(updateCounter = 0)
+    decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).right.value shouldBe person.copy(updateCounter = 0, stamp = 101)
+    accDecoder.apply(person.asJson.mapObject(_.filterKeys(_ != "updateCounter")).hcursor).value shouldBe person.copy(updateCounter = 0, stamp = 101)
   }
 
   test("Serialization should round-trip values produced by a generator"){
@@ -85,7 +85,7 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
     implicit val encoder = Person.flatSchema.encoder
     val decoder = Person.flatSchema.decoder
 
-    decoder.decodeJson(person.asJson).right.value shouldBe person
+    decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
   }
 
   test("Flat serialization should round-trip values produced by a generator"){

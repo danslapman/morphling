@@ -4,7 +4,7 @@ import cats._
 import cats.data.{EitherK, State}
 import cats.data.State._
 import cats.free._
-import morphling.{Alt, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
+import morphling.{Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import morphling.HFunctor._
 import morphling.Schema._
 import mouse.option._
@@ -79,6 +79,8 @@ object ToBson {
 
                   case opt: Optional[I, BSONWriter[?, BSONValue], i] =>
                     opt.getter.get(value).cata(v => (opt.fieldName, opt.base.write(v)) ~: doc, doc)
+
+                  case const: Constant[I, BSONWriter[?, BSONValue], i] => doc
                 }
               }
             } yield ps.getter.get(value)

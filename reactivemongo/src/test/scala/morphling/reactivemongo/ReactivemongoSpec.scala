@@ -35,12 +35,12 @@ class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Check
 
   test("A value should be deserialised from BSON"){
     val result = Person.schema.writer.write(person)
-    Person.schema.reader.readTry(result) shouldBe Success(person)
+    Person.schema.reader.readTry(result) shouldBe Success(person.copy(stamp = 101))
   }
 
   test("A default value should be applied during deserialization") {
     val result = Person.schema.writer.write(person).asInstanceOf[BSONDocument]
-    Person.schema.reader.readTry(result -- "updateCounter") shouldBe Success(person.copy(updateCounter = 0))
+    Person.schema.reader.readTry(result -- "updateCounter") shouldBe Success(person.copy(updateCounter = 0, stamp = 101))
   }
 
   test("Serialization should round-trip values produced by a generator"){
@@ -68,7 +68,7 @@ class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Check
 
   test("A value should be deserialised from BSON flat"){
     val result = Person.flatSchema.writer.write(person)
-    Person.flatSchema.reader.readTry(result) shouldBe Success(person)
+    Person.flatSchema.reader.readTry(result) shouldBe Success(person.copy(stamp = 101))
   }
 
   test("Flat serialization should round-trip values produced by a generator"){

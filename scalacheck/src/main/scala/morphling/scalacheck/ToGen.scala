@@ -57,6 +57,7 @@ object ToGen {
         def apply[B](ps: PropSchema[I, Gen, B]): Gen[B] = ps match {
           case Required(_, base, _, _) => base
           case opt: Optional[I, Gen, i] => Gen.option(opt.base)
+          case Constant(_, value, _) => Gen.const(value)
         }
       }
     )

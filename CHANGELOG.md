@@ -1,3 +1,9 @@
+## version 1.0-beta7
+
+> 06.05.2019
+
+First-class support for constant fields in schemas
+
 ## version 1.0-beta6
 
 > 18.04.2019

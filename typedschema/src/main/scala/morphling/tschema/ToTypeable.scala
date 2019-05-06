@@ -98,6 +98,8 @@ object ToTypeable {
               case opt: Optional[I, SwaggerTypeable, i] =>
                 val optionalField = SwaggerProperty(opt.fieldName, None, Eval.now(opt.base.typ))
                 Const.of(SwaggerObject(Vector(optionalField)))
+              case const: Constant[I, SwaggerTypeable, i] =>
+                Const.of(SwaggerObject.withProps())
             }
           }
         }

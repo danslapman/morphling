@@ -13,7 +13,8 @@ case class Person(
   name: String,
   birthDate: Instant,
   roles: Vector[Role],
-  updateCounter: Int
+  updateCounter: Int,
+  stamp: Int
 )
 
 object Person {
@@ -21,6 +22,7 @@ object Person {
   val birthDate = GenLens[Person](_.birthDate)
   val roles = GenLens[Person](_.roles)
   val updateCounter = GenLens[Person](_.updateCounter)
+  val stamp = GenLens[Person](_.stamp)
 
   val schema: Schema[SSchema, Person] = rec(
     (
@@ -30,7 +32,8 @@ object Person {
         Person.birthDate.asGetter
       ),
       required("roles", sArray(Role.schema), Person.roles.asGetter),
-      property("updateCounter", sInt, 0, Person.updateCounter.asGetter)
+      property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
+      constant[SSchema, Person, Int]("stamp", 101, Person.stamp.asGetter)
     ).mapN(Person.apply)
   )
 
@@ -42,7 +45,8 @@ object Person {
         Person.birthDate.asGetter
       ),
       required("roles", sArray(Role.flatSchema), Person.roles.asGetter),
-      property("updateCounter", sInt, 0, Person.updateCounter.asGetter)
+      property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
+      constant[SSchema, Person, Int]("stamp", 101, Person.stamp.asGetter)
     ).mapN(Person.apply)
   )
 }

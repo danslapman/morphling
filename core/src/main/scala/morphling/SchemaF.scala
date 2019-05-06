@@ -238,13 +238,28 @@ final case class Required[O, F[_], I](
   * @param base Schema for the property's value type.
   * @param getter Getter lens from the record type to the property.
   */
-final case class  Optional[O, F[_], I](
+final case class Optional[O, F[_], I](
   fieldName: String,
   base: F[I],
   getter: Getter[O, Option[I]]
 ) extends PropSchema[O, F, Option[I]] {
   def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, Option[I]] =
     Optional(fieldName, nt(base), getter)
+}
+
+/**
+  * Class describing a constant (non-serializable) property of a record.
+  * @param fieldName The name of the property.
+  * @param value The value of the property.
+  * @param getter Getter lens from the record type to the property.
+  */
+final case class Constant[O, F[_], I](
+  fieldName: String,
+  value: I,
+  getter: Getter[O, I]
+) extends PropSchema[O, F, I] {
+  override def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, I] =
+    this.asInstanceOf[PropSchema[O, G, I]]
 }
 
 object PropSchema {
@@ -262,6 +277,7 @@ object PropSchema {
         pso match {
           case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)
           case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, Getter(f).composeGetter(opt.getter))
+          case Constant(fn, v, g) => Constant(fn, v, Getter(f).composeGetter(g))
         }
       }
   }

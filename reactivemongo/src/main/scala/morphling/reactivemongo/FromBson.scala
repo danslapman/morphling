@@ -5,7 +5,7 @@ import cats.data.EitherK
 import cats.free._
 import morphling.HFunctor.HAlgebra
 import morphling.Schema.Schema
-import morphling.{Alt, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
+import morphling.{Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import mouse.option._
 import ops._
@@ -100,6 +100,9 @@ object FromBson {
             BSONReader[BSONDocument, B](doc =>
               doc.getAs[i](opt.fieldName)(opt.base)
             ).widenReader
+
+          case Constant(_, value, _) =>
+            BSONReader[BSONValue, B](_ => value)
         }
       }
     )

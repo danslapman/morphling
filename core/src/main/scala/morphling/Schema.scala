@@ -145,6 +145,21 @@ object Schema {
     )
   }
 
+  /**
+    * Smart constructor for constant Prop instances.
+    * @param fieldName name of the record property
+    * @param value value of the record property
+    * @param getter Getter lens from the record type to the property's value
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    */
+  def constant[P[_], O, I](fieldName: String, value: I, getter: Getter[O, I]): Prop[P, O, I] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+      Constant(fieldName, value, getter)
+    )
+  }
+
   /** The unannotated empty record schema, representing a constant value.
     *
     *  @tparam P $PDefn
