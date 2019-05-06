@@ -1,6 +1,6 @@
 # morphling [ ![Download](https://api.bintray.com/packages/danslapman/maven/morphling/images/download.svg) ](https://bintray.com/danslapman/maven/morphling/_latestVersion)
 Cats-based Scala library for free applicative schemas. Core module of morphling
-is a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
+initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
 # Setting up protocol
 First of all, You need to define a set of "scalar" types You like to support.
