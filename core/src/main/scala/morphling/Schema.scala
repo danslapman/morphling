@@ -4,16 +4,11 @@ import cats._
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free._
-import cats.syntax.list._
 import monocle.{Optional => MOptional, _}
 import morphling.HFix._
 import morphling.HFunctor._
 
 import shapeless.{Prism => _, _}
-import shapeless.ops.hlist.{Align, Comapped, ToTraversable}
-import shapeless.ops.coproduct.ToHList
-
-import scala.annotation.implicitNotFound
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -273,27 +268,6 @@ object Schema {
   implicit class SchemaOps[P[_], I](base: Schema[P, I]) {
     def composeIso[J](iso: Iso[I, J]): Schema[P, J] = {
       schema(IsoSchema[P, Schema[P, ?], I, J](base, iso))
-    }
-  }
-}
-
-/** Implicit proof type
-  *
-  */
-@implicitNotFound(msg = "Cannot prove the completeness of your oneOf definition; you may have not provided an alternative for each constructor of your sum type ${I}")
-sealed trait Constructors[I, F[_], H <: HList] {
-  def toNel(h: H): NonEmptyList[F[_]]
-}
-
-object Constructors {
-  implicit def evidence[I, F[_], C <: Coproduct, H0 <: HList, H1 <: HList, H <: HList](implicit
-    G: Generic.Aux[I, C],
-    L: ToHList.Aux[C, H1],
-    M: Comapped.Aux[H, F, H0],
-    A: Align[H0, H1],
-    T: ToTraversable.Aux[H, List, F[_]]): Constructors[I, F, H] = new Constructors[I, F, H] {
-    def toNel(h: H): NonEmptyList[F[_]] = {
-      h.toList.toNel.get
     }
   }
 }
