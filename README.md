@@ -60,9 +60,11 @@ import SType._ //Defined above
 case @Lenses class Server(host: String, port: Int)
 object Server {
   val serverSchema: Schema[SSchema, Server] = rec(
-    required("host", sStr, Server.host.asGetter),
-    required("port", sInt, Server.port.asGetter)
-  ).mapN(Server.apply)
+    (
+      required("host", sStr, Server.host.asGetter),
+      required("port", sInt, Server.port.asGetter)
+    ).mapN(Server.apply)
+  )
 }
 ```
 
