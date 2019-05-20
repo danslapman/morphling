@@ -51,10 +51,23 @@ object HFix {
   /**
     * Algebra to discard the annotations from an HCofree structure.
     */
-  def forget[F[_[_], _], A]: HEnvT[A, F, HFix[F, *], *] ~> HFix[F, *] =
+  def forgetAlg[F[_[_], _], A]: HEnvT[A, F, HFix[F, *], *] ~> HFix[F, *] =
     new HAlgebra[HEnvT[A, F, *[_], *], HFix[F, *]] {
       def apply[I](env: HEnvT[A, F, HFix[F, *], I]): HFix[F, I] = hfix(env.fa)
     }
+
+  def forget[F[_[_], _]: HFunctor, A]: HCofree[F, A, ?] ~> HFix[F, ?] = cataNT(forgetAlg)
+
+  /**
+    * Algebra to annotate the whole HCofree with a same annotation
+    */
+  def annotateAlg[F[_[_], _], A](ann: A): HFix[F, *] ~> HEnvT[A, F, HFix[F, *], *] =
+    new HCoAlgebra[HEnvT[A, F, *[_], *], HFix[F, *]] {
+      override def apply[T](fa: HFix[F, T]): HEnvT[A, F, HFix[F, *], T] =
+        HEnvT[A, F, HFix[F, *], T](ann, fa.unfix.value)
+    }
+
+  def annotate[F[_[_], _]: HFunctor, A](ann: A): HFix[F, *] ~> HCofree[F, A, *] = anaNT(annotateAlg(ann))
 
   /** Functor over the annotation type of an HCofree value */
   implicit def functor[F[_[_], _], I](implicit HF: HFunctor[F]): Functor[HCofree[F, *, I]] =
