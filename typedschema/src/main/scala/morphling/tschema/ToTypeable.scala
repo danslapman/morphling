@@ -4,11 +4,12 @@ import cats._
 import cats.free._
 import cats.data.Const
 import cats.data.Const._
+import cats.syntax.option._
 import morphling.HFunctor._
 import morphling._
 import morphling.Schema.Schema
 import mouse.option._
-import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerTypeable}
+import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerStringValue, SwaggerTypeable}
 import simulacrum.typeclass
 
 @typeclass
@@ -38,12 +39,14 @@ object ToTypeable {
             SwaggerOneOf(
               s.discriminator.cata(
                 dField => {
-                  val discriminatorProp = SwaggerProperty(dField, None, Eval.now(SwaggerPrimitive.string))
+                  def discriminatorProp(id: String) =
+                    SwaggerProperty(dField, None, Eval.now(SwaggerPrimitive.string.mod(SwaggerStringValue.pattern.set(id.some))))
+
                   s.alts.map {
-                    case Alt(field, b, p) =>
+                    case Alt(id, b, p) =>
                       Option.empty[String] -> Eval.now(b.typ match {
                         case SwaggerObject(properties, required) =>
-                          SwaggerObject(properties :+ discriminatorProp, required.map(_ :+ dField))
+                          SwaggerObject(properties :+ discriminatorProp(id), required.map(_ :+ dField))
                         case other => other
                       })
                     }.toList.toVector
