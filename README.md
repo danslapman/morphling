@@ -104,5 +104,5 @@ implicit val primToJson: ToJson[SSchema] = new ToJson[SSchema] { self =>
 With such a transformation defined we can derive an `Encoder` for `Server`:
 
 ```scala
-val encoder = Person.schema.encoder
+val encoder = Server.schema.encoder
 ```
