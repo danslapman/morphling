@@ -1,3 +1,9 @@
+## version 1.0-beta8
+
+> 27.05.2019
+
+Display discriminator values in swagger as patterns
+
 ## version 1.0-beta7
 
 > 06.05.2019
