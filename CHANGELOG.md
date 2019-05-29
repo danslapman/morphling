@@ -1,3 +1,10 @@
+## version 1.0-beta9
+
+> 29.05.2019
+
+- upgrade `typed-schema`
+- upgrade `kind-projector`
+
 ## version 1.0-beta8
 
 > 27.05.2019
