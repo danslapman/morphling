@@ -33,7 +33,7 @@ object Person {
       ),
       required("roles", sArray(Role.schema), Person.roles.asGetter),
       property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
-      constant[SSchema, Person, Int]("stamp", 101, Person.stamp.asGetter)
+      constant[SSchema]("stamp", 101, Person.stamp.asGetter)
     ).mapN(Person.apply)
   )
 
@@ -46,7 +46,7 @@ object Person {
       ),
       required("roles", sArray(Role.flatSchema), Person.roles.asGetter),
       property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
-      constant[SSchema, Person, Int]("stamp", 101, Person.stamp.asGetter)
+      constant[SSchema]("stamp", 101, Person.stamp.asGetter)
     ).mapN(Person.apply)
   )
 }

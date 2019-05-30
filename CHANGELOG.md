@@ -1,3 +1,9 @@
+## version 1.0-beta10
+
+> 30.05.2019
+
+Improve `constant` field constructor
+
 ## version 1.0-beta9
 
 > 29.05.2019
