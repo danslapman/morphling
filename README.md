@@ -2,6 +2,16 @@
 Cats-based Scala library for free applicative schemas. Core module of morphling
 initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
+# Getting started
+
+All You need is ~~love~~:
+
+```
+    resolvers += Resolver.bintrayRepo("danslapman", "maven")
+
+    libraryDependencies += "danslapman" %% "morphling" % "1.0-beta11"
+```
+
 # Setting up protocol
 First of all, You need to define a set of "scalar" types You like to support.
 They can be `Int`s, `BigInt`s, `Instant`s, any type You mean to treat as scalar, actually.
