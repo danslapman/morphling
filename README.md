@@ -61,8 +61,8 @@ case @Lenses class Server(host: String, port: Int)
 object Server {
   val serverSchema: Schema[SSchema, Server] = rec(
     (
-      required("host", sStr, Server.host.asGetter),
-      required("port", sInt, Server.port.asGetter)
+      required("host", sStr, Server.host),
+      required("port", sInt, Server.port)
     ).mapN(Server.apply)
   )
 }

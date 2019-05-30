@@ -20,8 +20,8 @@ object Role {
       "administrator",
       rec(
         (
-          required("department", sStr, Administrator.department.asGetter),
-          required("subordinateCount", sInt, Administrator.subordinateCount.asGetter)
+          required("department", sStr, Administrator.department),
+          required("subordinateCount", sInt, Administrator.subordinateCount)
         ).mapN(Administrator.apply)
       ),
       Administrator.prism
@@ -38,8 +38,8 @@ object Role {
         "administrator",
         rec(
           (
-            required("department", sStr, Administrator.department.asGetter),
-            required("subordinateCount", sInt, Administrator.subordinateCount.asGetter)
+            required("department", sStr, Administrator.department),
+            required("subordinateCount", sInt, Administrator.subordinateCount)
           ).mapN(Administrator.apply)
         ),
         Administrator.prism

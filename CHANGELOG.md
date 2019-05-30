@@ -1,3 +1,9 @@
+## version 1.0-beta11
+
+> 30.05.2019
+
+PropSchema construction methods now accept `Lens`
+
 ## version 1.0-beta10
 
 > 30.05.2019

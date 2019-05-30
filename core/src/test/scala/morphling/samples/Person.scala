@@ -26,27 +26,27 @@ object Person {
 
   val schema: Schema[SSchema, Person] = rec(
     (
-      required("name", sStr, Person.name.asGetter),
+      required("name", sStr, Person.name),
       required(
         "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
-        Person.birthDate.asGetter
+        Person.birthDate
       ),
-      required("roles", sArray(Role.schema), Person.roles.asGetter),
-      property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
-      constant[SSchema]("stamp", 101, Person.stamp.asGetter)
+      required("roles", sArray(Role.schema), Person.roles),
+      property("updateCounter", sInt, 0, Person.updateCounter),
+      constant[SSchema]("stamp", 101, Person.stamp)
     ).mapN(Person.apply)
   )
 
   val flatSchema: Schema[SSchema, Person] = rec(
     (
-      required("name", sStr, Person.name.asGetter),
+      required("name", sStr, Person.name),
       required(
         "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
-        Person.birthDate.asGetter
+        Person.birthDate
       ),
-      required("roles", sArray(Role.flatSchema), Person.roles.asGetter),
-      property("updateCounter", sInt, 0, Person.updateCounter.asGetter),
-      constant[SSchema]("stamp", 101, Person.stamp.asGetter)
+      required("roles", sArray(Role.flatSchema), Person.roles),
+      property("updateCounter", sInt, 0, Person.updateCounter),
+      constant[SSchema]("stamp", 101, Person.stamp)
     ).mapN(Person.apply)
   )
 }

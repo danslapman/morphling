@@ -8,7 +8,7 @@ import monocle.{Optional => MOptional, _}
 import morphling.HFix._
 import morphling.HFunctor._
 
-import shapeless.{Prism => _, _}
+import shapeless.{Prism => _, Lens => _, _}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -107,6 +107,21 @@ object Schema {
     )
   }
 
+  /** Smart constructor for required Prop instances.
+    *
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param valueSchema schema for the record property's type
+    *  @param lens Lens from the record type to the property's value
+    */
+  def required[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], lens: Lens[O, I]): Prop[P, O, I] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+      Required[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter, None)
+    )
+  }
+
   /** Smart constructor for required Prop instances, with a default
     *  provided for the case where a serialized form is missing the
     *  required field.
@@ -126,6 +141,25 @@ object Schema {
     )
   }
 
+  /** Smart constructor for required Prop instances, with a default
+    *  provided for the case where a serialized form is missing the
+    *  required field.
+    *
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName Name of the record property
+    *  @param valueSchema Schema for the record property's type
+    *  @param default Default value for use in the case that a serialized form
+    *         is missing the required field.
+    *  @param lens Lens from the record type to the property's value
+    */
+  def property[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], default: I, lens: Lens[O, I]): Prop[P, O, I] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+      Required[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter, Some(default))
+    )
+  }
+
   /** Smart constructor for optional Prop instances.
     *  @tparam P $PDefn
     *  @tparam O $ODefn
@@ -137,6 +171,20 @@ object Schema {
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], getter: Getter[O, Option[I]]): Prop[P, O, Option[I]] = {
     FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
       Optional[O, Schema[P, ?], I](fieldName, valueSchema, getter)
+    )
+  }
+
+  /** Smart constructor for optional Prop instances.
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param valueSchema schema for the record property's type
+    *  @param lens Lens from the record type to the property's value
+    */
+  def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], lens: Lens[O, Option[I]]): Prop[P, O, Option[I]] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
+      Optional[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter)
     )
   }
 
@@ -167,6 +215,11 @@ object Schema {
     def apply[O, I](fieldName: String, value: I, getter: Getter[O, I]): Prop[P, O, I] =
       FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
         Constant(fieldName, value, getter)
+      )
+
+    def apply[O, I](fieldName: String, value: I, lens: Lens[O, I]): Prop[P, O, I] =
+      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+        Constant(fieldName, value, lens.asGetter)
       )
   }
 
