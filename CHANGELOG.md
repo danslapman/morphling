@@ -1,3 +1,9 @@
+## version 1.0-beta12
+
+> 31.05.2019
+
+Introduce `unsafeOneOfDiscr`
+
 ## version 1.0-beta11
 
 > 30.05.2019

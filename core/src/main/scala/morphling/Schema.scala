@@ -288,6 +288,9 @@ object Schema {
   def unsafeOneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, ?], I, _]]): Schema[P, I] =
     schema(OneOfSchema[P, Schema[P, ?], I](alts))
 
+  def unsafeOneOfDiscr[P[_], I](discriminatorField: String)(alts: NonEmptyList[Alt[Schema[P, ?], I, _]]): Schema[P, I] =
+    schema(OneOfSchema[P, Schema[P, ?], I](alts, Some(discriminatorField)))
+
   /** Convenience constructor for oneOf schema alternatives.
     *
     *  @tparam P $PDefn
