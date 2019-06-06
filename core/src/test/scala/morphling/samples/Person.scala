@@ -14,7 +14,8 @@ case class Person(
   birthDate: Instant,
   roles: Vector[Role],
   updateCounter: Int,
-  stamp: Int
+  stamp: Int,
+  ignored: Option[Any]
 )
 
 object Person {
@@ -23,17 +24,21 @@ object Person {
   val roles = GenLens[Person](_.roles)
   val updateCounter = GenLens[Person](_.updateCounter)
   val stamp = GenLens[Person](_.stamp)
+  val ignored = GenLens[Person](_.ignored)
+
+  private val instantIso = Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)
 
   val schema: Schema[SSchema, Person] = rec(
     (
       required("name", sStr, Person.name),
       required(
-        "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
+        "birthDate", sLong.composeIso(instantIso),
         Person.birthDate
       ),
       required("roles", sArray(Role.schema), Person.roles),
       property("updateCounter", sInt, 0, Person.updateCounter),
-      constant[SSchema]("stamp", 101, Person.stamp)
+      constant[SSchema]("stamp", 101, Person.stamp),
+      absent[SSchema]("ignored", Person.ignored)
     ).mapN(Person.apply)
   )
 
@@ -41,12 +46,13 @@ object Person {
     (
       required("name", sStr, Person.name),
       required(
-        "birthDate", sLong.composeIso(Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)),
+        "birthDate", sLong.composeIso(instantIso),
         Person.birthDate
       ),
       required("roles", sArray(Role.flatSchema), Person.roles),
       property("updateCounter", sInt, 0, Person.updateCounter),
-      constant[SSchema]("stamp", 101, Person.stamp)
+      constant[SSchema]("stamp", 101, Person.stamp),
+      absent[SSchema]("ignored", Person.ignored)
     ).mapN(Person.apply)
   )
 }
