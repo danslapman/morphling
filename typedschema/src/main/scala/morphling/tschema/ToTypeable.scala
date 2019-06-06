@@ -103,6 +103,8 @@ object ToTypeable {
                 Const.of(SwaggerObject(Vector(optionalField)))
               case const: Constant[I, SwaggerTypeable, i] =>
                 Const.of(SwaggerObject.withProps())
+              case abs: Absent[I, SwaggerTypeable, i] =>
+                Const.of(SwaggerObject())
             }
           }
         }

@@ -5,6 +5,7 @@ import cats.data.{EitherK, NonEmptyList, Validated}
 import cats.free._
 import cats.syntax.applicative._
 import cats.syntax.either._
+import cats.syntax.validated._
 import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCursor}
 import morphling._
 import morphling.HFunctor._
@@ -96,6 +97,9 @@ object FromJson {
             Decoder.instance(_.downField(opt.fieldName).as[B](Decoder.decodeOption(opt.base)))
 
           case Constant(_, value, _) => Decoder.const(value)
+
+          case abs: Absent[I, Decoder, i] =>
+            Decoder.instance(_ => Option.empty[i].asRight[DecodingFailure])
         }
       }
     )
@@ -167,6 +171,9 @@ object FromJson {
 
           case Constant(_, value, _) =>
             AccumulatingDecoder.fromDecoder(Decoder.const(value))
+
+          case abs: Absent[I, AccumulatingDecoder, i] =>
+            AccumulatingDecoder.instance(_ => Option.empty[i].validNel[DecodingFailure])
         }
       }
     )

@@ -1,3 +1,9 @@
+## version 1.0-beta13
+
+> 06.06.2019
+
+Introduce `absent` for representing properties that are always absent
+
 ## version 1.0-beta12
 
 > 31.05.2019

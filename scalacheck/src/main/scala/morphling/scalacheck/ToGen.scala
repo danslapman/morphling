@@ -58,6 +58,7 @@ object ToGen {
           case Required(_, base, _, _) => base
           case opt: Optional[I, Gen, i] => Gen.option(opt.base)
           case Constant(_, value, _) => Gen.const(value)
+          case abs: Absent[I, Gen, i] => Gen.const(Option.empty[i])
         }
       }
     )

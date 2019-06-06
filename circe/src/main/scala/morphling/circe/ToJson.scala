@@ -73,6 +73,8 @@ object ToJson {
                     opt.getter.get(value).cata(v => (opt.fieldName, opt.base(v)) +: obj, obj)
 
                   case Constant(_, _, _) => obj
+
+                  case Absent(_, _) => obj
                 }
               }
             } yield ps.getter.get(value)

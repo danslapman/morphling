@@ -202,6 +202,45 @@ object Schema {
     )
   }
 
+  /** Smart constructor for absent Prop instances.
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param getter Getter lens from the record type to the property's value
+    */
+  def absent[P[_], O, I](fieldName: String, getter: Getter[O, Option[I]]): Prop[P, O, Option[I]] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
+      Absent[O, Schema[P, ?], I](fieldName, getter)
+    )
+  }
+
+  /** Smart constructor for absent Prop instances.
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param lens Lens from the record type to the property's value
+    */
+  def absent[P[_], O, I](fieldName: String, lens: Lens[O, Option[I]]): Prop[P, O, Option[I]] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
+      Absent[O, Schema[P, ?], I](fieldName, lens.asGetter)
+    )
+  }
+
+  /** Smart constructor for absent Prop instances.
+    *  @tparam P $PDefn
+    *  @tparam O $ODefn
+    *  @tparam I $IDefn
+    *  @param fieldName name of the record property
+    *  @param optional Optional lens from the record type to the property's value
+    */
+  def absent[P[_], O, I](fieldName: String, optional: MOptional[O, I]): Prop[P, O, Option[I]] = {
+    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
+      Absent[O, Schema[P, ?], I](fieldName, Getter(optional.getOption))
+    )
+  }
+
   /**
     * Smart constructor for constant Prop instances.
     *  @tparam P $PDefn

@@ -247,6 +247,19 @@ final case class Optional[O, F[_], I](
     Optional(fieldName, nt(base), getter)
 }
 
+/** Class describing an optional property of a record that is always absent.
+  *
+  * @param fieldName The name of the property.
+  * @param getter Getter lens from the record type to the property.
+  */
+final case class Absent[O, F[_], I](
+  fieldName: String,
+  getter: Getter[O, Option[I]]
+) extends PropSchema[O, F, Option[I]] {
+  def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, Option[I]] =
+    Absent(fieldName, getter)
+}
+
 /**
   * Class describing a constant (non-serializable) property of a record.
   * @param fieldName The name of the property.
@@ -278,6 +291,7 @@ object PropSchema {
           case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)
           case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, Getter(f).composeGetter(opt.getter))
           case Constant(fn, v, g) => Constant(fn, v, Getter(f).composeGetter(g))
+          case abs: Absent[O, F, i] => Absent(abs.fieldName, Getter(f).composeGetter(abs.getter))
         }
       }
   }

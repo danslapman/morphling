@@ -5,7 +5,7 @@ import cats.data.EitherK
 import cats.free._
 import morphling.HFunctor.HAlgebra
 import morphling.Schema.Schema
-import morphling.{Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
+import morphling.{Absent, Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import mouse.option._
 import ops._
@@ -103,6 +103,9 @@ object FromBson {
 
           case Constant(_, value, _) =>
             BSONReader[BSONValue, B](_ => value)
+
+          case abs: Absent[I, BSONReader[BSONValue, ?], i] =>
+            BSONReader(_ => Option.empty[i])
         }
       }
     )
