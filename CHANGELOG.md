@@ -1,3 +1,9 @@
+## version 1.0-beta14
+
+> 30.05.2019
+
+Improve `absent` field constructor
+
 ## version 1.0-beta13
 
 > 06.06.2019
