@@ -2,29 +2,28 @@ package morphling.protocol.annotated
 
 import morphling.HMutu
 import morphling.annotated.Schema.{Schema, prim}
-import morphling.samples.annotated.{NoRestr, Restriction}
 import morphling.protocol._
 
 object SType {
-  type SSchema[I] = HMutu[SType, Schema[?[_], Restriction, ?], I]
+  type SSchema[A, I] = HMutu[SType, Schema[?[_], A, ?], I]
 
-  def sNull(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Unit] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Unit](SNullT()), ann)
-  def sBool(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Boolean] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Boolean](SBoolT()), ann)
-  def sInt(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Int] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Int](SIntT()), ann)
-  def sLong(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Long] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Long](SLongT()), ann)
-  def sFloat(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Float] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Float](SFloatT()), ann)
-  def sDouble(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Double] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Double](SDoubleT()), ann)
-  def sChar(ann: Restriction = NoRestr): Schema[SSchema, Restriction, Char] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Char](SCharT()), ann)
-  def sStr(ann: Restriction = NoRestr): Schema[SSchema, Restriction, String] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], String](SStrT()), ann)
+  def sNull[A](ann: A): Schema[SSchema[A, ?], A, Unit] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Unit](SNullT()), ann)
+  def sBool[A](ann: A): Schema[SSchema[A, ?], A, Boolean] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Boolean](SBoolT()), ann)
+  def sInt[A](ann: A): Schema[SSchema[A, ?], A, Int] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Int](SIntT()), ann)
+  def sLong[A](ann: A): Schema[SSchema[A, ?], A, Long] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Long](SLongT()), ann)
+  def sFloat[A](ann: A): Schema[SSchema[A, ?], A, Float] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Float](SFloatT()), ann)
+  def sDouble[A](ann: A): Schema[SSchema[A, ?], A, Double] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Double](SDoubleT()), ann)
+  def sChar[A](ann: A): Schema[SSchema[A, ?], A, Char] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Char](SCharT()), ann)
+  def sStr[A](ann: A): Schema[SSchema[A, ?], A, String] =
+    prim(HMutu[SType, Schema[?[_], A, ?], String](SStrT()), ann)
 
-  def sArray[I](elem: Schema[SSchema, Restriction, I]): Schema[SSchema, Restriction, Vector[I]] =
-    prim(HMutu[SType, Schema[?[_], Restriction, ?], Vector[I]](SArrayT(elem)), NoRestr)
+  def sArray[I, A](elem: Schema[SSchema[A, ?], A, I], ann: A): Schema[SSchema[A, ?], A, Vector[I]] =
+    prim(HMutu[SType, Schema[?[_], A, ?], Vector[I]](SArrayT(elem)), ann)
 }

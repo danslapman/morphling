@@ -10,11 +10,11 @@ object Server {
   val host = GenLens[Server](_.host)
   val port = GenLens[Server](_.port)
 
-  val schema: Schema[SSchema, Restriction, Server] = rec(
+  val schema: Schema[SSchema[Restriction, ?], Restriction, Server] = rec(
     (
-      required("host", sStr(), host.asGetter),
-      required("port", sInt(Range(1, 65535)), port.asGetter)
+      required("host", sStr(NoRestr.asInstanceOf[Restriction]), host.asGetter),
+      required("port", sInt(Range(1, 65535).asInstanceOf[Restriction]), port.asGetter)
     ).mapN(Server.apply),
-    NoRestr
+    NoRestr.asInstanceOf[Restriction]
   )
 }
