@@ -1,4 +1,4 @@
-package morphling.annotated
+package morphling.samples.annotated
 
 sealed trait Restriction
 case object NoRestr extends Restriction
