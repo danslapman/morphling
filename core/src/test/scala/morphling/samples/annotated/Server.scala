@@ -2,7 +2,7 @@ package morphling.samples.annotated
 
 import cats.syntax.apply._
 import monocle.macros.GenLens
-import Schema._
+import morphling.annotated.Schema._
 import morphling.protocol.annotated.SType._
 
 case class Server(host: String, port: Int)

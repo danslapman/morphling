@@ -1,4 +1,4 @@
-package morphling.samples.annotated
+package morphling.annotated
 
 import cats._
 import cats.arrow.Profunctor

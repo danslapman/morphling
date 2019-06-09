@@ -1,7 +1,7 @@
 package morphling.protocol.annotated
 
 import morphling.HMutu
-import morphling.samples.annotated.Schema.{Schema, prim}
+import morphling.annotated.Schema.{Schema, prim}
 import morphling.samples.annotated.{NoRestr, Restriction}
 import morphling.protocol._
 
