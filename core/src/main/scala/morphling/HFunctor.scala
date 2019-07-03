@@ -86,7 +86,9 @@ object HFix {
     }
 }
 
-final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I])
+final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I]) {
+  type Inner[T] = G[HMutu[F, G, *], T]
+}
 
 final case class HEnvT[E, F[_[_], _], G[_], I](ask: E, fa: F[G, I])
 

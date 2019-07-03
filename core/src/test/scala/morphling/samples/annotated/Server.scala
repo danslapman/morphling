@@ -1,6 +1,7 @@
 package morphling.samples.annotated
 
 import cats.syntax.apply._
+import cats.~>
 import monocle.macros.GenLens
 import morphling.{HFix, HFunctor, SchemaF}
 import morphling.HEnvT._
@@ -23,9 +24,4 @@ object Server {
     ).mapN(Server.apply),
     NoRestr: Restriction
   )
-
-  val unSchema = //: HFix[SchemaF[PSSchema, ?[_], ?], Server] = //: PlainSchema[PSSchema, Server] =
-    HFix.forget[SchemaF[ASchema[Restriction, ?], ?[_], ?], Restriction]
-      .apply(schema)
-
 }

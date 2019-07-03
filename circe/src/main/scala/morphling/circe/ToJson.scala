@@ -7,6 +7,7 @@ import cats.free._
 import io.circe.{Encoder, Json, JsonObject}
 import io.circe.syntax._
 import morphling._
+import morphling.annotated.Schema.{Schema => ASchema}
 import morphling.HFunctor._
 import morphling.Schema._
 import mouse.option._
@@ -26,6 +27,16 @@ object ToJson {
     val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(schema)
+      }
+    }
+  }
+
+  implicit def annSchemaToJson[P[_]: ToJson, A]: ToJson[ASchema[P, A, *]] = new ToJson[ASchema[P, A, *]] {
+    val encoder: ASchema[P, A, *] ~> Encoder = new (ASchema[P, A, *] ~> Encoder) {
+      override def apply[I](schema: ASchema[P, A, I]): Encoder[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
       }
     }
   }
