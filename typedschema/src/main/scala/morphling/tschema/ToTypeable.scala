@@ -2,7 +2,7 @@ package morphling.tschema
 
 import cats._
 import cats.free._
-import cats.data.Const
+import cats.data.{Const, EitherK}
 import cats.data.Const._
 import cats.syntax.option._
 import morphling.HFunctor._
@@ -18,7 +18,7 @@ trait ToTypeable[S[_]] {
 }
 
 object ToTypeable {
-  implicit class ToGenOps[S[_], A](s: S[A]) {
+  implicit class ToTypeableOps[S[_], A](s: S[A]) {
     def typeable(implicit TT: ToTypeable[S]): SwaggerTypeable[A] = TT.toTypeable(s)
   }
 
@@ -110,5 +110,14 @@ object ToTypeable {
         }
       ).getConst
     )
+  }
+
+  implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, ?]] = new ToTypeable[EitherK[P, Q, ?]] {
+    override def toTypeable: EitherK[P, Q, ?] ~> SwaggerTypeable = new (EitherK[P, Q, ?] ~> SwaggerTypeable) {
+      override def apply[A](fa: EitherK[P, Q, A]): SwaggerTypeable[A] = fa.run.fold(
+        ToTypeable[P].toTypeable(_),
+        ToTypeable[Q].toTypeable(_),
+      )
+    }
   }
 }
