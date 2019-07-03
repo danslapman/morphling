@@ -10,6 +10,7 @@ import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCurso
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
+import morphling.annotated.Schema.{Schema => ASchema}
 import mouse.boolean._
 import ops._
 import simulacrum.typeclass
@@ -36,6 +37,24 @@ object FromJson {
     val accumulatingDecoder: Schema[P, *] ~> AccumulatingDecoder = new (Schema[P, *] ~> AccumulatingDecoder) {
       override def apply[I](schema: Schema[P, I]): AccumulatingDecoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(schema)
+      }
+    }
+  }
+
+  implicit def annSchemaFromJson[P[_]: FromJson, A]: FromJson[ASchema[P, A, *]] = new FromJson[ASchema[P, A, *]] {
+    val decoder: ASchema[P, A, *] ~> Decoder = new (ASchema[P, A, *] ~> Decoder) {
+      override def apply[I](schema: ASchema[P, A, I]): Decoder[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], Decoder](decoderAlg[P]).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
+      }
+    }
+
+    val accumulatingDecoder: ASchema[P, A, *] ~> AccumulatingDecoder = new (ASchema[P, A, *] ~> AccumulatingDecoder) {
+      override def apply[I](schema: ASchema[P, A, I]): AccumulatingDecoder[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
       }
     }
   }
