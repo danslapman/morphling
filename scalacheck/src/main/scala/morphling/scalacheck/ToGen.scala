@@ -1,6 +1,7 @@
 package morphling.scalacheck
 
 import cats._
+import cats.data.EitherK
 import cats.free._
 import morphling.HFunctor._
 import morphling._
@@ -62,5 +63,14 @@ object ToGen {
         }
       }
     )
+  }
+
+  implicit def eitherKGen[P[_]: ToGen, Q[_]: ToGen]: ToGen[EitherK[P, Q, ?]] = new ToGen[EitherK[P, Q, ?]] {
+    override def toGen: EitherK[P, Q, ?] ~> Gen = new (EitherK[P, Q, ?] ~> Gen) {
+      override def apply[A](fa: EitherK[P, Q, A]): Gen[A] = fa.run.fold(
+        ToGen[P].toGen(_),
+        ToGen[Q].toGen(_),
+      )
+    }
   }
 }
