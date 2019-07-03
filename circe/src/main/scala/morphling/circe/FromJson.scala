@@ -41,12 +41,12 @@ object FromJson {
     }
   }
 
-  implicit def annSchemaFromJson[P[_]: FromJson, A](implicit jsonValidator: HCursor => List[String] = _ => Nil): FromJson[ASchema[P, A, *]] = new FromJson[ASchema[P, A, *]] {
+  implicit def annSchemaFromJson[P[_]: FromJson, A](implicit jsonValidator: A => HCursor => List[String]): FromJson[ASchema[P, A, *]] = new FromJson[ASchema[P, A, *]] {
     val decoder: ASchema[P, A, *] ~> Decoder = new (ASchema[P, A, *] ~> Decoder) {
       override def apply[I](schema: ASchema[P, A, I]): Decoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Decoder](decoderAlg[P]).apply(
           HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
-        ).validate(jsonValidator)
+        ).validate(jsonValidator(schema.unfix.value.ask))
       }
     }
 
