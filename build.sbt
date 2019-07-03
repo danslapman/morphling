@@ -1,11 +1,13 @@
 val versions = Map(
-  "cats" -> "1.6.1",
+  "cats" -> "2.0.0-RC2",
   "circe" -> "0.11.1",
-  "monocle" -> "1.5.1-cats",
-  "mouse" -> "0.20",
+  "monocle" -> "2.0.0-RC1",
+  "mouse" -> "0.22",
   "scalacheck" -> "1.14.0",
-  "scalatest" -> "3.0.6",
-  "simulacrum" -> "0.15.0"
+  "scalatest" -> "3.0.8",
+  "simulacrum" -> "0.19.0",
+  "paradise" -> "2.1.1",
+  "bm4" -> "0.3.1"
 )
 
 val morphling = (project in file("core"))
@@ -13,6 +15,7 @@ val morphling = (project in file("core"))
   .settings(
     name := "morphling",
     parallelExecution in ThisBuild := false,
+    crossScalaVersions := Seq("2.12.8", "2.13.0"),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % versions("cats"),
       "org.typelevel" %% "cats-free" % versions("cats"),
@@ -29,12 +32,18 @@ val `morphling-scalacheck` = (project in file("scalacheck"))
   .settings(
     name := "morphling-scalacheck",
     parallelExecution in ThisBuild := false,
+    crossScalaVersions := Seq("2.12.8", "2.13.0"),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "mouse" % versions("mouse"),
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.scalacheck" %% "scalacheck" % versions("scalacheck")
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+      case _ =>
+        Seq.empty[ModuleID]
+    })
   )
 
 val `morphling-circe` = (project in file("circe"))
@@ -45,14 +54,19 @@ val `morphling-circe` = (project in file("circe"))
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % versions("circe"),
-      "org.typelevel" %% "mouse" % "0.20",
+      "org.typelevel" %% "mouse" % versions("mouse"),
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
       "com.ironcorelabs" %% "cats-scalatest" % "2.4.0"
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0")
+    libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+      case _ =>
+        Seq.empty[ModuleID]
+    }),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
   )
 
 val `morphling-reactivemongo` = (project in file("reactivemongo"))
@@ -68,8 +82,13 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.0")
+    libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+      case _ =>
+        Seq.empty[ModuleID]
+    }),
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
   )
 
 val `morphling-typed-schema` = (project in file("typedschema"))
@@ -85,12 +104,18 @@ val `morphling-typed-schema` = (project in file("typedschema"))
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "com.stephenn" %% "scalatest-circe" % "0.0.1" % Test
     ),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
+    libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+      case _ =>
+        Seq.empty[ModuleID]
+    })
   )
 
 val root = (project in file("."))
   .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
   .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
+  .enablePlugins(CrossPerProjectPlugin)
   .settings(Settings.common)
   .settings(
     publish := {},
