@@ -56,7 +56,7 @@ object HFix {
       def apply[I](env: HEnvT[A, F, HFix[F, *], I]): HFix[F, I] = hfix(env.fa)
     }
 
-  def forget[F[_[_], _]: HFunctor, A]: HCofree[F, A, ?] ~> HFix[F, ?] = cataNT(forgetAlg)
+  def forget[F[_[_], _]: HFunctor, A]: HCofree[F, A, *] ~> HFix[F, *] = cataNT(forgetAlg)
 
   /**
     * Algebra to annotate the whole HCofree with a same annotation

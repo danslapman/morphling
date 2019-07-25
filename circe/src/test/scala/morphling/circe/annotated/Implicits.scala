@@ -4,8 +4,8 @@ import cats._
 import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
 import morphling.circe.{FromJson, ToJson}
 import morphling.protocol.{SArrayT, SBoolT, SCharT, SDoubleT, SFloatT, SIntT, SLongT, SNullT, SStrT}
-import morphling.protocol.annotated.SType.ASchema
-import morphling.samples.annotated.{NoRestr, Range, Restriction}
+import morphling.protocol.annotated.STypeAnn.ASchema
+import morphling.protocol.annotated.{NoRestr, Range, Restriction}
 
 object Implicits {
   implicit val annotationValidator: Restriction => HCursor => List[String] = {
@@ -19,11 +19,11 @@ object Implicits {
         .left.toOption.toList
   }
 
-  implicit def primToJson[A]: ToJson[ASchema[A, ?]] = new ToJson[ASchema[A, ?]] { self =>
+  implicit val primToJson: ToJson[ASchema] = new ToJson[ASchema] { self =>
     import ToJson._
 
-    val encoder = new (ASchema[A, ?] ~> Encoder) {
-      def apply[I](s: ASchema[A, I]): Encoder[I] = s.unmutu match {
+    val encoder = new (ASchema ~> Encoder) {
+      def apply[I](s: ASchema[I]): Encoder[I] = s.unmutu match {
         case _: SNullT[s.Inner]     => Encoder.encodeUnit
         case _: SBoolT[s.Inner]     => Encoder.encodeBoolean
         case _: SIntT[s.Inner]      => Encoder.encodeInt
@@ -37,11 +37,11 @@ object Implicits {
     }
   }
 
-  implicit def primFromJson[A](implicit vld: A => HCursor => List[String]): FromJson[ASchema[A, ?]] = new FromJson[ASchema[A, ?]] { self =>
+  implicit val primFromJson: FromJson[ASchema] = new FromJson[ASchema] { self =>
     import FromJson._
 
-    val decoder = new (ASchema[A, ?] ~> Decoder) {
-      def apply[I](s: ASchema[A, I]): Decoder[I] = s.unmutu match {
+    val decoder = new (ASchema ~> Decoder) {
+      def apply[I](s: ASchema[I]): Decoder[I] = s.unmutu match {
         case _: SNullT[s.Inner]     => Decoder.decodeUnit
         case _: SBoolT[s.Inner]     => Decoder.decodeBoolean
         case _: SIntT[s.Inner]      => Decoder.decodeInt
@@ -54,7 +54,7 @@ object Implicits {
       }
     }
 
-    val accumulatingDecoder: ASchema[A, ?] ~> AccumulatingDecoder =
+    val accumulatingDecoder: ASchema ~> AccumulatingDecoder =
       decoder.andThen(λ[Decoder ~> AccumulatingDecoder](AccumulatingDecoder.fromDecoder(_)))
   }
 }

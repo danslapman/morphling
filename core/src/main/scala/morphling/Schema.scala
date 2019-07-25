@@ -256,8 +256,8 @@ object Schema {
     *
     *  @tparam P $PDefn
     */
-  def const[P[_], A](a: A): Schema[P, A] =
-    rec[P, A](FreeApplicative.pure[PropSchema[A, Schema[P, *], *], A](a))
+  def const[P[_], O](obj: O): Schema[P, O] =
+    rec[P, O](FreeApplicative.pure[PropSchema[O, Schema[P, *], *], O](obj))
 
   /** Builds an un-annotated schema for the sum type `I` from an HList of alternatives.
     *

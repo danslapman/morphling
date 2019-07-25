@@ -1,5 +1,5 @@
 val versions = Map(
-  "cats" -> "2.0.0-RC2",
+  "cats" -> "2.0.0",
   "circe" -> "0.11.1",
   "monocle" -> "2.0.0-RC1",
   "mouse" -> "0.22",

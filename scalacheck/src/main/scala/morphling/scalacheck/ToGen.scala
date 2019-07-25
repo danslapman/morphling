@@ -3,9 +3,10 @@ package morphling.scalacheck
 import cats._
 import cats.data.EitherK
 import cats.free._
-import morphling.HFunctor._
 import morphling._
+import morphling.HFunctor._
 import morphling.Schema.Schema
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import org.scalacheck.Gen
 import simulacrum.typeclass
@@ -24,6 +25,16 @@ object ToGen {
     val toGen: Schema[P, *] ~> Gen = new (Schema[P, *] ~> Gen) {
       override def apply[I](schema: Schema[P, I]): Gen[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Gen](genAlg).apply(schema)
+      }
+    }
+  }
+
+  implicit def annSchemaToGen[P[_]: ToGen, A]: ToGen[AnnotatedSchema[P, A, *]] = new ToGen[AnnotatedSchema[P, A, *]] {
+    override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], Gen](genAlg).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
       }
     }
   }

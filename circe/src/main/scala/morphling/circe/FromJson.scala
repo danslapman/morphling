@@ -10,7 +10,7 @@ import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCurso
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
-import morphling.annotated.Schema.{Schema => ASchema}
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.boolean._
 import ops._
 import simulacrum.typeclass
@@ -41,17 +41,16 @@ object FromJson {
     }
   }
 
-  implicit def annSchemaFromJson[P[_]: FromJson, A](implicit jsonValidator: A => HCursor => List[String]): FromJson[ASchema[P, A, *]] = new FromJson[ASchema[P, A, *]] {
-    val decoder: ASchema[P, A, *] ~> Decoder = new (ASchema[P, A, *] ~> Decoder) {
-      override def apply[I](schema: ASchema[P, A, I]): Decoder[I] = {
-        HFix.cataNT[SchemaF[P, *[_], *], Decoder](decoderAlg[P]).apply(
-          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
-        ).validate(jsonValidator(schema.unfix.value.ask))
+  implicit def annSchemaFromJson[P[_]: FromJson, A](implicit jsonValidator: A => HCursor => List[String]): FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
+    val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): Decoder[I] = {
+        HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annotatedDecoderAlg[P, A]).apply(schema)
+          .validate(jsonValidator(schema.unfix.value.ask))
       }
     }
 
-    val accumulatingDecoder: ASchema[P, A, *] ~> AccumulatingDecoder = new (ASchema[P, A, *] ~> AccumulatingDecoder) {
-      override def apply[I](schema: ASchema[P, A, I]): AccumulatingDecoder[I] = {
+    val accumulatingDecoder: AnnotatedSchema[P, A, *] ~> AccumulatingDecoder = new (AnnotatedSchema[P, A, *] ~> AccumulatingDecoder) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): AccumulatingDecoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(
           HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
         )
@@ -100,6 +99,12 @@ object FromJson {
         case IsoSchema(base, iso) =>
           base.map(iso.get)
       }
+    }
+
+  def annotatedDecoderAlg[P[_]: FromJson, Ann]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] {
+      override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], Decoder, I]): Decoder[I] =
+        decoderAlg[P].apply(s.fa)
     }
 
   def decodeObj[I](rb: FreeApplicative[PropSchema[I, Decoder, *], I]): Decoder[I] = {

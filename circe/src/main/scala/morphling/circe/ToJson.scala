@@ -9,7 +9,7 @@ import io.circe.syntax._
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
-import morphling.annotated.Schema.{Schema => ASchema}
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import simulacrum.typeclass
 
@@ -31,9 +31,9 @@ object ToJson {
     }
   }
 
-  implicit def annSchemaToJson[P[_]: ToJson, A]: ToJson[ASchema[P, A, *]] = new ToJson[ASchema[P, A, *]] {
-    val encoder: ASchema[P, A, *] ~> Encoder = new (ASchema[P, A, *] ~> Encoder) {
-      override def apply[I](schema: ASchema[P, A, I]): Encoder[I] = {
+  implicit def annSchemaToJson[P[_]: ToJson, A]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
+    val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(
           HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
         )
