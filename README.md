@@ -9,7 +9,7 @@ All You need is ~~love~~:
 ```
     resolvers += Resolver.bintrayRepo("danslapman", "maven")
 
-    libraryDependencies += "danslapman" %% "morphling" % "1.0-beta11"
+    libraryDependencies += "danslapman" %% "morphling" % "1.0-beta15"
 ```
 
 # Setting up protocol

@@ -1,3 +1,9 @@
+## version 1.0-beta15
+
+> 02.08.2019
+
+Fix `typed-schema` dependency
+
 ## version 1.0-beta14
 
 > 06.06.2019

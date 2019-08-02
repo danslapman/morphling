@@ -79,7 +79,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
     name := "morphling-typed-schema",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "ru.tinkoff" %% "typed-schema" % "0.11.0-beta6",
+      "ru.tinkoff" %% "typed-schema-swagger" % "0.11.0-beta6",
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
