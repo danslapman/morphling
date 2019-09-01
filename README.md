@@ -2,6 +2,9 @@
 Cats-based Scala library for free applicative schemas. Core module of morphling
 initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
+# Note about future (2.x) versions
+The next major version of morphling will use [tofu-optics](https://github.com/TinkoffCreditSystems/tofu) instead of monocle
+
 # Getting started
 
 All You need is ~~love~~:
