@@ -6,7 +6,7 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 object Settings {
   val common = Seq(
     organization := "danslapman",
-    version := "1.0-beta15",
+    version := "1.0",
     scalaVersion := "2.12.8",
     crossScalaVersions := Seq("2.12.8"),
     scalacOptions ++= Seq(
@@ -14,7 +14,7 @@ object Settings {
       "-Ypartial-unification",
       "-Ywarn-unused:imports"
     ),
-    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.1"),
+    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
     addCompilerPlugin(scalafixSemanticdb),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
     bintrayOrganization := Some("danslapman"),

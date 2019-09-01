@@ -1,3 +1,10 @@
+## version 1.0
+
+> 01.09.2019
+
+Identical to 1.0-beta15
+
+
 ## version 1.0-beta15
 
 > 02.08.2019
