@@ -119,3 +119,9 @@ With such a transformation defined we can derive an `Encoder` for `Server`:
 ```scala
 val encoder = Server.schema.encoder
 ```
+
+# Version compatibility table
+
+| morphling | cats | circe | reactivemongo | typed-schema | scalacheck |
+|-----------|------| ----- | ------------- | ------------ | ---------- |
+| 1.0 | 1.6.1 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |
