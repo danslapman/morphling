@@ -10,7 +10,7 @@ object Implicits {
   implicit val primToBson: ToBson[SSchema] = new ToBson[SSchema] { self =>
     import ToBson._
 
-    val writer: SSchema ~> BSONWriter[?, BSONValue] = new (SSchema ~> BSONWriter[?, BSONValue]) {
+    val writer: SSchema ~> BSONWriter[*, BSONValue] = new (SSchema ~> BSONWriter[*, BSONValue]) {
       override def apply[I](s: SSchema[I]): BSONWriter[I, BSONValue] = s.unmutu match {
         case SNullT()    => _: I => BSONNull
         case SBoolT()    => BSONBoolean(_)
@@ -29,7 +29,7 @@ object Implicits {
   implicit val primFromBson: FromBson[SSchema] = new FromBson[SSchema] { self =>
     import FromBson._
 
-    val reader = new (SSchema ~> BSONReader[BSONValue, ?]) {
+    val reader = new (SSchema ~> BSONReader[BSONValue, *]) {
       def apply[I](s: SSchema[I]): BSONReader[BSONValue, I] = s.unmutu match {
         case SNullT()    => BSONReader[BSONValue, I](_ => ())
         case SBoolT()    => bsonBooleanLikeReader.afterRead(_.toBoolean)

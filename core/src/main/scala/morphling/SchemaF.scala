@@ -43,9 +43,9 @@ sealed trait SchemaF[P[_], F[_], I] {
 }
 
 object SchemaF {
-  implicit def hfunctor[P[_]]: HFunctor[SchemaF[P, ?[_], ?]] = new HFunctor[SchemaF[P, ?[_], ?]] {
-    def hfmap[M[_], N[_]](nt: M ~> N): SchemaF[P, M, ?] ~> SchemaF[P, N, ?] =
-      new (SchemaF[P, M, ?] ~> SchemaF[P, N, ?]) {
+  implicit def hfunctor[P[_]]: HFunctor[SchemaF[P, *[_], *]] = new HFunctor[SchemaF[P, *[_], *]] {
+    def hfmap[M[_], N[_]](nt: M ~> N): SchemaF[P, M, *] ~> SchemaF[P, N, *] =
+      new (SchemaF[P, M, *] ~> SchemaF[P, N, *]) {
         def apply[I](fa: SchemaF[P, M, I]): SchemaF[P, N, I] = fa.hfmap(nt)
       }
   }
@@ -188,8 +188,8 @@ final case class Alt[F[_], I, I0](id: String, base: F[I0], prism: Prism[I, I0]) 
   *  @tparam I $IDefn
   *  @param props the free applicative value composed of zero or more PropSchema instances
   */
-final case class RecordSchema[P[_], F[_], I](props: FreeApplicative[PropSchema[I, F, ?], I]) extends SchemaF[P, F, I] {
-  def hfmap[G[_]](nt: F ~> G): RecordSchema[P, G, I] = RecordSchema[P, G, I](props.compile[PropSchema[I, G, ?]](PropSchema.instances[I].hfmap[F, G](nt)))
+final case class RecordSchema[P[_], F[_], I](props: FreeApplicative[PropSchema[I, F, *], I]) extends SchemaF[P, F, I] {
+  def hfmap[G[_]](nt: F ~> G): RecordSchema[P, G, I] = RecordSchema[P, G, I](props.compile[PropSchema[I, G, *]](PropSchema.instances[I].hfmap[F, G](nt)))
   def pmap[Q[_]](nt: P ~> Q): RecordSchema[Q, F, I] = RecordSchema[Q, F, I](props)
 }
 
@@ -276,16 +276,16 @@ final case class Constant[O, F[_], I](
 }
 
 object PropSchema {
-  implicit def instances[O]: HFunctor[PropSchema[O, ?[_], ?]] =
-    new HFunctor[PropSchema[O, ?[_], ?]] {
-      def hfmap[M[_], N[_]](nt: M ~> N): PropSchema[O, M, ?] ~> PropSchema[O, N, ?] =
-        new (PropSchema[O, M, ?] ~> PropSchema[O, N, ?]) {
+  implicit def instances[O]: HFunctor[PropSchema[O, *[_], *]] =
+    new HFunctor[PropSchema[O, *[_], *]] {
+      def hfmap[M[_], N[_]](nt: M ~> N): PropSchema[O, M, *] ~> PropSchema[O, N, *] =
+        new (PropSchema[O, M, *] ~> PropSchema[O, N, *]) {
           def apply[I](ps: PropSchema[O, M, I]): PropSchema[O, N, I] = ps.hfmap(nt)
         }
     }
 
-  def contraNT[O, N, F[_]](f: N => O): PropSchema[O, F, ?] ~> PropSchema[N, F, ?] =
-    new (PropSchema[O, F, ?] ~> PropSchema[N, F, ?]) {
+  def contraNT[O, N, F[_]](f: N => O): PropSchema[O, F, *] ~> PropSchema[N, F, *] =
+    new (PropSchema[O, F, *] ~> PropSchema[N, F, *]) {
       def apply[I](pso: PropSchema[O, F, I]): PropSchema[N, F, I] = {
         pso match {
           case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)

@@ -20,7 +20,7 @@ object Implicits {
         case SDoubleT() => arbitrary[Double]
         case SCharT()   => arbitrary[Char]
         case SStrT()    => arbitrary[String]
-        case arr: SArrayT[Schema[SSchema, ?], i] =>
+        case arr: SArrayT[Schema[SSchema, *], i] =>
           val baseDecoder: Gen[i] = ToGen.schemaToGen[SSchema](self).toGen(arr.elem)
           containerOf[Vector, i](baseDecoder)
       }

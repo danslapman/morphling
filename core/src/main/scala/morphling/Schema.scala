@@ -30,7 +30,7 @@ object Schema {
     *  @tparam P $PDefn
     *  @tparam I $IDefn
     */
-  type Schema[P[_], I] = HFix[SchemaF[P, ?[_], ?], I]
+  type Schema[P[_], I] = HFix[SchemaF[P, *[_], *], I]
 
   /** The type of free applicative values which are used to capture the structure
     *  of individual record properties.
@@ -39,15 +39,15 @@ object Schema {
     *  @tparam O $ODefn
     *  @tparam I $IDefn
     */
-  type Prop[P[_], O, I] = FreeApplicative[PropSchema[O, Schema[P, ?], ?], I]
+  type Prop[P[_], O, I] = FreeApplicative[PropSchema[O, Schema[P, *], *], I]
 
-  implicit def propApplicative[P[_], O]: Applicative[Prop[P, O, ?]] =
-    FreeApplicative.freeApplicative[PropSchema[O, Schema[P, ?], ?]]
+  implicit def propApplicative[P[_], O]: Applicative[Prop[P, O, *]] =
+    FreeApplicative.freeApplicative[PropSchema[O, Schema[P, *], *]]
 
-  implicit def propProfunctor[P[_]]: Profunctor[Prop[P, ?, ?]] = new Profunctor[Prop[P, ?, ?]] {
+  implicit def propProfunctor[P[_]]: Profunctor[Prop[P, *, *]] = new Profunctor[Prop[P, *, *]] {
     override def dimap[O, I, N, J](prop: Prop[P, O, I])(f: N => O)(g: I => J): Prop[P, N, J] =
-      prop.compile[PropSchema[N, Schema[P, ?], ?]](
-        PropSchema.contraNT[O, N, Schema[P, ?]](f)
+      prop.compile[PropSchema[N, Schema[P, *], *]](
+        PropSchema.contraNT[O, N, Schema[P, *]](f)
       ).map(g)
   }
 
@@ -68,8 +68,8 @@ object Schema {
     *  @param sf The value to be annotated
     *  @return the newly constructed schema value
     */
-  def schema[P[_], I](sf: => SchemaF[P, Schema[P, ?], I]): Schema[P, I] =
-    hfix[SchemaF[P, ?[_], ?], I](sf)
+  def schema[P[_], I](sf: => SchemaF[P, Schema[P, *], I]): Schema[P, I] =
+    hfix[SchemaF[P, *[_], *], I](sf)
 
   /** Lifts a value in an algebra of primitives into an unannotated Schema
     *
@@ -79,7 +79,7 @@ object Schema {
     *  @return the newly constructed schema value
     */
   def prim[P[_], I](p: P[I]): Schema[P, I] =
-    schema(PrimSchema[P, Schema[P, ?], I](p))
+    schema(PrimSchema[P, Schema[P, *], I](p))
 
   /** Builds an un-annotated schema for a record type from the free
     *  applicative capture of that record's structure.
@@ -90,7 +90,7 @@ object Schema {
     *         of the record type.
     */
   def rec[P[_], I](props: Props[P, I]): Schema[P, I] =
-    schema(RecordSchema[P, Schema[P, ?], I](props))
+    schema(RecordSchema[P, Schema[P, *], I](props))
 
   /** Smart constructor for required Prop instances.
     *
@@ -102,8 +102,8 @@ object Schema {
     *  @param getter Getter lens from the record type to the property's value
     */
   def required[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], getter: Getter[O, I]): Prop[P, O, I] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
-      Required[O, Schema[P, ?], I](fieldName, valueSchema, getter, None)
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
+      Required[O, Schema[P, *], I](fieldName, valueSchema, getter, None)
     )
   }
 
@@ -117,8 +117,8 @@ object Schema {
     *  @param lens Lens from the record type to the property's value
     */
   def required[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], lens: Lens[O, I]): Prop[P, O, I] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
-      Required[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter, None)
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
+      Required[O, Schema[P, *], I](fieldName, valueSchema, lens.asGetter, None)
     )
   }
 
@@ -136,8 +136,8 @@ object Schema {
     *  @param getter Getter lens from the record type to the property's value
     */
   def property[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], default: I, getter: Getter[O, I]): Prop[P, O, I] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
-      Required[O, Schema[P, ?], I](fieldName, valueSchema, getter, Some(default))
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
+      Required[O, Schema[P, *], I](fieldName, valueSchema, getter, Some(default))
     )
   }
 
@@ -155,8 +155,8 @@ object Schema {
     *  @param lens Lens from the record type to the property's value
     */
   def property[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], default: I, lens: Lens[O, I]): Prop[P, O, I] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
-      Required[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter, Some(default))
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
+      Required[O, Schema[P, *], I](fieldName, valueSchema, lens.asGetter, Some(default))
     )
   }
 
@@ -169,8 +169,8 @@ object Schema {
     *  @param getter Getter lens from the record type to the property's value
     */
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], getter: Getter[O, Option[I]]): Prop[P, O, Option[I]] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-      Optional[O, Schema[P, ?], I](fieldName, valueSchema, getter)
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+      Optional[O, Schema[P, *], I](fieldName, valueSchema, getter)
     )
   }
 
@@ -183,8 +183,8 @@ object Schema {
     *  @param lens Lens from the record type to the property's value
     */
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], lens: Lens[O, Option[I]]): Prop[P, O, Option[I]] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-      Optional[O, Schema[P, ?], I](fieldName, valueSchema, lens.asGetter)
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+      Optional[O, Schema[P, *], I](fieldName, valueSchema, lens.asGetter)
     )
   }
 
@@ -197,8 +197,8 @@ object Schema {
     *  @param optional Optional lens from the record type to the property's value
     */
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], optional: MOptional[O, I]): Prop[P, O, Option[I]] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-      Optional[O, Schema[P, ?], I](fieldName, valueSchema, Getter(optional.getOption))
+    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+      Optional[O, Schema[P, *], I](fieldName, valueSchema, Getter(optional.getOption))
     )
   }
 
@@ -213,20 +213,20 @@ object Schema {
     */
   final class AbsentBuilder[P[_]] {
     def apply[O, I](fieldName: String, getter: Getter[O, Option[I]]): Prop[P, O, Option[I]] = {
-      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-        Absent[O, Schema[P, ?], I](fieldName, getter)
+      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+        Absent[O, Schema[P, *], I](fieldName, getter)
       )
     }
 
     def apply[O, I](fieldName: String, lens: Lens[O, Option[I]]): Prop[P, O, Option[I]] = {
-      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-        Absent[O, Schema[P, ?], I](fieldName, lens.asGetter)
+      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+        Absent[O, Schema[P, *], I](fieldName, lens.asGetter)
       )
     }
 
     def apply[O, I](fieldName: String, optional: MOptional[O, I]): Prop[P, O, Option[I]] = {
-      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], Option[I]](
-        Absent[O, Schema[P, ?], I](fieldName, Getter(optional.getOption))
+      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
+        Absent[O, Schema[P, *], I](fieldName, Getter(optional.getOption))
       )
     }
   }
@@ -242,12 +242,12 @@ object Schema {
     */
   final class ConstantBuilder[P[_]] {
     def apply[O, I](fieldName: String, value: I, getter: Getter[O, I]): Prop[P, O, I] =
-      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
         Constant(fieldName, value, getter)
       )
 
     def apply[O, I](fieldName: String, value: I, lens: Lens[O, I]): Prop[P, O, I] =
-      FreeApplicative.lift[PropSchema[O, Schema[P, ?], ?], I](
+      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], I](
         Constant(fieldName, value, lens.asGetter)
       )
   }
@@ -257,7 +257,7 @@ object Schema {
     *  @tparam P $PDefn
     */
   def const[P[_], A](a: A): Schema[P, A] =
-    rec[P, A](FreeApplicative.pure[PropSchema[A, Schema[P, ?], ?], A](a))
+    rec[P, A](FreeApplicative.pure[PropSchema[A, Schema[P, *], *], A](a))
 
   /** Builds an un-annotated schema for the sum type `I` from an HList of alternatives.
     *
@@ -268,7 +268,7 @@ object Schema {
     *  An easier-to-read type signature for this function is below:
     *
     *  {{{
-    *  def oneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, ?], I, _]]): Schema[P, I]
+    *  def oneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, *], I, _]]): Schema[P, I]
     *  }}}
     *
     *  @tparam P $PDefn
@@ -281,8 +281,8 @@ object Schema {
     *  every constructor of the sum type `I`.
     */
   final class ToOneOf[P[_], I] {
-    def apply[H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[Schema[P, ?], I, ?], H]): Schema[P, I] = {
-      schema(OneOfSchema[P, Schema[P, ?], I](ev.toNel(ctrs)))
+    def apply[H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[Schema[P, *], I, *], H]): Schema[P, I] = {
+      schema(OneOfSchema[P, Schema[P, *], I](ev.toNel(ctrs)))
     }
   }
 
@@ -294,8 +294,8 @@ object Schema {
     *  every constructor of the sum type `I`.
     */
   final class ToOneOfWithDiscriminator[P[_], I](discriminatorField: String) {
-    def apply[H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[Schema[P, ?], I, ?], H]): Schema[P, I] = {
-      schema(OneOfSchema[P, Schema[P, ?], I](ev.toNel(ctrs), Some(discriminatorField)))
+    def apply[H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[Schema[P, *], I, *], H]): Schema[P, I] = {
+      schema(OneOfSchema[P, Schema[P, *], I](ev.toNel(ctrs), Some(discriminatorField)))
     }
   }
 
@@ -314,11 +314,11 @@ object Schema {
     *  @tparam P $PDefn
     *  @tparam I $IDefn
     */
-  def unsafeOneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, ?], I, _]]): Schema[P, I] =
-    schema(OneOfSchema[P, Schema[P, ?], I](alts))
+  def unsafeOneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, *], I, _]]): Schema[P, I] =
+    schema(OneOfSchema[P, Schema[P, *], I](alts))
 
-  def unsafeOneOfDiscr[P[_], I](discriminatorField: String)(alts: NonEmptyList[Alt[Schema[P, ?], I, _]]): Schema[P, I] =
-    schema(OneOfSchema[P, Schema[P, ?], I](alts, Some(discriminatorField)))
+  def unsafeOneOfDiscr[P[_], I](discriminatorField: String)(alts: NonEmptyList[Alt[Schema[P, *], I, _]]): Schema[P, I] =
+    schema(OneOfSchema[P, Schema[P, *], I](alts, Some(discriminatorField)))
 
   /** Convenience constructor for oneOf schema alternatives.
     *
@@ -329,14 +329,14 @@ object Schema {
     *  @param base The schema for the `J` type
     *  @param prism Prism between the sum type and the selected constructor.
     */
-  def alt[P[_], I, J](id: String, base: Schema[P, J], prism: Prism[I, J]): Alt[Schema[P, ?], I, J] =
-    Alt[Schema[P, ?], I, J](id, base, prism)
+  def alt[P[_], I, J](id: String, base: Schema[P, J], prism: Prism[I, J]): Alt[Schema[P, *], I, J] =
+    Alt[Schema[P, *], I, J](id, base, prism)
 
   /** HAlgebra for primitive type constructor transformation.
     */
-  def hfmapAlg[P[_], Q[_]](nt: P ~> Q): SchemaF[P, Schema[Q, ?], ?] ~> Schema[Q, ?] =
-    new HAlgebra[SchemaF[P, ?[_], ?], Schema[Q, ?]] {
-      def apply[I](s: SchemaF[P, Schema[Q, ?], I]): Schema[Q, I] = hfix(s.pmap(nt))
+  def hfmapAlg[P[_], Q[_]](nt: P ~> Q): SchemaF[P, Schema[Q, *], *] ~> Schema[Q, *] =
+    new HAlgebra[SchemaF[P, *[_], *], Schema[Q, *]] {
+      def apply[I](s: SchemaF[P, Schema[Q, *], I]): Schema[Q, I] = hfix(s.pmap(nt))
     }
 
   /** Constructs the HFunctor instance for a Schema.
@@ -348,12 +348,12 @@ object Schema {
     *  }}}
     */
   implicit def hfunctor: HFunctor[Schema] = new HFunctor[Schema] {
-    def hfmap[P[_], Q[_]](nt: P ~> Q): Schema[P, ?] ~> Schema[Q, ?] = cataNT(hfmapAlg(nt))
+    def hfmap[P[_], Q[_]](nt: P ~> Q): Schema[P, *] ~> Schema[Q, *] = cataNT(hfmapAlg(nt))
   }
 
   implicit class SchemaOps[P[_], I](base: Schema[P, I]) {
     def composeIso[J](iso: Iso[I, J]): Schema[P, J] = {
-      schema(IsoSchema[P, Schema[P, ?], I, J](base, iso))
+      schema(IsoSchema[P, Schema[P, *], I, J](base, iso))
     }
   }
 }

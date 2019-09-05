@@ -20,16 +20,16 @@ object ToGen {
     def gen(implicit TG: ToGen[S]): Gen[A] = TG.toGen(s)
   }
 
-  implicit def schemaToGen[P[_]: ToGen]: ToGen[Schema[P, ?]] = new ToGen[Schema[P, ?]] {
-    val toGen: Schema[P, ?] ~> Gen = new (Schema[P, ?] ~> Gen) {
+  implicit def schemaToGen[P[_]: ToGen]: ToGen[Schema[P, *]] = new ToGen[Schema[P, *]] {
+    val toGen: Schema[P, *] ~> Gen = new (Schema[P, *] ~> Gen) {
       override def apply[I](schema: Schema[P, I]): Gen[I] = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], Gen](genAlg).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], Gen](genAlg).apply(schema)
       }
     }
   }
 
-  def genAlg[P[_]: ToGen]: HAlgebra[SchemaF[P, ?[_], ?], Gen] =
-    new HAlgebra[SchemaF[P, ?[_], ?], Gen] {
+  def genAlg[P[_]: ToGen]: HAlgebra[SchemaF[P, *[_], *], Gen] =
+    new HAlgebra[SchemaF[P, *[_], *], Gen] {
       def apply[I](schema: SchemaF[P, Gen, I]): Gen[I] = schema match {
         case s: PrimSchema[P, Gen, I] => ToGen[P].toGen(s.prim)
         case s: OneOfSchema[P, Gen, I] =>
@@ -44,7 +44,7 @@ object ToGen {
       }
     }
 
-  def recordGen[P[_]: ToGen, I](rb: FreeApplicative[PropSchema[I, Gen, ?], I]): Gen[I] = {
+  def recordGen[P[_]: ToGen, I](rb: FreeApplicative[PropSchema[I, Gen, *], I]): Gen[I] = {
     implicit val djap: Applicative[Gen] = new Applicative[Gen] {
       override def pure[T](x: T): Gen[T] = Gen.const(x)
 
@@ -54,7 +54,7 @@ object ToGen {
     }
 
     rb.foldMap(
-      new (PropSchema[I, Gen, ?] ~> Gen) {
+      new (PropSchema[I, Gen, *] ~> Gen) {
         def apply[B](ps: PropSchema[I, Gen, B]): Gen[B] = ps match {
           case Required(_, base, _, _) => base
           case opt: Optional[I, Gen, i] => Gen.option(opt.base)
@@ -65,8 +65,8 @@ object ToGen {
     )
   }
 
-  implicit def eitherKGen[P[_]: ToGen, Q[_]: ToGen]: ToGen[EitherK[P, Q, ?]] = new ToGen[EitherK[P, Q, ?]] {
-    override def toGen: EitherK[P, Q, ?] ~> Gen = new (EitherK[P, Q, ?] ~> Gen) {
+  implicit def eitherKGen[P[_]: ToGen, Q[_]: ToGen]: ToGen[EitherK[P, Q, *]] = new ToGen[EitherK[P, Q, *]] {
+    override def toGen: EitherK[P, Q, *] ~> Gen = new (EitherK[P, Q, *] ~> Gen) {
       override def apply[A](fa: EitherK[P, Q, A]): Gen[A] = fa.run.fold(
         ToGen[P].toGen(_),
         ToGen[Q].toGen(_),

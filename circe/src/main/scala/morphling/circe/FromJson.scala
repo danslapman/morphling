@@ -26,22 +26,22 @@ object FromJson {
     def accumulatingDecoder(implicit FJ: FromJson[F]): AccumulatingDecoder[A] = FJ.accumulatingDecoder(fa)
   }
 
-  implicit def schemaFromJson[P[_]: FromJson]: FromJson[Schema[P, ?]] = new FromJson[Schema[P, ?]] {
-    val decoder: Schema[P, ?] ~> Decoder = new (Schema[P, ?] ~> Decoder) {
+  implicit def schemaFromJson[P[_]: FromJson]: FromJson[Schema[P, *]] = new FromJson[Schema[P, *]] {
+    val decoder: Schema[P, *] ~> Decoder = new (Schema[P, *] ~> Decoder) {
       override def apply[I](schema: Schema[P, I]): Decoder[I] = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], Decoder](decoderAlg[P]).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], Decoder](decoderAlg[P]).apply(schema)
       }
     }
 
-    val accumulatingDecoder: Schema[P, ?] ~> AccumulatingDecoder = new (Schema[P, ?] ~> AccumulatingDecoder) {
+    val accumulatingDecoder: Schema[P, *] ~> AccumulatingDecoder = new (Schema[P, *] ~> AccumulatingDecoder) {
       override def apply[I](schema: Schema[P, I]): AccumulatingDecoder[I] = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(schema)
       }
     }
   }
 
-  def decoderAlg[P[_]: FromJson]: HAlgebra[SchemaF[P, ?[_], ?], Decoder] =
-    new HAlgebra[SchemaF[P, ?[_], ?], Decoder] {
+  def decoderAlg[P[_]: FromJson]: HAlgebra[SchemaF[P, *[_], *], Decoder] =
+    new HAlgebra[SchemaF[P, *[_], *], Decoder] {
       def apply[I](s: SchemaF[P, Decoder, I]): Decoder[I] = s match {
         case PrimSchema(p) => FromJson[P].decoder(p)
 
@@ -83,9 +83,9 @@ object FromJson {
       }
     }
 
-  def decodeObj[I](rb: FreeApplicative[PropSchema[I, Decoder, ?], I]): Decoder[I] = {
+  def decodeObj[I](rb: FreeApplicative[PropSchema[I, Decoder, *], I]): Decoder[I] = {
     rb.foldMap(
-      new (PropSchema[I, Decoder, ?] ~> Decoder) {
+      new (PropSchema[I, Decoder, *] ~> Decoder) {
         def apply[B](ps: PropSchema[I, Decoder, B]): Decoder[B] = ps match {
           case Required(field, base, _, None) =>
             Decoder.instance(_.downField(field).as(base))
@@ -105,8 +105,8 @@ object FromJson {
     )
   }
 
-  def accumulatingDecoderAlg[P[_]: FromJson]: HAlgebra[SchemaF[P, ?[_], ?], AccumulatingDecoder] =
-    new HAlgebra[SchemaF[P, ?[_], ?], AccumulatingDecoder] {
+  def accumulatingDecoderAlg[P[_]: FromJson]: HAlgebra[SchemaF[P, *[_], *], AccumulatingDecoder] =
+    new HAlgebra[SchemaF[P, *[_], *], AccumulatingDecoder] {
       def apply[I](s: SchemaF[P, AccumulatingDecoder, I]): AccumulatingDecoder[I] = s match {
         case PrimSchema(p) => FromJson[P].accumulatingDecoder(p)
 
@@ -148,11 +148,11 @@ object FromJson {
       }
     }
 
-  def decodeObjAcc[I](rb: FreeApplicative[PropSchema[I, AccumulatingDecoder, ?], I]): AccumulatingDecoder[I] = {
+  def decodeObjAcc[I](rb: FreeApplicative[PropSchema[I, AccumulatingDecoder, *], I]): AccumulatingDecoder[I] = {
     @inline def failNel(ops: List[CursorOp]) = NonEmptyList.one(DecodingFailure("Attempt to decode value on failed cursor", ops))
 
     rb.foldMap(
-      new (PropSchema[I, AccumulatingDecoder, ?] ~> AccumulatingDecoder) {
+      new (PropSchema[I, AccumulatingDecoder, *] ~> AccumulatingDecoder) {
         def apply[B](ps: PropSchema[I, AccumulatingDecoder, B]): AccumulatingDecoder[B] = ps match {
           case Required(field, base, _, None) =>
             AccumulatingDecoder.instance { hc =>
@@ -179,8 +179,8 @@ object FromJson {
     )
   }
 
-  implicit def eitherKFromJson[P[_]: FromJson, Q[_]: FromJson]: FromJson[EitherK[P, Q, ?]] = new FromJson[EitherK[P, Q, ?]] {
-    override val decoder: EitherK[P, Q, ?] ~> Decoder = new (EitherK[P, Q, ?] ~> Decoder) {
+  implicit def eitherKFromJson[P[_]: FromJson, Q[_]: FromJson]: FromJson[EitherK[P, Q, *]] = new FromJson[EitherK[P, Q, *]] {
+    override val decoder: EitherK[P, Q, *] ~> Decoder = new (EitherK[P, Q, *] ~> Decoder) {
       override def apply[A](p: EitherK[P, Q, A]): Decoder[A] = {
         p.run.fold(
           FromJson[P].decoder(_),
@@ -189,7 +189,7 @@ object FromJson {
       }
     }
 
-    override val accumulatingDecoder: EitherK[P, Q, ?] ~> AccumulatingDecoder = new (EitherK[P, Q, ?] ~> AccumulatingDecoder) {
+    override val accumulatingDecoder: EitherK[P, Q, *] ~> AccumulatingDecoder = new (EitherK[P, Q, *] ~> AccumulatingDecoder) {
       override def apply[A](p: EitherK[P, Q, A]): AccumulatingDecoder[A] = {
         p.run.fold(
           FromJson[P].accumulatingDecoder(_),

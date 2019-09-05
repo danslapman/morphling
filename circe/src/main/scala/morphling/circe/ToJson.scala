@@ -22,16 +22,16 @@ object ToJson {
     def encoder(implicit TJ: ToJson[F]): Encoder[A] = TJ.encoder(fa)
   }
 
-  implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, ?]] = new ToJson[Schema[P, ?]] {
-    val encoder: Schema[P, ?] ~> Encoder = new (Schema[P, ?] ~> Encoder) {
+  implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, *]] = new ToJson[Schema[P, *]] {
+    val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], Encoder](serializeAlg).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(schema)
       }
     }
   }
 
-  def serializeAlg[P[_]: ToJson]: HAlgebra[SchemaF[P, ?[_], ?], Encoder] =
-    new HAlgebra[SchemaF[P, ?[_], ?], Encoder] {
+  def serializeAlg[P[_]: ToJson]: HAlgebra[SchemaF[P, *[_], *], Encoder] =
+    new HAlgebra[SchemaF[P, *[_], *], Encoder] {
       def apply[I](schema: SchemaF[P, Encoder, I]): Encoder[I] = {
         schema match {
           case s: PrimSchema[P, Encoder, I] => ToJson[P].encoder(s.prim)
@@ -58,10 +58,10 @@ object ToJson {
       }
     }
 
-  def serializeObjF[P[_]: ToJson, I](rb: FreeApplicative[PropSchema[I, Encoder, ?], I]): Encoder[I] = {
+  def serializeObjF[P[_]: ToJson, I](rb: FreeApplicative[PropSchema[I, Encoder, *], I]): Encoder[I] = {
     (value: I) => Json.fromJsonObject(
-      rb.foldMap[State[JsonObject, ?]](
-        new (PropSchema[I, Encoder, ?] ~> State[JsonObject, ?]) {
+      rb.foldMap[State[JsonObject, *]](
+        new (PropSchema[I, Encoder, *] ~> State[JsonObject, *]) {
           def apply[B](ps: PropSchema[I, Encoder, B]): State[JsonObject, B] = {
             for {
               _ <- modify { (obj: JsonObject) =>
@@ -84,9 +84,9 @@ object ToJson {
     )
   }
 
-  implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson]: ToJson[EitherK[P, Q, ?]] =
-    new ToJson[EitherK[P, Q, ?]] {
-      val encoder = new (EitherK[P, Q, ?] ~> Encoder) {
+  implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson]: ToJson[EitherK[P, Q, *]] =
+    new ToJson[EitherK[P, Q, *]] {
+      val encoder = new (EitherK[P, Q, *] ~> Encoder) {
         def apply[A](p: EitherK[P, Q, A]): Encoder[A] = {
           p.run.fold(ToJson[P].encoder(_), ToJson[Q].encoder(_))
         }

@@ -22,7 +22,7 @@ object Implicits {
         case SDoubleT() => SwaggerTypeable.swaggerTypeableDouble
         case SCharT()   => SwaggerTypeable.swaggerTypeableString.as[Char]
         case SStrT()    => SwaggerTypeable.swaggerTypeableString
-        case arr: SArrayT[Schema[SSchema, ?], i] =>
+        case arr: SArrayT[Schema[SSchema, *], i] =>
           val baseTyp: SwaggerTypeable[i] =
             ToTypeable.schemaToTypeable[SSchema](self).toTypeable(arr.elem)
           SwaggerTypeable.swaggerVectorTypeable(baseTyp)

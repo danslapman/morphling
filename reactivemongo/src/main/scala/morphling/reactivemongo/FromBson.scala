@@ -14,7 +14,7 @@ import simulacrum.typeclass
 
 @typeclass
 trait FromBson[S[_]] {
-  def reader: S ~> BSONReader[BSONValue, ?]
+  def reader: S ~> BSONReader[BSONValue, *]
 }
 
 object FromBson {
@@ -22,17 +22,17 @@ object FromBson {
     def reader(implicit FB: FromBson[F]): BSONReader[BSONValue, A] = FB.reader(fa)
   }
 
-  implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, ?]] = new FromBson[Schema[P, ?]] {
-    val reader: Schema[P, ?] ~> BSONReader[BSONValue, ?] = new (Schema[P, ?] ~> BSONReader[BSONValue, ?]) {
+  implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, *]] = new FromBson[Schema[P, *]] {
+    val reader: Schema[P, *] ~> BSONReader[BSONValue, *] = new (Schema[P, *] ~> BSONReader[BSONValue, *]) {
       override def apply[I](schema: Schema[P, I]) = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]](decoderAlg[P]).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], BSONReader[BSONValue, *]](decoderAlg[P]).apply(schema)
       }
     }
   }
 
-  def decoderAlg[P[_]: FromBson]: HAlgebra[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]] =
-    new HAlgebra[SchemaF[P, ?[_], ?], BSONReader[BSONValue, ?]] {
-      def apply[I](s: SchemaF[P, BSONReader[BSONValue, ?], I]): BSONReader[BSONValue, I] = s match {
+  def decoderAlg[P[_]: FromBson]: HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] =
+    new HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] {
+      def apply[I](s: SchemaF[P, BSONReader[BSONValue, *], I]): BSONReader[BSONValue, I] = s match {
         case PrimSchema(p) =>
           FromBson[P].reader(p)
 
@@ -75,8 +75,8 @@ object FromBson {
       }
     }
 
-  def decodeObj[I](rb: FreeApplicative[PropSchema[I, BSONReader[BSONValue, ?], ?], I]): BSONReader[BSONValue, I] = {
-    implicit val djap: Applicative[BSONReader[BSONValue, ?]] = new Applicative[BSONReader[BSONValue, ?]] {
+  def decodeObj[I](rb: FreeApplicative[PropSchema[I, BSONReader[BSONValue, *], *], I]): BSONReader[BSONValue, I] = {
+    implicit val djap: Applicative[BSONReader[BSONValue, *]] = new Applicative[BSONReader[BSONValue, *]] {
       override def pure[T](a: T) = BSONReader[BSONValue, T](_ => a)
 
       override def ap[T, U](ff: BSONReader[BSONValue, T => U])(fa: BSONReader[BSONValue, T]): BSONReader[BSONValue, U] =
@@ -84,8 +84,8 @@ object FromBson {
     }
 
     rb.foldMap(
-      new (PropSchema[I, BSONReader[BSONValue, ?], ?] ~> BSONReader[BSONValue, ?]) {
-        def apply[B](ps: PropSchema[I, BSONReader[BSONValue, ?], B]): BSONReader[BSONValue, B] = ps match {
+      new (PropSchema[I, BSONReader[BSONValue, *], *] ~> BSONReader[BSONValue, *]) {
+        def apply[B](ps: PropSchema[I, BSONReader[BSONValue, *], B]): BSONReader[BSONValue, B] = ps match {
           case Required(field, base, _, None) =>
             BSONReader[BSONDocument, B](doc =>
               doc.getAs[B](field)(base).getOrElse(throw exceptions.DocumentKeyNotFound(field))
@@ -96,7 +96,7 @@ object FromBson {
               doc.getAs[B](field)(base).getOrElse(default)
             ).widenReader
 
-          case opt: Optional[I, BSONReader[BSONValue, ?], i] =>
+          case opt: Optional[I, BSONReader[BSONValue, *], i] =>
             BSONReader[BSONDocument, B](doc =>
               doc.getAs[i](opt.fieldName)(opt.base)
             ).widenReader
@@ -104,15 +104,15 @@ object FromBson {
           case Constant(_, value, _) =>
             BSONReader[BSONValue, B](_ => value)
 
-          case abs: Absent[I, BSONReader[BSONValue, ?], i] =>
+          case abs: Absent[I, BSONReader[BSONValue, *], i] =>
             BSONReader(_ => Option.empty[i])
         }
       }
     )
   }
 
-  implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson]: FromBson[EitherK[P, Q, ?]] = new FromBson[EitherK[P, Q, ?]] {
-    val reader = new (EitherK[P, Q, ?] ~> BSONReader[BSONValue, ?]) {
+  implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson]: FromBson[EitherK[P, Q, *]] = new FromBson[EitherK[P, Q, *]] {
+    val reader = new (EitherK[P, Q, *] ~> BSONReader[BSONValue, *]) {
       def apply[A](p: EitherK[P, Q, A]): BSONReader[BSONValue, A] = {
         p.run.fold(
           FromBson[P].reader(_),

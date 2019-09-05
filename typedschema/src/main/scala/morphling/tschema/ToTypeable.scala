@@ -22,16 +22,16 @@ object ToTypeable {
     def typeable(implicit TT: ToTypeable[S]): SwaggerTypeable[A] = TT.toTypeable(s)
   }
 
-  implicit def schemaToTypeable[P[_]: ToTypeable]: ToTypeable[Schema[P, ?]] = new ToTypeable[Schema[P, ?]] {
-    val toTypeable: Schema[P, ?] ~> SwaggerTypeable = new (Schema[P, ?] ~> SwaggerTypeable) {
+  implicit def schemaToTypeable[P[_]: ToTypeable]: ToTypeable[Schema[P, *]] = new ToTypeable[Schema[P, *]] {
+    val toTypeable: Schema[P, *] ~> SwaggerTypeable = new (Schema[P, *] ~> SwaggerTypeable) {
       override def apply[I](schema: Schema[P, I]): SwaggerTypeable[I] = {
-        HFix.cataNT[SchemaF[P, ?[_], ?], SwaggerTypeable](typAlg[P]).apply(schema)
+        HFix.cataNT[SchemaF[P, *[_], *], SwaggerTypeable](typAlg[P]).apply(schema)
       }
     }
   }
 
-  def typAlg[P[_]: ToTypeable]: HAlgebra[SchemaF[P, ?[_], ?], SwaggerTypeable] =
-    new HAlgebra[SchemaF[P, ?[_], ?], SwaggerTypeable] {
+  def typAlg[P[_]: ToTypeable]: HAlgebra[SchemaF[P, *[_], *], SwaggerTypeable] =
+    new HAlgebra[SchemaF[P, *[_], *], SwaggerTypeable] {
       def apply[I](schema: SchemaF[P, SwaggerTypeable, I]): SwaggerTypeable[I] = schema match {
         case s: PrimSchema[P, SwaggerTypeable, I] => ToTypeable[P].toTypeable(s.prim)
         case s: OneOfSchema[P, SwaggerTypeable, I] =>
@@ -67,7 +67,7 @@ object ToTypeable {
       }
     }
 
-  def recordTypeable[P[_]: ToTypeable, I](rb: FreeApplicative[PropSchema[I, SwaggerTypeable, ?], I]): SwaggerTypeable[I] = {
+  def recordTypeable[P[_]: ToTypeable, I](rb: FreeApplicative[PropSchema[I, SwaggerTypeable, *], I]): SwaggerTypeable[I] = {
     implicit val som: Monoid[SwaggerObject] = new Monoid[SwaggerObject] {
       override def empty: SwaggerObject = SwaggerObject()
 
@@ -82,8 +82,8 @@ object ToTypeable {
     }
 
     SwaggerTypeable.make[I](
-      rb.foldMap[Const[SwaggerObject, ?]](
-        new (PropSchema[I, SwaggerTypeable, ?] ~> Const[SwaggerObject, ?]) {
+      rb.foldMap[Const[SwaggerObject, *]](
+        new (PropSchema[I, SwaggerTypeable, *] ~> Const[SwaggerObject, *]) {
           def apply[B](ps: PropSchema[I, SwaggerTypeable, B]): Const[SwaggerObject, B] = {
             ps match {
               case req: Required[I, SwaggerTypeable, i] =>
@@ -112,8 +112,8 @@ object ToTypeable {
     )
   }
 
-  implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, ?]] = new ToTypeable[EitherK[P, Q, ?]] {
-    override def toTypeable: EitherK[P, Q, ?] ~> SwaggerTypeable = new (EitherK[P, Q, ?] ~> SwaggerTypeable) {
+  implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, *]] = new ToTypeable[EitherK[P, Q, *]] {
+    override def toTypeable: EitherK[P, Q, *] ~> SwaggerTypeable = new (EitherK[P, Q, *] ~> SwaggerTypeable) {
       override def apply[A](fa: EitherK[P, Q, A]): SwaggerTypeable[A] = fa.run.fold(
         ToTypeable[P].toTypeable(_),
         ToTypeable[Q].toTypeable(_),
