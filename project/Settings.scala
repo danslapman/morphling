@@ -11,9 +11,14 @@ object Settings {
     crossScalaVersions := Seq("2.12.8"),
     scalacOptions ++= Seq(
       "-language:higherKinds,implicitConversions",
-      "-Ypartial-unification",
       "-Ywarn-unused:imports"
     ),
+    scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, y)) if y == 13 => Seq("-Ymacro-annotations")
+        case _ => Seq("-Ypartial-unification")
+      }
+    },
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
     addCompilerPlugin(scalafixSemanticdb),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
