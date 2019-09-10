@@ -1,7 +1,7 @@
 package morphling.scalacheck.annotated
 
 import cats.{Endo, ~>}
-import morphling.protocol.annotated.{Non, Range, Restriction}
+import morphling.protocol.annotated.{Range, Restriction}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.scalacheck.{GenPack, ToGen}
 import org.scalacheck.Gen
@@ -10,9 +10,9 @@ object Implicits extends GenPack {
   implicit val genRestriction: (Restriction ~> λ[T => Endo[Gen[T]]]) =
     new (Restriction ~> λ[T => Endo[Gen[T]]]) {
       override def apply[A](rs: Restriction[A]): Endo[Gen[A]] = rs match {
-        case Non => identity
         case Range(from, to) =>
           (gen: Gen[Int]) => gen.filter(i => i > from && i < to)
+        case _: Restriction[A] => identity
       }
     }
 
