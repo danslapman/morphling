@@ -1,23 +1,30 @@
 package morphling.circe.annotated
 
 import cats._
+import cats.arrow.FunctionK
 import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
+import morphling.annotated.AnnotationProcessor
 import morphling.circe.{FromJson, ToJson}
 import morphling.protocol.{SArrayT, SBoolT, SCharT, SDoubleT, SFloatT, SIntT, SLongT, SNullT, SStrT}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.protocol.annotated.{NoRestr, Range, Restriction}
 
 object Implicits {
-  implicit val annotationValidator: Restriction => HCursor => List[String] = {
-    case NoRestr => _ => Nil
-    case r @ Range(from, to) => cur =>
-      cur.focus.map(fj => fj.asNumber.flatMap(_.toBigDecimal))
-        .toRight("Empty cursor")
-        .flatMap(_.toRight("Value is not a number"))
-        .filterOrElse(_ >= from, s"The value should be gte $from")
-        .filterOrElse(_ <= to, s"The value should be lte $to")
-        .left.toOption.toList
-  }
+  implicit val proc: AnnotationProcessor[Restriction, Decoder] =
+    new AnnotationProcessor[Restriction, Decoder] {
+      override def process: Restriction => Decoder ~> Decoder = {
+        case NoRestr => FunctionK.id
+        case Range(from, to) => new (Decoder ~> Decoder) {
+          override def apply[A](fa: Decoder[A]): Decoder[A] =
+            fa.validate(_.focus.map(fj => fj.asNumber.flatMap(_.toBigDecimal))
+              .toRight("Empty cursor")
+              .flatMap(_.toRight("Value is not a number"))
+              .filterOrElse(_ >= from, s"The value should be gte $from")
+              .filterOrElse(_ <= to, s"The value should be lte $to")
+              .left.toOption.toList)
+        }
+      }
+    }
 
   implicit val primToJson: ToJson[ASchema] = new ToJson[ASchema] { self =>
     import ToJson._
