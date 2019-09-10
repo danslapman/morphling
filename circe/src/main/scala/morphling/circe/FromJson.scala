@@ -45,7 +45,7 @@ object FromJson {
   implicit def annSchemaFromJson[P[_]: FromJson, A: AnnotationProcessor[*, Decoder]]: FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
     val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Decoder[I] = {
-        HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annotatedDecoderAlg[P, A]).apply(schema)
+        HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annDecoderAlg[P, A]).apply(schema)
       }
     }
 
@@ -101,7 +101,7 @@ object FromJson {
       }
     }
 
-  def annotatedDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, Decoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
+  def annDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, Decoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] {
       override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], Decoder, I]): Decoder[I] =
         AnnotationProcessor[Ann, Decoder].process(s.ask).apply(decoderAlg[P].apply(s.fa))

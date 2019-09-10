@@ -6,6 +6,7 @@ import cats.free._
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema.Schema
+import morphling.annotated.AnnotationProcessor
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import org.scalacheck.Gen
@@ -29,15 +30,14 @@ object ToGen {
     }
   }
 
-  implicit def annSchemaToGen[P[_]: ToGen, A]: ToGen[AnnotatedSchema[P, A, *]] = new ToGen[AnnotatedSchema[P, A, *]] {
-    override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
-      override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
-        HFix.cataNT[SchemaF[P, *[_], *], Gen](genAlg).apply(
-          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
-        )
+  implicit def annSchemaToGen[P[_]: ToGen, A: AnnotationProcessor[*, Gen]]: ToGen[AnnotatedSchema[P, A, *]] =
+    new ToGen[AnnotatedSchema[P, A, *]] {
+      override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Gen](annGenAlg).apply(schema)
+        }
       }
     }
-  }
 
   def genAlg[P[_]: ToGen]: HAlgebra[SchemaF[P, *[_], *], Gen] =
     new HAlgebra[SchemaF[P, *[_], *], Gen] {
@@ -53,6 +53,12 @@ object ToGen {
         case s: RecordSchema[P, Gen, I] => recordGen[P,I](s.props)
         case s: IsoSchema[P, Gen, i0, I] => s.base.map(s.iso.get(_))
       }
+    }
+
+  def annGenAlg[P[_]: ToGen, Ann: AnnotationProcessor[*, Gen]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] {
+      override def apply[I](schema: HEnvT[Ann, SchemaF[P, *[_], *], Gen, I]): Gen[I] =
+        AnnotationProcessor[Ann, Gen].process(schema.ask).apply(genAlg[P].apply(schema.fa))
     }
 
   def recordGen[P[_]: ToGen, I](rb: FreeApplicative[PropSchema[I, Gen, *], I]): Gen[I] = {
