@@ -7,6 +7,7 @@ import cats.free._
 import morphling.{Absent, Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import morphling.HFunctor._
 import morphling.Schema._
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import reactivemongo.bson._
 import simulacrum.typeclass
@@ -27,6 +28,16 @@ object ToBson {
     val writer: Schema[P, *] ~> BSONWriter[*, BSONValue] = new (Schema[P, *] ~> BSONWriter[*, BSONValue]) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]](serializeAlg).apply(schema)
+      }
+    }
+  }
+
+  implicit def annSchemaToBson[P[_]: ToBson, A[_]]: ToBson[AnnotatedSchema[P, A, *]] = new ToBson[AnnotatedSchema[P, A, *]] {
+    val writer: AnnotatedSchema[P, A, *] ~> BSONWriter[*, BSONValue] = new (AnnotatedSchema[P, A, *] ~> BSONWriter[*, BSONValue]) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONWriter[I, BSONValue] = {
+        HFix.cataNT[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]](serializeAlg).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
       }
     }
   }

@@ -9,6 +9,7 @@ import io.circe.syntax._
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import simulacrum.typeclass
 
@@ -26,6 +27,16 @@ object ToJson {
     val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(schema)
+      }
+    }
+  }
+
+  implicit def annSchemaToJson[P[_]: ToJson, A[_]]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
+    val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(
+          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+        )
       }
     }
   }

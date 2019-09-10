@@ -3,9 +3,10 @@ package morphling.scalacheck
 import cats._
 import cats.data.EitherK
 import cats.free._
-import morphling.HFunctor._
 import morphling._
+import morphling.HFunctor._
 import morphling.Schema.Schema
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import org.scalacheck.Gen
 import simulacrum.typeclass
@@ -28,6 +29,15 @@ object ToGen {
     }
   }
 
+  implicit def annSchemaToGen[P[_]: ToGen, A[_]: *[_] ~> λ[T => Endo[Gen[T]]]]: ToGen[AnnotatedSchema[P, A, *]] =
+    new ToGen[AnnotatedSchema[P, A, *]] {
+      override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Gen](annGenAlg).apply(schema)
+        }
+      }
+    }
+
   def genAlg[P[_]: ToGen]: HAlgebra[SchemaF[P, *[_], *], Gen] =
     new HAlgebra[SchemaF[P, *[_], *], Gen] {
       def apply[I](schema: SchemaF[P, Gen, I]): Gen[I] = schema match {
@@ -42,6 +52,12 @@ object ToGen {
         case s: RecordSchema[P, Gen, I] => recordGen[P,I](s.props)
         case s: IsoSchema[P, Gen, i0, I] => s.base.map(s.iso.get(_))
       }
+    }
+
+  def annGenAlg[P[_]: ToGen, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[Gen[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] {
+      override def apply[I](schema: HEnvT[Ann, SchemaF[P, *[_], *], Gen, I]): Gen[I] =
+        interpret.apply(schema.ask).apply(genAlg[P].apply(schema.fa))
     }
 
   def recordGen[P[_]: ToGen, I](rb: FreeApplicative[PropSchema[I, Gen, *], I]): Gen[I] = {

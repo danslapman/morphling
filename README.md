@@ -124,5 +124,5 @@ val encoder = Server.schema.encoder
 
 | morphling | cats | circe | reactivemongo | typed-schema | scalacheck |
 |-----------|------| ----- | ------------- | ------------ | ---------- |
-| ?? | 2.0.0-RC2 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |
+| 1.1 | 2.0.0 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |
 | 1.0 | 1.6.1 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |

@@ -5,7 +5,8 @@ import cats.data.EitherK
 import cats.free._
 import morphling.HFunctor.HAlgebra
 import morphling.Schema.Schema
-import morphling.{Absent, Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
+import morphling.annotated.Schema.AnnotatedSchema
+import morphling.{Absent, Alt, Constant, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import mouse.option._
 import ops._
@@ -29,6 +30,15 @@ object FromBson {
       }
     }
   }
+
+  implicit def annSchemaFromBson[P[_]: FromBson, A[_]: *[_] ~> λ[T => Endo[BSONReader[BSONValue, T]]]]: FromBson[AnnotatedSchema[P, A, *]] =
+    new FromBson[AnnotatedSchema[P, A, *]] {
+      val reader: AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *] = new (AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *]) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONReader[BSONValue, I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]](annDecoderAlg[P, A]).apply(schema)
+        }
+      }
+    }
 
   def decoderAlg[P[_]: FromBson]: HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] =
     new HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] {
@@ -75,9 +85,15 @@ object FromBson {
       }
     }
 
+  def annDecoderAlg[P[_]: FromBson, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[BSONReader[BSONValue, T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]] {
+      override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], BSONReader[BSONValue, *], I]): BSONReader[BSONValue, I] =
+        interpret(s.ask).apply(decoderAlg[P].apply(s.fa))
+    }
+
   def decodeObj[I](rb: FreeApplicative[PropSchema[I, BSONReader[BSONValue, *], *], I]): BSONReader[BSONValue, I] = {
     implicit val djap: Applicative[BSONReader[BSONValue, *]] = new Applicative[BSONReader[BSONValue, *]] {
-      override def pure[T](a: T) = BSONReader[BSONValue, T](_ => a)
+      override def pure[T](a: T): BSONReader[BSONValue, T] = BSONReader[BSONValue, T](_ => a)
 
       override def ap[T, U](ff: BSONReader[BSONValue, T => U])(fa: BSONReader[BSONValue, T]): BSONReader[BSONValue, U] =
         (v: BSONValue) => ff.read(v)(fa.read(v))
