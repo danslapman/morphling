@@ -8,6 +8,7 @@ import cats.syntax.option._
 import morphling.HFunctor._
 import morphling._
 import morphling.Schema.Schema
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerStringValue, SwaggerTypeable}
 import simulacrum.typeclass
@@ -29,6 +30,15 @@ object ToTypeable {
       }
     }
   }
+
+  implicit def annSchemaToTypeable[P[_]: ToTypeable, A[_]: *[_] ~> λ[T => Endo[SwaggerTypeable[T]]]]: ToTypeable[AnnotatedSchema[P, A, *]] =
+    new ToTypeable[AnnotatedSchema[P, A, *]] {
+      override def toTypeable: AnnotatedSchema[P, A, *] ~> SwaggerTypeable = new (AnnotatedSchema[P, A, *] ~> SwaggerTypeable) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): SwaggerTypeable[I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], SwaggerTypeable](annTypAlg).apply(schema)
+        }
+      }
+    }
 
   def typAlg[P[_]: ToTypeable]: HAlgebra[SchemaF[P, *[_], *], SwaggerTypeable] =
     new HAlgebra[SchemaF[P, *[_], *], SwaggerTypeable] {
@@ -65,6 +75,12 @@ object ToTypeable {
         case s: RecordSchema[P, SwaggerTypeable, I] => recordTypeable[P,I](s.props)
         case s: IsoSchema[P, SwaggerTypeable, i0, I] => s.base.as[I]
       }
+    }
+
+  def annTypAlg[P[_]: ToTypeable, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[SwaggerTypeable[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], SwaggerTypeable] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], SwaggerTypeable] {
+      override def apply[A](schema: HEnvT[Ann, SchemaF[P, *[_], *], SwaggerTypeable, A]): SwaggerTypeable[A] =
+        interpret.apply(schema.ask).apply(typAlg[P].apply(schema.fa))
     }
 
   def recordTypeable[P[_]: ToTypeable, I](rb: FreeApplicative[PropSchema[I, SwaggerTypeable, *], I]): SwaggerTypeable[I] = {
