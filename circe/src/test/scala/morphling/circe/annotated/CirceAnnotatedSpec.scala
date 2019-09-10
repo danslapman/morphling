@@ -6,7 +6,7 @@ import io.circe.syntax._
 import morphling.circe.FromJson._
 import morphling.circe.ToJson._
 import morphling.circe.annotated.Implicits._
-import morphling.samples.annotated.AnnPerson
+import morphling.samples.annotated.{AnnPerson, Server}
 import morphling.samples.{Person, person}
 import morphling.scalacheck.annotated.Implicits._
 import morphling.scalacheck.ToGen._
@@ -33,7 +33,7 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
     )
   }
 
-  test("A value should be deserialised from JSON"){
+  test("A value should be deserialised from JSON") {
     implicit val encoder = AnnPerson.schema.encoder
     val decoder = AnnPerson.schema.decoder
     val accDecoder = AnnPerson.schema.accumulatingDecoder
@@ -42,7 +42,7 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
     accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
-  test("Serialization should round-trip values produced by a generator"){
+  test("Serialization should round-trip values produced by a generator") {
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(AnnPerson.schema.gen)
     implicit val encoder = AnnPerson.schema.encoder
     val decoder = AnnPerson.schema.decoder
@@ -53,5 +53,12 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
     check {
       (p: Person) => accDecoder(p.asJson.hcursor).toOption == Some(p)
     }
+  }
+
+  test("Deserialization should fail if some value does not fit limitations") {
+    val decoder = Server.schema.decoder
+
+    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 0)) shouldBe 'left
+    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 70000)) shouldBe 'left
   }
 }
