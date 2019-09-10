@@ -2,7 +2,7 @@ package morphling.circe.annotated
 
 import cats._
 import cats.arrow.FunctionK
-import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
+import io.circe.{AccumulatingDecoder, Decoder, Encoder}
 import morphling.annotated.AnnotationProcessor
 import morphling.circe.{FromJson, ToJson}
 import morphling.protocol.{SArrayT, SBoolT, SCharT, SDoubleT, SFloatT, SIntT, SLongT, SNullT, SStrT}

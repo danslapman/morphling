@@ -13,8 +13,8 @@ object Server {
 
   val schema: Schema[ASchema, Server] = rec(
     (
-      required("host", sStr(NoRestr: Restriction), host.asGetter),
-      required("port", sInt(Range(1, 65535): Restriction), port.asGetter)
+      required("host", sStr(NoRestr: Restriction), host),
+      required("port", sInt(Range(1, 65535): Restriction), port)
     ).mapN(Server.apply),
     NoRestr: Restriction
   )

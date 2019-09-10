@@ -21,8 +21,8 @@ object Implicits {
         case SCharT()   => arbitrary[Char]
         case SStrT()    => arbitrary[String]
         case arr: SArrayT[Schema[SSchema, *], i] =>
-          val baseDecoder: Gen[i] = ToGen.schemaToGen[SSchema](self).toGen(arr.elem)
-          containerOf[Vector, i](baseDecoder)
+          val elemGen: Gen[i] = ToGen.schemaToGen[SSchema](self).toGen(arr.elem)
+          containerOf[Vector, i](elemGen)
       }
     }
   }
