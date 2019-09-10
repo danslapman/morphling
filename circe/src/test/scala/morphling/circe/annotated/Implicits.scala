@@ -10,7 +10,7 @@ import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.protocol.annotated.{NoRestr, Range, Restriction}
 
 object Implicits {
-  implicit val proc: AnnotationProcessor[Restriction, Decoder] =
+  implicit val procDecoder: AnnotationProcessor[Restriction, Decoder] =
     new AnnotationProcessor[Restriction, Decoder] {
       override def process: Restriction => Decoder ~> Decoder = {
         case NoRestr => FunctionK.id

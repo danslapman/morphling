@@ -7,7 +7,10 @@ import morphling.circe.FromJson._
 import morphling.circe.ToJson._
 import morphling.circe.annotated.Implicits._
 import morphling.samples.annotated.AnnPerson
-import morphling.samples.person
+import morphling.samples.{Person, person}
+import morphling.scalacheck.annotated.Implicits._
+import morphling.scalacheck.ToGen._
+import org.scalacheck.Arbitrary
 import org.scalatest.{EitherValues, FunSuite, Matchers}
 import org.scalatestplus.scalacheck.Checkers
 
@@ -37,5 +40,19 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
 
     decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
     accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
+  }
+
+
+  test("Serialization should round-trip values produced by a generator"){
+    implicit val arbPerson : Arbitrary[Person] = Arbitrary(AnnPerson.schema.gen)
+    implicit val encoder = AnnPerson.schema.encoder
+    val decoder = AnnPerson.schema.decoder
+    val accDecoder = AnnPerson.schema.accumulatingDecoder
+    check {
+      (p: Person) => decoder.decodeJson(p.asJson).toOption == Some(p)
+    }
+    check {
+      (p: Person) => accDecoder(p.asJson.hcursor).toOption == Some(p)
+    }
   }
 }
