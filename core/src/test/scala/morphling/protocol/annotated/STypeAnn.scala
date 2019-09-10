@@ -9,23 +9,23 @@ object STypeAnn {
 
   type ASchema[I] = HMutu[SType, Schema, I]
 
-  def sNull(ann: Restriction): Schema[ASchema, Unit] =
+  def sNull(ann: Restriction[Unit]): Schema[ASchema, Unit] =
     prim(HMutu[SType, Schema, Unit](SNullT()), ann)
-  def sBool(ann: Restriction): Schema[ASchema, Boolean] =
+  def sBool(ann: Restriction[Boolean]): Schema[ASchema, Boolean] =
     prim(HMutu[SType, Schema, Boolean](SBoolT()), ann)
-  def sInt(ann: Restriction): Schema[ASchema, Int] =
+  def sInt(ann: Restriction[Int]): Schema[ASchema, Int] =
     prim(HMutu[SType, Schema, Int](SIntT()), ann)
-  def sLong(ann: Restriction): Schema[ASchema, Long] =
+  def sLong(ann: Restriction[Long]): Schema[ASchema, Long] =
     prim(HMutu[SType, Schema, Long](SLongT()), ann)
-  def sFloat(ann: Restriction): Schema[ASchema, Float] =
+  def sFloat(ann: Restriction[Float]): Schema[ASchema, Float] =
     prim(HMutu[SType, Schema, Float](SFloatT()), ann)
-  def sDouble(ann: Restriction): Schema[ASchema, Double] =
+  def sDouble(ann: Restriction[Double]): Schema[ASchema, Double] =
     prim(HMutu[SType, Schema, Double](SDoubleT()), ann)
-  def sChar(ann: Restriction): Schema[ASchema, Char] =
+  def sChar(ann: Restriction[Char]): Schema[ASchema, Char] =
     prim(HMutu[SType, Schema, Char](SCharT()), ann)
-  def sStr(ann: Restriction): Schema[ASchema, String] =
+  def sStr(ann: Restriction[String]): Schema[ASchema, String] =
     prim(HMutu[SType, Schema, String](SStrT()), ann)
 
-  def sArray[I](elem: Schema[ASchema, I], ann: Restriction): Schema[ASchema, Vector[I]] =
+  def sArray[I](elem: Schema[ASchema, I], ann: Restriction[Vector[I]]): Schema[ASchema, Vector[I]] =
     prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)), ann)
 }

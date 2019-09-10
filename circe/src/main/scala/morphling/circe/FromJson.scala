@@ -10,7 +10,6 @@ import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCurso
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
-import morphling.annotated.AnnotationProcessor
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.boolean._
 import ops._
@@ -42,7 +41,7 @@ object FromJson {
     }
   }
 
-  implicit def annSchemaFromJson[P[_]: FromJson, A: AnnotationProcessor[*, Decoder]]: FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
+  implicit def annSchemaFromJson[P[_]: FromJson, A[_]: *[_] ~> λ[T => Endo[Decoder[T]]]]: FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
     val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Decoder[I] = {
         HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annDecoderAlg[P, A]).apply(schema)
@@ -52,16 +51,13 @@ object FromJson {
     /*
       AccumulatingDecoder is deprecated in circe 0.12, there is no sense in first-class support
      */
-    private implicit val accumulatingProcessor: AnnotationProcessor[A, AccumulatingDecoder] =
-      new AnnotationProcessor[A, AccumulatingDecoder] {
-        override def process: A => AccumulatingDecoder ~> AccumulatingDecoder = ann =>
-          new (AccumulatingDecoder ~> AccumulatingDecoder) {
-            private val ap = AnnotationProcessor[A, Decoder].process(ann)
+    private implicit val accumulatingInterpreter: (A ~> λ[T => Endo[AccumulatingDecoder[T]]]) =
+      new (A ~> λ[T => Endo[AccumulatingDecoder[T]]]) {
+        private val interpret = implicitly[A ~> λ[T => Endo[Decoder[T]]]]
 
-            override def apply[I](ad: AccumulatingDecoder[I]): AccumulatingDecoder[I] = {
-              ap(Decoder.instance((ad.apply _).andThen(_.toEither.leftMap(_.head)))).accumulating
-            }
-          }
+        override def apply[I](fa: A[I]): Endo[AccumulatingDecoder[I]] = { ad =>
+          interpret(fa)(Decoder.instance((ad.apply _).andThen(_.toEither.leftMap(_.head)))).accumulating
+        }
       }
 
     val accumulatingDecoder: AnnotatedSchema[P, A, *] ~> AccumulatingDecoder = new (AnnotatedSchema[P, A, *] ~> AccumulatingDecoder) {
@@ -114,10 +110,10 @@ object FromJson {
       }
     }
 
-  def annDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, Decoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
+  def annDecoderAlg[P[_]: FromJson, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[Decoder[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] {
       override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], Decoder, I]): Decoder[I] =
-        AnnotationProcessor[Ann, Decoder].process(s.ask).apply(decoderAlg[P].apply(s.fa))
+        interpret(s.ask).apply(decoderAlg[P].apply(s.fa))
     }
 
   def decodeObj[I](rb: FreeApplicative[PropSchema[I, Decoder, *], I]): Decoder[I] = {
@@ -185,10 +181,10 @@ object FromJson {
       }
     }
 
-  def annAccumulatingDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, AccumulatingDecoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder] =
+  def annAccumulatingDecoderAlg[P[_]: FromJson, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[AccumulatingDecoder[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder] {
       override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], AccumulatingDecoder, I]): AccumulatingDecoder[I] =
-        AnnotationProcessor[Ann, AccumulatingDecoder].process(s.ask).apply(accumulatingDecoderAlg[P].apply(s.fa))
+        interpret(s.ask).apply(accumulatingDecoderAlg[P].apply(s.fa))
     }
 
   def decodeObjAcc[I](rb: FreeApplicative[PropSchema[I, AccumulatingDecoder, *], I]): AccumulatingDecoder[I] = {

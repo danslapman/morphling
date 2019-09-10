@@ -1,28 +1,21 @@
 package morphling.circe.annotated
 
 import cats._
-import cats.arrow.FunctionK
 import io.circe.{AccumulatingDecoder, Decoder, Encoder}
-import morphling.annotated.AnnotationProcessor
 import morphling.circe.{FromJson, ToJson}
 import morphling.protocol.{SArrayT, SBoolT, SCharT, SDoubleT, SFloatT, SIntT, SLongT, SNullT, SStrT}
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.protocol.annotated.{NoRestr, Range, Restriction}
+import morphling.protocol.annotated.{Non, Range, Restriction}
 
 object Implicits {
-  implicit val procDecoder: AnnotationProcessor[Restriction, Decoder] =
-    new AnnotationProcessor[Restriction, Decoder] {
-      override def process: Restriction => Decoder ~> Decoder = {
-        case NoRestr => FunctionK.id
-        case Range(from, to) => new (Decoder ~> Decoder) {
-          override def apply[A](fa: Decoder[A]): Decoder[A] =
-            fa.validate(_.focus.map(fj => fj.asNumber.flatMap(_.toBigDecimal))
-              .toRight("Empty cursor")
-              .flatMap(_.toRight("Value is not a number"))
-              .filterOrElse(_ >= from, s"The value should be gte $from")
-              .filterOrElse(_ <= to, s"The value should be lte $to")
-              .left.toOption.toList)
-        }
+  implicit val decoderRestriction: (Restriction ~> λ[T => Endo[Decoder[T]]]) =
+    new (Restriction ~> λ[T => Endo[Decoder[T]]]) {
+      override def apply[A](rs: Restriction[A]): Endo[Decoder[A]] = rs match {
+        case Non => identity
+        case Range(from, to) =>
+          (dec: Decoder[Int]) => dec
+            .ensure(_ > from, s"Value should be greater than $from")
+            .ensure(_ < to, s"Value should be less than $to")
       }
     }
 

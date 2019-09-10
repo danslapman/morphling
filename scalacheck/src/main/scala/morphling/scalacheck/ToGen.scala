@@ -6,7 +6,6 @@ import cats.free._
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema.Schema
-import morphling.annotated.AnnotationProcessor
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import org.scalacheck.Gen
@@ -30,7 +29,7 @@ object ToGen {
     }
   }
 
-  implicit def annSchemaToGen[P[_]: ToGen, A: AnnotationProcessor[*, Gen]]: ToGen[AnnotatedSchema[P, A, *]] =
+  implicit def annSchemaToGen[P[_]: ToGen, A[_]: *[_] ~> λ[T => Endo[Gen[T]]]]: ToGen[AnnotatedSchema[P, A, *]] =
     new ToGen[AnnotatedSchema[P, A, *]] {
       override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
         override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
@@ -55,10 +54,10 @@ object ToGen {
       }
     }
 
-  def annGenAlg[P[_]: ToGen, Ann: AnnotationProcessor[*, Gen]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] =
+  def annGenAlg[P[_]: ToGen, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[Gen[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Gen] {
       override def apply[I](schema: HEnvT[Ann, SchemaF[P, *[_], *], Gen, I]): Gen[I] =
-        AnnotationProcessor[Ann, Gen].process(schema.ask).apply(genAlg[P].apply(schema.fa))
+        interpret.apply(schema.ask).apply(genAlg[P].apply(schema.fa))
     }
 
   def recordGen[P[_]: ToGen, I](rb: FreeApplicative[PropSchema[I, Gen, *], I]): Gen[I] = {

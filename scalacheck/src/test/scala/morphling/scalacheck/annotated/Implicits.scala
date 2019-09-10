@@ -1,20 +1,19 @@
 package morphling.scalacheck.annotated
 
-import cats.arrow.FunctionK
-import cats.~>
-import morphling.annotated.AnnotationProcessor
-import morphling.protocol.annotated.{NoRestr, Range, Restriction}
+import cats.{Endo, ~>}
+import morphling.protocol.annotated.{Non, Range, Restriction}
 import morphling.protocol.{SArrayT, SBoolT, SCharT, SDoubleT, SFloatT, SIntT, SLongT, SNullT, SStrT}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.scalacheck.ToGen
 import org.scalacheck.Gen
 
 object Implicits {
-  implicit val proc: AnnotationProcessor[Restriction, Gen] =
-    new AnnotationProcessor[Restriction, Gen] {
-      override def process: Restriction => Gen ~> Gen = {
-        case NoRestr => FunctionK.id
-        case Range(from, to) => FunctionK.id
+  implicit val genRestriction: (Restriction ~> λ[T => Endo[Gen[T]]]) =
+    new (Restriction ~> λ[T => Endo[Gen[T]]]) {
+      override def apply[A](rs: Restriction[A]): Endo[Gen[A]] = rs match {
+        case Non => identity
+        case Range(from, to) =>
+          (gen: Gen[Int]) => gen.filter(i => i > from && i < to)
       }
     }
 
@@ -33,7 +32,7 @@ object Implicits {
         case SCharT()   => arbitrary[Char]
         case SStrT()    => arbitrary[String]
         case arr: SArrayT[s.Inner, i] =>
-          val elemGen: Gen[i] = ToGen.annSchemaToGen[ASchema, Restriction](self, proc).toGen(arr.elem)
+          val elemGen: Gen[i] = ToGen.annSchemaToGen[ASchema, Restriction](self, genRestriction).toGen(arr.elem)
           containerOf[Vector, i](elemGen)
       }
     }

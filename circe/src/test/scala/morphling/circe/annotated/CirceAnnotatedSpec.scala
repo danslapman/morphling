@@ -42,7 +42,6 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
     accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
-
   test("Serialization should round-trip values produced by a generator"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(AnnPerson.schema.gen)
     implicit val encoder = AnnPerson.schema.encoder

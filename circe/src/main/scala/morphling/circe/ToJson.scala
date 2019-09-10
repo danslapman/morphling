@@ -31,7 +31,7 @@ object ToJson {
     }
   }
 
-  implicit def annSchemaToJson[P[_]: ToJson, A]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
+  implicit def annSchemaToJson[P[_]: ToJson, A[_]]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
     val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(

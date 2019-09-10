@@ -1,9 +1,8 @@
 package morphling.protocol.annotated
 
-sealed trait Restriction
-case object NoRestr extends Restriction
-case class Range(from: BigDecimal, to: BigDecimal) extends Restriction
-
+sealed trait Restriction[T]
+case object Non extends Restriction[Nothing]
+case class Range(from: Int, to: Int) extends Restriction[Int]
 object Restriction {
-  val Non: Restriction = NoRestr
+  def non[T]: Restriction[T] = Non.asInstanceOf[Restriction[T]]
 }
