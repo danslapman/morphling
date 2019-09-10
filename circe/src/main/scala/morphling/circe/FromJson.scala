@@ -10,6 +10,7 @@ import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCurso
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
+import morphling.annotated.AnnotationProcessor
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.boolean._
 import ops._
@@ -41,11 +42,10 @@ object FromJson {
     }
   }
 
-  implicit def annSchemaFromJson[P[_]: FromJson, A](implicit jsonValidator: A => HCursor => List[String]): FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
+  implicit def annSchemaFromJson[P[_]: FromJson, A: AnnotationProcessor[*, Decoder]]: FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
     val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Decoder[I] = {
         HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annotatedDecoderAlg[P, A]).apply(schema)
-          .validate(jsonValidator(schema.unfix.value.ask))
       }
     }
 
@@ -101,10 +101,10 @@ object FromJson {
       }
     }
 
-  def annotatedDecoderAlg[P[_]: FromJson, Ann]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
+  def annotatedDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, Decoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], Decoder] {
       override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], Decoder, I]): Decoder[I] =
-        decoderAlg[P].apply(s.fa)
+        AnnotationProcessor[Ann, Decoder].process(s.ask).apply(decoderAlg[P].apply(s.fa))
     }
 
   def decodeObj[I](rb: FreeApplicative[PropSchema[I, Decoder, *], I]): Decoder[I] = {
