@@ -49,11 +49,24 @@ object FromJson {
       }
     }
 
+    /*
+      AccumulatingDecoder is deprecated in circe 0.12, there is no sense in first-class support
+     */
+    private implicit val accumulatingProcessor: AnnotationProcessor[A, AccumulatingDecoder] =
+      new AnnotationProcessor[A, AccumulatingDecoder] {
+        override def process: A => AccumulatingDecoder ~> AccumulatingDecoder = ann =>
+          new (AccumulatingDecoder ~> AccumulatingDecoder) {
+            private val ap = AnnotationProcessor[A, Decoder].process(ann)
+
+            override def apply[I](ad: AccumulatingDecoder[I]): AccumulatingDecoder[I] = {
+              ap(Decoder.instance((ad.apply _).andThen(_.toEither.leftMap(_.head)))).accumulating
+            }
+          }
+      }
+
     val accumulatingDecoder: AnnotatedSchema[P, A, *] ~> AccumulatingDecoder = new (AnnotatedSchema[P, A, *] ~> AccumulatingDecoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): AccumulatingDecoder[I] = {
-        HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(
-          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
-        )
+        HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder](annAccumulatingDecoderAlg[P, A]).apply(schema)
       }
     }
   }
@@ -170,6 +183,12 @@ object FromJson {
         case IsoSchema(base, iso) =>
           base.map(iso.get)
       }
+    }
+
+  def annAccumulatingDecoderAlg[P[_]: FromJson, Ann: AnnotationProcessor[*, AccumulatingDecoder]]: HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder] {
+      override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], AccumulatingDecoder, I]): AccumulatingDecoder[I] =
+        AnnotationProcessor[Ann, AccumulatingDecoder].process(s.ask).apply(accumulatingDecoderAlg[P].apply(s.fa))
     }
 
   def decodeObjAcc[I](rb: FreeApplicative[PropSchema[I, AccumulatingDecoder, *], I]): AccumulatingDecoder[I] = {

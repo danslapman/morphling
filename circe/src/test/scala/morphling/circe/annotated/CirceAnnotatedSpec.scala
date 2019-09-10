@@ -29,4 +29,13 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
       "name" := "Kris Nuttycombe"
     )
   }
+
+  test("A value should be deserialised from JSON"){
+    implicit val encoder = AnnPerson.schema.encoder
+    val decoder = AnnPerson.schema.decoder
+    val accDecoder = AnnPerson.schema.accumulatingDecoder
+
+    decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
+    accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
+  }
 }
