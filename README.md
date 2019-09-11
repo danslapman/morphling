@@ -12,7 +12,7 @@ All You need is ~~love~~:
 ```
     resolvers += Resolver.bintrayRepo("danslapman", "maven")
 
-    libraryDependencies += "danslapman" %% "morphling" % "1.0"
+    libraryDependencies += "danslapman" %% "morphling" % "1.1"
 ```
 
 # Version compatibility table
