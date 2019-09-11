@@ -70,13 +70,13 @@ object HFix {
   def annotate[F[_[_], _]: HFunctor, A[_]](ann: A[Nothing]): HFix[F, *] ~> HCofree[F, A, *] = anaNT(annotateAlg(ann))
 
   /** HFunctor over the annotation type of an HCofree value */
-  implicit def hfunctor[F[_[_], _]](implicit HF: HFunctor[F]): HFunctor[HCofree[F, *[_], *]] =
+  implicit def hCoFreeHFunctor[F[_[_], _]](implicit HF: HFunctor[F]): HFunctor[HCofree[F, *[_], *]] =
     new HFunctor[HCofree[F, *[_], *]] {
       override def hfmap[M[_], N[_]](nt: M ~> N): HCofree[F, M, *] ~> HCofree[F, N, *] =
         new (HCofree[F, M, *] ~> HCofree[F, N, *]) {
           override def apply[I](hc: HCofree[F, M, I]): HCofree[F, N, I] = {
             val step = hc.unfix.value
-            hcofree(nt.apply(step.ask), HF.hfmap(hfunctor[F].hfmap(nt)).apply(step.fa))
+            hcofree(nt.apply(step.ask), HF.hfmap(hCoFreeHFunctor[F].hfmap(nt)).apply(step.fa))
           }
         }
     }

@@ -22,7 +22,7 @@ import shapeless.HList
   *  @define ADefn The type of the annotation applied to each node of the schema
   */
 object Schema {
-  /** The type of an unannotated schema.
+  /** The type of an annotated schema.
     *
     *  This is an alias for the HFix fixpoint applied to the SchemaF type constructor.
     *
@@ -63,7 +63,7 @@ object Schema {
     */
   type Props[P[_], A[_], R] = Prop[P, A, R, R]
 
-  /** Lifts a SchemaF value into an unannotated Schema
+  /** Lifts a SchemaF value into an annotated Schema
     *
     *  @tparam P $PDefn
     *  @tparam A $ADefn
@@ -74,7 +74,7 @@ object Schema {
   def schema[P[_], A[_], I](sf: => SchemaF[P, AnnotatedSchema[P, A, *], I], ann: => A[I]): AnnotatedSchema[P, A, I] =
     hcofree[SchemaF[P, *[_], *], A, I](ann, sf)
 
-  /** Lifts a value in an algebra of primitives into an unannotated Schema
+  /** Lifts a value in an algebra of primitives into an annotated Schema
     *
     *  @tparam P $PDefn
     *  @tparam A $ADefn
@@ -85,7 +85,7 @@ object Schema {
   def prim[P[_], A[_], I](p: P[I], ann: A[I]): AnnotatedSchema[P, A, I] =
     schema(PrimSchema[P, AnnotatedSchema[P, A, *], I](p), ann)
 
-  /** Builds an un-annotated schema for a record type from the free
+  /** Builds an annotated schema for a record type from the free
     *  applicative capture of that record's structure.
     *
     *  @tparam P $PDefn
@@ -266,7 +266,7 @@ object Schema {
       )
   }
 
-  /** The unannotated empty record schema, representing a constant value.
+  /** The annotated empty record schema, representing a constant value.
     *
     *  @tparam P $PDefn
     *  @tparam A $ADefn
@@ -274,7 +274,7 @@ object Schema {
   def const[P[_], A[_], O](obj: O, ann: A[O]): AnnotatedSchema[P, A, O] =
     rec[P, A, O](FreeApplicative.pure[PropSchema[O, AnnotatedSchema[P, A, *], *], O](obj), ann)
 
-  /** Builds an un-annotated schema for the sum type `I` from an HList of alternatives.
+  /** Builds an annotated schema for the sum type `I` from an HList of alternatives.
     *
     *  Each alternative value in the list describes a single constructor of `I`.
     *  For example, to construct the schema for [[scala.util.Either]] one would provide
@@ -314,7 +314,7 @@ object Schema {
     }
   }
 
-  /** Builds an un-annotated schema for the sum type `I` from a list of alternatives.
+  /** Builds an annotated schema for the sum type `I` from a list of alternatives.
     *
     *  Each alternative value in the list describes a single constructor of `I`.
     *  For example, to construct the schema for [[scala.util.Either]] one would provide
@@ -350,8 +350,8 @@ object Schema {
     Alt[AnnotatedSchema[P, A, *], I, J](id, base, prism)
 
   implicit class SchemaOps[P[_], A[_], I](base: AnnotatedSchema[P, A, I]) {
-    def composeIso[J](iso: Iso[I, J]): AnnotatedSchema[P, A, J] = {
-      schema(IsoSchema[P, AnnotatedSchema[P, A, *], I, J](base, iso), base.unfix.value.ask.asInstanceOf[A[J]])
+    def composeIso[J](iso: Iso[I, J], transform: A[I] => A[J]): AnnotatedSchema[P, A, J] = {
+      schema(IsoSchema[P, AnnotatedSchema[P, A, *], I, J](base, iso), transform(base.unfix.value.ask))
     }
   }
 }
