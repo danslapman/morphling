@@ -1,3 +1,9 @@
+## version 1.3
+
+> 11.09.2019
+
+Uncurry `unsafeOneOfDiscr` to avoid overload clashing
+
 ## version 1.2
 
 > 11.09.2019

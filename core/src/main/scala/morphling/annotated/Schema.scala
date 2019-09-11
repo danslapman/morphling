@@ -387,7 +387,7 @@ object Schema {
   def unsafeOneOf[P[_], A[_]: EmptyK, I](alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts))
 
-  def unsafeOneOfDiscr[P[_], A[_], I](discriminatorField: String)(ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOfDiscr[P[_], A[_], I](discriminatorField: String, ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts, Some(discriminatorField)), ann)
 
   def unsafeOneOfDiscr[P[_], A[_]: EmptyK, I](discriminatorField: String)(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
