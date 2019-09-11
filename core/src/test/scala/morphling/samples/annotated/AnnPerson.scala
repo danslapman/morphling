@@ -18,7 +18,7 @@ object AnnPerson {
     (
       required("name", sStr(non), Person.name),
       required(
-        "birthDate", sLong(non).composeIso(instantIso),
+        "birthDate", sLong(non).composeIso(instantIso, _.asInstanceOf[Restriction[Instant]]),
         Person.birthDate
       ),
       required("roles", sArray(AnnRole.schema, non[Vector[Role]]), Person.roles),

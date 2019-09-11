@@ -1,4 +1,10 @@
-## unreleased
+## version 1.1.1
+
+> 11.09.2019
+
+- bump `monocle`
+
+## version 1.1
 
 > 11.09.2019
 
