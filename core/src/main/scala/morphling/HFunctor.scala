@@ -69,23 +69,17 @@ object HFix {
 
   def annotate[F[_[_], _]: HFunctor, A[_]](ann: A[Nothing]): HFix[F, *] ~> HCofree[F, A, *] = anaNT(annotateAlg(ann))
 
-  /*
-  /** Functor over the annotation type of an HCofree value */
-  implicit def functor[F[_[_], _], I](implicit HF: HFunctor[F]): Functor[HCofree[F, *[_], I]] =
-    new Functor[HCofree[F, *[_], I]] {
-      def map[A, B](fa: HCofree[F, A, I])(f: A => B): HCofree[F, B, I] = {
-        val step = fa.unfix.value
-        val hf = new (HCofree[F, A, *] ~> HCofree[F, B, *]) {
-          def apply[I0](gcf: HCofree[F, A, I0]): HCofree[F, B, I0] = functor(HF).map(gcf)(f)
+  /** HFunctor over the annotation type of an HCofree value */
+  implicit def hfunctor[F[_[_], _]](implicit HF: HFunctor[F]): HFunctor[HCofree[F, *[_], *]] =
+    new HFunctor[HCofree[F, *[_], *]] {
+      override def hfmap[M[_], N[_]](nt: M ~> N): HCofree[F, M, *] ~> HCofree[F, N, *] =
+        new (HCofree[F, M, *] ~> HCofree[F, N, *]) {
+          override def apply[I](hc: HCofree[F, M, I]): HCofree[F, N, I] = {
+            val step = hc.unfix.value
+            hcofree(nt.apply(step.ask), HF.hfmap(hfunctor[F].hfmap(nt)).apply(step.fa))
+          }
         }
-
-        hcofree(
-          f(step.ask),
-          HF.hfmap[HCofree[F, A, *], HCofree[F, B, *]](hf).apply(step.fa)
-        )
-      }
     }
-   */
 }
 
 final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I]) {
