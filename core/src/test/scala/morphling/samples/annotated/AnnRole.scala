@@ -9,21 +9,19 @@ import morphling.samples.{Administrator, Role, User}
 import shapeless.HNil
 
 object AnnRole {
-  import Restriction.non
-
-  val schema: Schema[ASchema, Role] = Schema.oneOf(non[Role])(
+  val schema: Schema[ASchema, Role] = Schema.oneOf(
     alt[ASchema, Restriction, Role, User.type](
       "user",
-      Schema.const(User, non),
+      Schema.const(User),
       User.prism
     ) ::
       alt[ASchema, Restriction, Role, Administrator](
         "administrator",
         rec(
           (
-            required("department", sStr(non), Administrator.department),
-            required("subordinateCount", sInt(non), Administrator.subordinateCount)
-          ).mapN(Administrator.apply), non
+            required("department", sStr(), Administrator.department),
+            required("subordinateCount", sInt(), Administrator.subordinateCount)
+          ).mapN(Administrator.apply)
         ),
         Administrator.prism
       ) :: HNil

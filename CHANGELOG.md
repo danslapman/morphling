@@ -1,3 +1,10 @@
+## version 1.2
+
+> 11.09.2019
+
+- add convenience overloads for a bunch of methods `annotated.Schema`
+- bump mouse
+
 ## version 1.1.1
 
 > 11.09.2019

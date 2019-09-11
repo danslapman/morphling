@@ -1,5 +1,6 @@
 package morphling.annotated
 
+import alleycats.EmptyK
 import cats._
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
@@ -74,6 +75,17 @@ object Schema {
   def schema[P[_], A[_], I](sf: => SchemaF[P, AnnotatedSchema[P, A, *], I], ann: => A[I]): AnnotatedSchema[P, A, I] =
     hcofree[SchemaF[P, *[_], *], A, I](ann, sf)
 
+  /** Lifts a SchemaF value into an annotated Schema
+    *
+    *  @tparam P $PDefn
+    *  @tparam A $ADefn
+    *  @tparam I $IDefn
+    *  @param sf The value to be annotated
+    *  @return the newly constructed schema value
+    */
+  def schema[P[_], A[_]: EmptyK, I](sf: => SchemaF[P, AnnotatedSchema[P, A, *], I]): AnnotatedSchema[P, A, I] =
+    hcofree[SchemaF[P, *[_], *], A, I](EmptyK[A].empty, sf)
+
   /** Lifts a value in an algebra of primitives into an annotated Schema
     *
     *  @tparam P $PDefn
@@ -84,6 +96,17 @@ object Schema {
     */
   def prim[P[_], A[_], I](p: P[I], ann: A[I]): AnnotatedSchema[P, A, I] =
     schema(PrimSchema[P, AnnotatedSchema[P, A, *], I](p), ann)
+
+  /** Lifts a value in an algebra of primitives into an annotated Schema
+    *
+    *  @tparam P $PDefn
+    *  @tparam A $ADefn
+    *  @tparam I $IDefn
+    *  @param p a value of the `P` algebra
+    *  @return the newly constructed schema value
+    */
+  def prim[P[_], A[_]: EmptyK, I](p: P[I]): AnnotatedSchema[P, A, I] =
+    schema(PrimSchema[P, AnnotatedSchema[P, A, *], I](p), EmptyK[A].empty)
 
   /** Builds an annotated schema for a record type from the free
     *  applicative capture of that record's structure.
@@ -96,6 +119,18 @@ object Schema {
     */
   def rec[P[_], A[_], I](props: Props[P, A, I], ann: A[I]): AnnotatedSchema[P, A, I] =
     schema(RecordSchema[P, AnnotatedSchema[P, A, *], I](props), ann)
+
+  /** Builds an annotated schema for a record type from the free
+    *  applicative capture of that record's structure.
+    *
+    *  @tparam P $PDefn
+    *  @tparam A $ADefn
+    *  @tparam I $IDefn
+    *  @param props The free-applicative value that captures the structure
+    *         of the record type.
+    */
+  def rec[P[_], A[_]: EmptyK, I](props: Props[P, A, I]): AnnotatedSchema[P, A, I] =
+    schema(RecordSchema[P, AnnotatedSchema[P, A, *], I](props), EmptyK[A].empty)
 
   /** Smart constructor for required Prop instances.
     *
@@ -274,6 +309,14 @@ object Schema {
   def const[P[_], A[_], O](obj: O, ann: A[O]): AnnotatedSchema[P, A, O] =
     rec[P, A, O](FreeApplicative.pure[PropSchema[O, AnnotatedSchema[P, A, *], *], O](obj), ann)
 
+  /** The annotated empty record schema, representing a constant value.
+    *
+    *  @tparam P $PDefn
+    *  @tparam A $ADefn
+    */
+  def const[P[_], A[_]: EmptyK, O](obj: O): AnnotatedSchema[P, A, O] =
+    rec[P, A, O](FreeApplicative.pure[PropSchema[O, AnnotatedSchema[P, A, *], *], O](obj))
+
   /** Builds an annotated schema for the sum type `I` from an HList of alternatives.
     *
     *  Each alternative value in the list describes a single constructor of `I`.
@@ -299,6 +342,10 @@ object Schema {
     def apply[A[_], H <: HList](ann: A[I])(ctrs: H)(implicit ev: Constructors[I, Alt[AnnotatedSchema[P, A, *], I, *], H]): AnnotatedSchema[P, A, I] = {
       schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](ev.toNel(ctrs)), ann)
     }
+
+    def apply[A[_]: EmptyK, H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[AnnotatedSchema[P, A, *], I, *], H]): AnnotatedSchema[P, A, I] = {
+      schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](ev.toNel(ctrs)))
+    }
   }
 
   def oneOfDiscr[P[_], I](discriminatorField: String): ToOneOfWithDiscriminator[P, I] =
@@ -311,6 +358,10 @@ object Schema {
   final class ToOneOfWithDiscriminator[P[_], I](discriminatorField: String) {
     def apply[A[_], H <: HList](ann: A[I])(ctrs: H)(implicit ev: Constructors[I, Alt[AnnotatedSchema[P, A, *], I, *], H]): AnnotatedSchema[P, A, I] = {
       schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](ev.toNel(ctrs), Some(discriminatorField)), ann)
+    }
+
+    def apply[A[_]: EmptyK, H <: HList](ctrs: H)(implicit ev: Constructors[I, Alt[AnnotatedSchema[P, A, *], I, *], H]): AnnotatedSchema[P, A, I] = {
+      schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](ev.toNel(ctrs), Some(discriminatorField)))
     }
   }
 
@@ -333,8 +384,14 @@ object Schema {
   def unsafeOneOf[P[_], A[_], I](ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts), ann)
 
-  def unsafeOneOfDiscr[P[_], A[_], I](ann: A[I])(discriminatorField: String)(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOf[P[_], A[_]: EmptyK, I](alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+    schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts))
+
+  def unsafeOneOfDiscr[P[_], A[_], I](discriminatorField: String)(ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts, Some(discriminatorField)), ann)
+
+  def unsafeOneOfDiscr[P[_], A[_]: EmptyK, I](discriminatorField: String)(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+    schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts, Some(discriminatorField)))
 
   /** Convenience constructor for oneOf schema alternatives.
     *

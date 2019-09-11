@@ -2,7 +2,7 @@ val versions = Map(
   "cats" -> "2.0.0",
   "circe" -> "0.11.1",
   "monocle" -> "2.0.0",
-  "mouse" -> "0.22",
+  "mouse" -> "0.23",
   "scalacheck" -> "1.14.0",
   "scalatest" -> "3.0.8",
   "simulacrum" -> "0.19.0",
@@ -19,6 +19,7 @@ val morphling = (project in file("core"))
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % versions("cats"),
       "org.typelevel" %% "cats-free" % versions("cats"),
+      "org.typelevel" %% "alleycats-core" % versions("cats"),
       "com.github.julien-truffaut" %%  "monocle-core" % versions("monocle"),
       "com.github.julien-truffaut" %%  "monocle-macro" % versions("monocle") % Test,
       "com.chuusai" %% "shapeless" % "2.3.3",
