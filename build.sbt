@@ -76,7 +76,7 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
     name := "morphling-reactivemongo",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "org.reactivemongo" %% "reactivemongo-bson" % "0.16.4",
+      "org.reactivemongo" %% "reactivemongo-bson" % "0.17.0",
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,

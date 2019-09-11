@@ -2,7 +2,8 @@
 
 >
 
-Support schema annotations
+- Support schema annotations
+- upgrade `reactivemongo`
 
 ## version 1.0
 
