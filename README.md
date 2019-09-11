@@ -15,6 +15,13 @@ All You need is ~~love~~:
     libraryDependencies += "danslapman" %% "morphling" % "1.0"
 ```
 
+# Version compatibility table
+
+| morphling | cats | circe | reactivemongo | typed-schema | scalacheck |
+|-----------|------| ----- | ------------- | ------------ | ---------- |
+| 1.1 | 2.0.0 | 0.11.1 | 0.17.0 | 0.11.0-beta6 | 1.14.0 |
+| 1.0 | 1.6.1 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |
+
 # Setting up protocol
 First of all, You need to define a set of "scalar" types You like to support.
 They can be `Int`s, `BigInt`s, `Instant`s, any type You mean to treat as scalar, actually.
@@ -123,10 +130,3 @@ With such a transformation defined we can derive an `Encoder` for `Server`:
 ```scala
 val encoder = Server.schema.encoder
 ```
-
-# Version compatibility table
-
-| morphling | cats | circe | reactivemongo | typed-schema | scalacheck |
-|-----------|------| ----- | ------------- | ------------ | ---------- |
-| 1.1 | 2.0.0 | 0.11.1 | 0.17.0 | 0.11.0-beta6 | 1.14.0 |
-| 1.0 | 1.6.1 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |
