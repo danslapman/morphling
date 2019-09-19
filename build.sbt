@@ -15,7 +15,7 @@ val morphling = (project in file("core"))
   .settings(
     name := "morphling",
     parallelExecution in ThisBuild := false,
-    crossScalaVersions := Seq("2.12.8", "2.13.0"),
+    crossScalaVersions := Seq("2.12.10", "2.13.0"),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % versions("cats"),
       "org.typelevel" %% "cats-free" % versions("cats"),
@@ -33,7 +33,7 @@ val `morphling-scalacheck` = (project in file("scalacheck"))
   .settings(
     name := "morphling-scalacheck",
     parallelExecution in ThisBuild := false,
-    crossScalaVersions := Seq("2.12.8", "2.13.0"),
+    crossScalaVersions := Seq("2.12.10", "2.13.0"),
     libraryDependencies ++= Seq(
       "org.typelevel" %% "mouse" % versions("mouse"),
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
