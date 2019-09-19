@@ -59,7 +59,7 @@ val `morphling-circe` = (project in file("circe"))
       "com.github.mpilquist" %% "simulacrum" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
-      "com.ironcorelabs" %% "cats-scalatest" % "2.4.0"
+      "com.ironcorelabs" %% "cats-scalatest" % "3.0.0"
     ),
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>

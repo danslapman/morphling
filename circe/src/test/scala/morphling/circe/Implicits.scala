@@ -2,7 +2,9 @@ package morphling.circe
 
 import cats._
 import io.circe.{AccumulatingDecoder, Decoder, Encoder}
+import morphling.circe.ToFilter.JsonFilter
 import morphling.protocol.SType.SSchema
+import mouse.anyf._
 
 object Implicits extends CircePack {
   implicit val primToJson: ToJson[SSchema] = new ToJson[SSchema] {
@@ -18,5 +20,11 @@ object Implicits extends CircePack {
 
     val accumulatingDecoder: SSchema ~> AccumulatingDecoder =
       decoder.andThen(λ[Decoder ~> AccumulatingDecoder](AccumulatingDecoder.fromDecoder(_)))
+  }
+
+  implicit val primToFilter: ToFilter[SSchema] = new ToFilter[SSchema] {
+    val filter = new (SSchema ~> ToFilter.JsonFilter) {
+      override def apply[I](s: SSchema[I]): JsonFilter[I] = sTypeDecoder[SSchema[I]#Inner].apply(s.unmutu) ||> ToFilter.filterFromDecoder
+    }
   }
 }

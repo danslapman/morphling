@@ -4,8 +4,9 @@ import cats._
 import cats.data.Const
 import cats.free._
 import cats.instances.function._
+import cats.instances.option._
 import cats.syntax.all._
-import io.circe.Json
+import io.circe.{Decoder, Json, JsonObject}
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema.Schema
@@ -17,14 +18,22 @@ import simulacrum.typeclass
   */
 @typeclass
 trait ToFilter[S[_]] {
-  def filter: S ~> Const[Endo[Json], *]
+  def filter: S ~> Const[Json => Option[Json], *]
 }
 
 object ToFilter {
-  type JsonFilter[T] = Const[Endo[Json], T]
+  type Subset[T] = T => Option[T]
+  type JsonFilter[T] = Const[Subset[Json], T]
+
+  val filterFromDecoder: Decoder ~> JsonFilter =
+    new (Decoder ~> JsonFilter) {
+      override def apply[A](dec: Decoder[A]): JsonFilter[A] = Const.of { j =>
+        dec.decodeJson(j).fold(_ => None, _ => Some(j))
+      }
+    }
 
   implicit class ToFilterOps[S[_], A](s: S[A]) {
-    def jsonFilter(implicit TF: ToFilter[S]): Endo[Json] = TF.filter(s).getConst
+    def jsonFilter(implicit TF: ToFilter[S]): Subset[Json] = TF.filter(s).getConst
   }
 
   implicit def schemaToFilter[P[_]: ToFilter]: ToFilter[Schema[P, *]] = new ToFilter[Schema[P, *]] {
@@ -43,11 +52,11 @@ object ToFilter {
           s.discriminator.cata(
             dField =>
               s.alts.map {
-                case Alt(id, f, p) =>
-                  extractField(id) |+| f.getConst
+                case Alt(_, f, _) =>
+                  extractField(dField) |+| f.getConst
               }.fold,
             s.alts.map {
-              case Alt(id, f, p) =>
+              case Alt(id, f, _) =>
                 extractFieldContents(id, f.getConst)
             }.fold
           )
@@ -64,25 +73,28 @@ object ToFilter {
           ps match {
             case req: Required[I, JsonFilter, i] => Const.of(extractField(req.fieldName))
             case opt: Optional[I, JsonFilter, i] => Const.of(extractField(opt.fieldName))
-            case _ => Const.of(ejm.empty)
+            case _ => Const.of(sjm.empty)
           }
         }
       }
     )
   }
 
-  private def extractField(name: String): Endo[Json] = { j =>
-    j.mapObject(_.filterKeys(_ == name))
+  private def extractField(name: String): Subset[Json] = { j =>
+    j.mapObject(_.filterKeys(_ == name)).asObject.filter(_.nonEmpty).map(Json.fromJsonObject)
   }
 
-  private def extractFieldContents(name: String, inner: Endo[Json]): Endo[Json] = { j =>
-    j.mapObject(_.filterKeys(_ == name).mapValues(inner))
+  private def extractFieldContents(name: String, inner: Subset[Json]): Subset[Json] = { j =>
+    j.mapObject(jo => JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _)}))
+      .asObject.filter(_.nonEmpty).map(Json.fromJsonObject)
   }
 
-  private implicit val ejm: Monoid[Endo[Json]] = new Monoid[Endo[Json]] {
-    override def empty: Endo[Json] = _ => Json.Null
+  private implicit val semiJ: Semigroup[Json] = _ deepMerge _
 
-    override def combine(x: Endo[Json], y: Endo[Json]): Endo[Json] =
-      x &&& y andThen { case (lhs, rhs) => lhs deepMerge rhs}
+  private implicit val sjm: Monoid[Subset[Json]] = new Monoid[Subset[Json]] {
+    override def empty: Subset[Json] = _ => None
+
+    override def combine(x: Subset[Json], y: Subset[Json]): Subset[Json] =
+      x &&& y andThen { case (lhs, rhs) => lhs |+| rhs}
   }
 }
