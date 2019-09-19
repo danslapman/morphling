@@ -24,7 +24,7 @@ object FromBson {
   }
 
   implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, *]] = new FromBson[Schema[P, *]] {
-    val reader: Schema[P, *] ~> BSONReader[BSONValue, *] = new (Schema[P, *] ~> BSONReader[BSONValue, *]) {
+    override val reader: Schema[P, *] ~> BSONReader[BSONValue, *] = new (Schema[P, *] ~> BSONReader[BSONValue, *]) {
       override def apply[I](schema: Schema[P, I]) = {
         HFix.cataNT[SchemaF[P, *[_], *], BSONReader[BSONValue, *]](decoderAlg[P]).apply(schema)
       }
@@ -33,7 +33,7 @@ object FromBson {
 
   implicit def annSchemaFromBson[P[_]: FromBson, A[_]: *[_] ~> λ[T => Endo[BSONReader[BSONValue, T]]]]: FromBson[AnnotatedSchema[P, A, *]] =
     new FromBson[AnnotatedSchema[P, A, *]] {
-      val reader: AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *] = new (AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *]) {
+      override val reader: AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *] = new (AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *]) {
         override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONReader[BSONValue, I] = {
           HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]](annDecoderAlg[P, A]).apply(schema)
         }
@@ -128,7 +128,7 @@ object FromBson {
   }
 
   implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson]: FromBson[EitherK[P, Q, *]] = new FromBson[EitherK[P, Q, *]] {
-    val reader = new (EitherK[P, Q, *] ~> BSONReader[BSONValue, *]) {
+    override val reader = new (EitherK[P, Q, *] ~> BSONReader[BSONValue, *]) {
       def apply[A](p: EitherK[P, Q, A]): BSONReader[BSONValue, A] = {
         p.run.fold(
           FromBson[P].reader(_),

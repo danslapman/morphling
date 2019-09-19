@@ -7,7 +7,6 @@ import morphling.circe.FromJson._
 import morphling.circe.Implicits._
 import morphling.circe.ToJson._
 import morphling.samples._
-import morphling.samples.Person
 import morphling.scalacheck.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary

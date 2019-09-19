@@ -1,3 +1,9 @@
+## version 1.4
+
+> 19.09.2019
+
+Introduce `ToFilter` typeclass for Json filtering
+
 ## version 1.3
 
 > 11.09.2019

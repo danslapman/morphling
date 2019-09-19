@@ -22,7 +22,7 @@ object ToGen {
   }
 
   implicit def schemaToGen[P[_]: ToGen]: ToGen[Schema[P, *]] = new ToGen[Schema[P, *]] {
-    val toGen: Schema[P, *] ~> Gen = new (Schema[P, *] ~> Gen) {
+    override val toGen: Schema[P, *] ~> Gen = new (Schema[P, *] ~> Gen) {
       override def apply[I](schema: Schema[P, I]): Gen[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Gen](genAlg).apply(schema)
       }
@@ -31,7 +31,7 @@ object ToGen {
 
   implicit def annSchemaToGen[P[_]: ToGen, A[_]: *[_] ~> λ[T => Endo[Gen[T]]]]: ToGen[AnnotatedSchema[P, A, *]] =
     new ToGen[AnnotatedSchema[P, A, *]] {
-      override def toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
+      override val toGen: AnnotatedSchema[P, A, *] ~> Gen = new (AnnotatedSchema[P, A, *] ~> Gen) {
         override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {
           HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Gen](annGenAlg).apply(schema)
         }
@@ -82,7 +82,7 @@ object ToGen {
   }
 
   implicit def eitherKGen[P[_]: ToGen, Q[_]: ToGen]: ToGen[EitherK[P, Q, *]] = new ToGen[EitherK[P, Q, *]] {
-    override def toGen: EitherK[P, Q, *] ~> Gen = new (EitherK[P, Q, *] ~> Gen) {
+    override val toGen: EitherK[P, Q, *] ~> Gen = new (EitherK[P, Q, *] ~> Gen) {
       override def apply[A](fa: EitherK[P, Q, A]): Gen[A] = fa.run.fold(
         ToGen[P].toGen(_),
         ToGen[Q].toGen(_),
