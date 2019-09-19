@@ -24,7 +24,7 @@ object ToJson {
   }
 
   implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, *]] = new ToJson[Schema[P, *]] {
-    val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
+    override val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
       override def apply[I](schema: Schema[P, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(schema)
       }
@@ -32,7 +32,7 @@ object ToJson {
   }
 
   implicit def annSchemaToJson[P[_]: ToJson, A[_]]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
-    val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
+    override val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(
           HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
@@ -97,7 +97,7 @@ object ToJson {
 
   implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson]: ToJson[EitherK[P, Q, *]] =
     new ToJson[EitherK[P, Q, *]] {
-      val encoder = new (EitherK[P, Q, *] ~> Encoder) {
+      override val encoder = new (EitherK[P, Q, *] ~> Encoder) {
         def apply[A](p: EitherK[P, Q, A]): Encoder[A] = {
           p.run.fold(ToJson[P].encoder(_), ToJson[Q].encoder(_))
         }

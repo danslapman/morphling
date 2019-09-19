@@ -6,7 +6,7 @@ import cats.free._
 import cats.syntax.applicative._
 import cats.syntax.either._
 import cats.syntax.validated._
-import io.circe.{AccumulatingDecoder, CursorOp, Decoder, DecodingFailure, HCursor}
+import io.circe.{AccumulatingDecoder, Decoder, DecodingFailure, HCursor}
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema._
@@ -28,13 +28,13 @@ object FromJson {
   }
 
   implicit def schemaFromJson[P[_]: FromJson]: FromJson[Schema[P, *]] = new FromJson[Schema[P, *]] {
-    val decoder: Schema[P, *] ~> Decoder = new (Schema[P, *] ~> Decoder) {
+    override val decoder: Schema[P, *] ~> Decoder = new (Schema[P, *] ~> Decoder) {
       override def apply[I](schema: Schema[P, I]): Decoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], Decoder](decoderAlg[P]).apply(schema)
       }
     }
 
-    val accumulatingDecoder: Schema[P, *] ~> AccumulatingDecoder = new (Schema[P, *] ~> AccumulatingDecoder) {
+    override val accumulatingDecoder: Schema[P, *] ~> AccumulatingDecoder = new (Schema[P, *] ~> AccumulatingDecoder) {
       override def apply[I](schema: Schema[P, I]): AccumulatingDecoder[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], AccumulatingDecoder](accumulatingDecoderAlg[P]).apply(schema)
       }
@@ -42,7 +42,7 @@ object FromJson {
   }
 
   implicit def annSchemaFromJson[P[_]: FromJson, A[_]: *[_] ~> λ[T => Endo[Decoder[T]]]]: FromJson[AnnotatedSchema[P, A, *]] = new FromJson[AnnotatedSchema[P, A, *]] {
-    val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
+    override val decoder: AnnotatedSchema[P, A, *] ~> Decoder = new (AnnotatedSchema[P, A, *] ~> Decoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): Decoder[I] = {
         HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], Decoder](annDecoderAlg[P, A]).apply(schema)
       }
@@ -60,7 +60,7 @@ object FromJson {
         }
       }
 
-    val accumulatingDecoder: AnnotatedSchema[P, A, *] ~> AccumulatingDecoder = new (AnnotatedSchema[P, A, *] ~> AccumulatingDecoder) {
+    override val accumulatingDecoder: AnnotatedSchema[P, A, *] ~> AccumulatingDecoder = new (AnnotatedSchema[P, A, *] ~> AccumulatingDecoder) {
       override def apply[I](schema: AnnotatedSchema[P, A, I]): AccumulatingDecoder[I] = {
         HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], AccumulatingDecoder](annAccumulatingDecoderAlg[P, A]).apply(schema)
       }
@@ -188,8 +188,6 @@ object FromJson {
     }
 
   def decodeObjAcc[I](rb: FreeApplicative[PropSchema[I, AccumulatingDecoder, *], I]): AccumulatingDecoder[I] = {
-    @inline def failNel(ops: List[CursorOp]) = NonEmptyList.one(DecodingFailure("Attempt to decode value on failed cursor", ops))
-
     rb.foldMap(
       new (PropSchema[I, AccumulatingDecoder, *] ~> AccumulatingDecoder) {
         def apply[B](ps: PropSchema[I, AccumulatingDecoder, B]): AccumulatingDecoder[B] = ps match {

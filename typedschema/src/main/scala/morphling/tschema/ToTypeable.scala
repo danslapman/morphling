@@ -24,7 +24,7 @@ object ToTypeable {
   }
 
   implicit def schemaToTypeable[P[_]: ToTypeable]: ToTypeable[Schema[P, *]] = new ToTypeable[Schema[P, *]] {
-    val toTypeable: Schema[P, *] ~> SwaggerTypeable = new (Schema[P, *] ~> SwaggerTypeable) {
+    override val toTypeable: Schema[P, *] ~> SwaggerTypeable = new (Schema[P, *] ~> SwaggerTypeable) {
       override def apply[I](schema: Schema[P, I]): SwaggerTypeable[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], SwaggerTypeable](typAlg[P]).apply(schema)
       }
@@ -33,7 +33,7 @@ object ToTypeable {
 
   implicit def annSchemaToTypeable[P[_]: ToTypeable, A[_]: *[_] ~> λ[T => Endo[SwaggerTypeable[T]]]]: ToTypeable[AnnotatedSchema[P, A, *]] =
     new ToTypeable[AnnotatedSchema[P, A, *]] {
-      override def toTypeable: AnnotatedSchema[P, A, *] ~> SwaggerTypeable = new (AnnotatedSchema[P, A, *] ~> SwaggerTypeable) {
+      override val toTypeable: AnnotatedSchema[P, A, *] ~> SwaggerTypeable = new (AnnotatedSchema[P, A, *] ~> SwaggerTypeable) {
         override def apply[I](schema: AnnotatedSchema[P, A, I]): SwaggerTypeable[I] = {
           HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], SwaggerTypeable](annTypAlg).apply(schema)
         }
@@ -85,7 +85,7 @@ object ToTypeable {
 
   def recordTypeable[P[_]: ToTypeable, I](rb: FreeApplicative[PropSchema[I, SwaggerTypeable, *], I]): SwaggerTypeable[I] = {
     implicit val som: Monoid[SwaggerObject] = new Monoid[SwaggerObject] {
-      override def empty: SwaggerObject = SwaggerObject()
+      override val empty: SwaggerObject = SwaggerObject()
 
       override def combine(x: SwaggerObject, y: SwaggerObject): SwaggerObject =
         SwaggerObject(
@@ -129,7 +129,7 @@ object ToTypeable {
   }
 
   implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, *]] = new ToTypeable[EitherK[P, Q, *]] {
-    override def toTypeable: EitherK[P, Q, *] ~> SwaggerTypeable = new (EitherK[P, Q, *] ~> SwaggerTypeable) {
+    override val toTypeable: EitherK[P, Q, *] ~> SwaggerTypeable = new (EitherK[P, Q, *] ~> SwaggerTypeable) {
       override def apply[A](fa: EitherK[P, Q, A]): SwaggerTypeable[A] = fa.run.fold(
         ToTypeable[P].toTypeable(_),
         ToTypeable[Q].toTypeable(_),

@@ -10,6 +10,7 @@ import io.circe.{Json, JsonObject}
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema.Schema
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import simulacrum.typeclass
 
@@ -30,12 +31,21 @@ object ToFilter {
   }
 
   implicit def schemaToFilter[P[_]: ToFilter]: ToFilter[Schema[P, *]] = new ToFilter[Schema[P, *]] {
-    val filter: Schema[P, *] ~> JsonFilter = new (Schema[P, *] ~> JsonFilter) {
+    override val filter: Schema[P, *] ~> JsonFilter = new (Schema[P, *] ~> JsonFilter) {
       override def apply[I](schema: Schema[P, I]): JsonFilter[I] = {
         HFix.cataNT[SchemaF[P, *[_], *], JsonFilter](filterAlg[P]).apply(schema)
       }
     }
   }
+
+  implicit def annSchemaToFilter[P[_]: ToFilter, A[_]: *[_] ~> λ[T => Endo[JsonFilter[T]]]]: ToFilter[AnnotatedSchema[P, A, *]] =
+    new ToFilter[AnnotatedSchema[P, A, *]] {
+      override val filter: AnnotatedSchema[P, A, *] ~> JsonFilter = new (AnnotatedSchema[P, A, *] ~> JsonFilter) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): JsonFilter[I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], JsonFilter](annFilterAlg).apply(schema)
+        }
+      }
+    }
 
   def filterAlg[P[_]: ToFilter]: HAlgebra[SchemaF[P, *[_], *], JsonFilter] =
     new HAlgebra[SchemaF[P, *[_], *], JsonFilter] {
@@ -57,6 +67,12 @@ object ToFilter {
         case s: RecordSchema[P, JsonFilter, I] => recordFilter[P,I](s.props)
         case s: IsoSchema[P, JsonFilter, i0, I] => s.base.retag[I]
       }
+    }
+
+  def annFilterAlg[P[_]: ToFilter, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[JsonFilter[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], JsonFilter] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], JsonFilter] {
+      override def apply[A](schema: HEnvT[Ann, SchemaF[P, *[_], *], JsonFilter, A]): JsonFilter[A] =
+        interpret.apply(schema.ask).apply(filterAlg[P].apply(schema.fa))
     }
 
   def recordFilter[P[_]: ToFilter, I](rb: FreeApplicative[PropSchema[I, JsonFilter, *], I]): JsonFilter[I] = {
@@ -90,7 +106,7 @@ object ToFilter {
   private implicit val semiJ: Semigroup[Json] = _ deepMerge _
 
   private implicit val sjm: Monoid[Subset[Json]] = new Monoid[Subset[Json]] {
-    override def empty: Subset[Json] = _ => None
+    override val empty: Subset[Json] = _ => None
 
     override def combine(x: Subset[Json], y: Subset[Json]): Subset[Json] =
       x &&& y andThen { case (lhs, rhs) => lhs |+| rhs}
