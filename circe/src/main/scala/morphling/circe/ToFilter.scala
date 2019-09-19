@@ -1,7 +1,7 @@
 package morphling.circe
 
 import cats._
-import cats.data.Const
+import cats.data.{Const, EitherK}
 import cats.free._
 import cats.instances.function._
 import cats.instances.option._
@@ -88,6 +88,15 @@ object ToFilter {
       }
     )
   }
+
+  implicit def eitherKToFilter[P[_]: ToFilter, Q[_]: ToFilter]: ToFilter[EitherK[P, Q, *]] =
+    new ToFilter[EitherK[P, Q, *]] {
+      override val filter = new (EitherK[P, Q, *] ~> JsonFilter) {
+        def apply[A](p: EitherK[P, Q, A]): JsonFilter[A] = {
+          p.run.fold(ToFilter[P].filter(_), ToFilter[Q].filter(_))
+        }
+      }
+    }
 
   private def extractField(name: String): Subset[Json] = { j =>
     j.mapObject(_.filterKeys(_ == name)).asObject.filter(_.nonEmpty).map(Json.fromJsonObject)
