@@ -6,7 +6,7 @@ import cats.free._
 import cats.instances.function._
 import cats.instances.option._
 import cats.syntax.all._
-import io.circe.{Decoder, Json, JsonObject}
+import io.circe.{Json, JsonObject}
 import morphling._
 import morphling.HFunctor._
 import morphling.Schema.Schema
@@ -24,13 +24,6 @@ trait ToFilter[S[_]] {
 object ToFilter {
   type Subset[T] = T => Option[T]
   type JsonFilter[T] = Const[Subset[Json], T]
-
-  val filterFromDecoder: Decoder ~> JsonFilter =
-    new (Decoder ~> JsonFilter) {
-      override def apply[A](dec: Decoder[A]): JsonFilter[A] = Const.of { j =>
-        dec.decodeJson(j).fold(_ => None, _ => Some(j))
-      }
-    }
 
   implicit class ToFilterOps[S[_], A](s: S[A]) {
     def jsonFilter(implicit TF: ToFilter[S]): Subset[Json] = TF.filter(s).getConst
@@ -57,7 +50,7 @@ object ToFilter {
               }.fold,
             s.alts.map {
               case Alt(id, f, _) =>
-                extractFieldContents(id, f.getConst)
+                extractFieldContentsStrict(id, f.getConst)
             }.fold
           )
         }
@@ -71,8 +64,8 @@ object ToFilter {
       new (PropSchema[I, JsonFilter, *] ~> JsonFilter) {
         override def apply[B](ps: PropSchema[I, JsonFilter, B]): JsonFilter[B] = {
           ps match {
-            case req: Required[I, JsonFilter, i] => Const.of(extractField(req.fieldName))
-            case opt: Optional[I, JsonFilter, i] => Const.of(extractField(opt.fieldName))
+            case req: Required[I, JsonFilter, i] => Const.of(extractFieldContentsStrict(req.fieldName, req.base.getConst))
+            case opt: Optional[I, JsonFilter, i] => Const.of(extractFieldContents(opt.fieldName, opt.base.getConst))
             case _ => Const.of(sjm.empty)
           }
         }
@@ -85,6 +78,11 @@ object ToFilter {
   }
 
   private def extractFieldContents(name: String, inner: Subset[Json]): Subset[Json] = { j =>
+    j.mapObject(jo => JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _)}))
+      .asObject.map(Json.fromJsonObject)
+  }
+
+  private def extractFieldContentsStrict(name: String, inner: Subset[Json]): Subset[Json] = { j =>
     j.mapObject(jo => JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _)}))
       .asObject.filter(_.nonEmpty).map(Json.fromJsonObject)
   }
