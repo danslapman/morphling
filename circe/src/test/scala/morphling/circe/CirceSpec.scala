@@ -35,31 +35,28 @@ class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedV
   test("A value should be deserialised from JSON"){
     implicit val encoder = Person.schema.encoder
     val decoder = Person.schema.decoder
-    val accDecoder = Person.schema.accumulatingDecoder
 
     decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
-    accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
+    decoder.decodeAccumulating(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
   test("A default value should be applied during deserialization") {
     implicit val encoder = Person.schema.encoder
     val decoder = Person.schema.decoder
-    val accDecoder = Person.schema.accumulatingDecoder
 
     decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).right.value shouldBe person.copy(updateCounter = 0, stamp = 101)
-    accDecoder.apply(person.asJson.mapObject(_.filterKeys(_ != "updateCounter")).hcursor).value shouldBe person.copy(updateCounter = 0, stamp = 101)
+    decoder.decodeAccumulating(person.asJson.mapObject(_.filterKeys(_ != "updateCounter")).hcursor).value shouldBe person.copy(updateCounter = 0, stamp = 101)
   }
 
   test("Serialization should round-trip values produced by a generator"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.gen)
     implicit val encoder = Person.schema.encoder
     val decoder = Person.schema.decoder
-    val accDecoder = Person.schema.accumulatingDecoder
     check {
       (p: Person) => decoder.decodeJson(p.asJson).toOption == Some(p)
     }
     check {
-      (p: Person) => accDecoder(p.asJson.hcursor).toOption == Some(p)
+      (p: Person) => decoder.decodeAccumulating(p.asJson.hcursor).toOption == Some(p)
     }
   }
 

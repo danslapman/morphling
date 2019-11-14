@@ -9,104 +9,106 @@ import morphling.HFunctor._
 import morphling.Schema._
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
-import reactivemongo.bson._
+import reactivemongo.api.bson._
 import simulacrum.typeclass
 
-import scala.util.Success
+import scala.util.{Success, Try}
 
 @typeclass
 trait ToBson[S[_]] {
-  def writer: S ~> BSONWriter[*, BSONValue]
+  def writer: S ~> BSONWriter
 }
 
 object ToBson {
   implicit class ToBsonOps[F[_], A](fa: F[A]) {
-    def writer(implicit TB: ToBson[F]): BSONWriter[A, BSONValue] = TB.writer(fa)
+    def writer(implicit TB: ToBson[F]): BSONWriter[A] = TB.writer(fa)
   }
 
   implicit def schemaToBson[P[_]: ToBson]: ToBson[Schema[P, *]] = new ToBson[Schema[P, *]] {
-    override val writer: Schema[P, *] ~> BSONWriter[*, BSONValue] = new (Schema[P, *] ~> BSONWriter[*, BSONValue]) {
-      override def apply[I](schema: Schema[P, I]) = {
-        HFix.cataNT[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]](serializeAlg).apply(schema)
+    override val writer: Schema[P, *] ~> BSONWriter = new (Schema[P, *] ~> BSONWriter) {
+      override def apply[I](schema: Schema[P, I]): BSONWriter[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], BSONWriter](serializeAlg).apply(schema)
       }
     }
   }
 
   implicit def annSchemaToBson[P[_]: ToBson, A[_]]: ToBson[AnnotatedSchema[P, A, *]] = new ToBson[AnnotatedSchema[P, A, *]] {
-    override val writer: AnnotatedSchema[P, A, *] ~> BSONWriter[*, BSONValue] = new (AnnotatedSchema[P, A, *] ~> BSONWriter[*, BSONValue]) {
-      override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONWriter[I, BSONValue] = {
-        HFix.cataNT[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]](serializeAlg).apply(
+    override val writer: AnnotatedSchema[P, A, *] ~> BSONWriter = new (AnnotatedSchema[P, A, *] ~> BSONWriter) {
+      override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONWriter[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], BSONWriter](serializeAlg).apply(
           HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
         )
       }
     }
   }
 
-  def serializeAlg[P[_]: ToBson]: HAlgebra[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]] =
-    new HAlgebra[SchemaF[P, *[_], *], BSONWriter[*, BSONValue]] {
-      def apply[I](schema: SchemaF[P, BSONWriter[*, BSONValue], I]): BSONWriter[I, BSONValue] = {
+  def serializeAlg[P[_]: ToBson]: HAlgebra[SchemaF[P, *[_], *], BSONWriter] =
+    new HAlgebra[SchemaF[P, *[_], *], BSONWriter] {
+      def apply[I](schema: SchemaF[P, BSONWriter, I]): BSONWriter[I] = {
         schema match {
-          case s: PrimSchema[P, BSONWriter[*, BSONValue], I] =>
+          case s: PrimSchema[P, BSONWriter, I] =>
             ToBson[P].writer(s.prim)
 
-          case s: OneOfSchema[P, BSONWriter[*, BSONValue], I] =>
+          case s: OneOfSchema[P, BSONWriter, I] =>
             (value: I) => {
               s.discriminator.cata(
                 dField => {
-                  s.alts.map { case alt: Alt[BSONWriter[*, BSONValue], I, i] =>
+                  s.alts.map { case alt: Alt[BSONWriter, I, i] =>
                     alt.prism.getOption(value).map(v =>
-                      alt.base.write(v) match {
+                      alt.base.writeTry(v).map {
                         case BSONDocument(elems) =>
-                          BSONDocument(Success(BSONElement(dField, BSONString(alt.id))) #:: elems)
+                          BSONDocument((BSONElement(dField, BSONString(alt.id)) +: elems):_*)
                         case other => other
                       }
                   )}.collect { case Some(doc) => doc}.head
                 },
-                s.alts.map { case alt: Alt[BSONWriter[*, BSONValue], I, i] =>
-                  alt.prism.getOption(value).map(alt.base.write(_)).map(bson => document(alt.id -> bson))
-                }.collect { case Some(bson) => bson }.head
+                Success(s.alts.map { case alt: Alt[BSONWriter, I, i] =>
+                  alt.prism.getOption(value).flatMap(alt.base.writeOpt(_)).map(bson => document(alt.id -> bson))
+                }.collect { case Some(bson) => bson }.head)
               )
             }
 
-          case s: RecordSchema[P, BSONWriter[*, BSONValue], I] =>
-            serializeObjF[P, I](s.props).asInstanceOf[BSONWriter[I, BSONValue]]
+          case s: RecordSchema[P, BSONWriter, I] =>
+            serializeObjF[P, I](s.props).asInstanceOf[BSONWriter[I]]
 
-          case s: IsoSchema[P, BSONWriter[*, BSONValue], i0, I] =>
+          case s: IsoSchema[P, BSONWriter, i0, I] =>
             s.base.beforeWrite(s.iso.reverseGet(_))
         }
       }
     }
 
-  def serializeObjF[P[_]: ToBson, I](rb: FreeApplicative[PropSchema[I, BSONWriter[*, BSONValue], *], I]): BSONDocumentWriter[I] = {
-    (value: I) => document(
-      rb.foldMap[State[BSONDocument, *]](
-        new (PropSchema[I, BSONWriter[*, BSONValue], *] ~> State[BSONDocument, *]) {
-          def apply[B](ps: PropSchema[I, BSONWriter[*, BSONValue], B]): State[BSONDocument, B] = {
+  def serializeObjF[P[_]: ToBson, I](rb: FreeApplicative[PropSchema[I, BSONWriter, *], I]): BSONDocumentWriter[I] = {
+    (value: I) =>
+      rb.foldMap[State[Try[BSONDocument], *]](
+        new (PropSchema[I, BSONWriter, *] ~> State[Try[BSONDocument], *]) {
+          def apply[B](ps: PropSchema[I, BSONWriter, B]): State[Try[BSONDocument], B] = {
             for {
-              _ <- modify { (doc: BSONDocument) =>
+              _ <- modify { (tryDoc: Try[BSONDocument]) => tryDoc.flatMap { (doc: BSONDocument) =>
                 ps match {
-                  case req: Required[I, BSONWriter[*, BSONValue], i] =>
-                    (req.fieldName, req.base.write(req.getter.get(value))) ~: doc
+                  case req: Required[I, BSONWriter, i] =>
+                    req.base.writeTry(req.getter.get(value)).map(doc ++ BSONElement(req.fieldName, _))
 
-                  case opt: Optional[I, BSONWriter[*, BSONValue], i] =>
-                    opt.getter.get(value).cata(v => (opt.fieldName, opt.base.write(v)) ~: doc, doc)
+                  case opt: Optional[I, BSONWriter, i] =>
 
-                  case const: Constant[I, BSONWriter[*, BSONValue], i] => doc
+                    opt.getter.get(value).cata(v => opt.base.writeTry(v)
+                      .map(doc ++ BSONElement(opt.fieldName, _)), Success(doc))
 
-                  case abs: Absent[I, BSONWriter[*, BSONValue], i] => doc
+                  case const: Constant[I, BSONWriter, i] => Success(doc)
+
+                  case abs: Absent[I, BSONWriter, i] => Success(doc)
                 }
+              }
               }
             } yield ps.getter.get(value)
           }
         }
-      ).runS(document).value
-    )
+      ).runS(Success(document)).value
   }
 
   implicit def eitherKToBson[P[_]: ToBson, Q[_]: ToBson]: ToBson[EitherK[P, Q, *]] =
     new ToBson[EitherK[P, Q, *]] {
-      override val writer = new (EitherK[P, Q, *] ~> BSONWriter[*, BSONValue]) {
-        def apply[A](p: EitherK[P, Q, A]): BSONWriter[A, BSONValue] = {
+      override val writer = new (EitherK[P, Q, *] ~> BSONWriter) {
+        def apply[A](p: EitherK[P, Q, A]): BSONWriter[A] = {
           p.run.fold(
             ToBson[P].writer(_),
             ToBson[Q].writer(_)

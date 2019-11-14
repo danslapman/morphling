@@ -22,9 +22,10 @@ class TSchemaAnnotatedSpec extends FunSuite with Matchers with JsonMatchers {
     }
 
   test("Annotated typeable should contain restrictions") {
-    val serverTypeable = Server.schema.typeable.typ.asJson.dropNulls.run
+    val serverTypeable = Server.schema.typeable
+    val serverTypeableJson = serverTypeable.typ.asJson.dropNulls.run
 
-    serverTypeable should matchJsonString(Json.obj(
+    serverTypeableJson should matchJsonString(Json.obj(
       "type" := "object",
       "required" := "host" :: "port" :: Nil,
       "properties" := Json.obj(

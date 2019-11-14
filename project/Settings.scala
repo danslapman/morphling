@@ -6,9 +6,9 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 object Settings {
   val common = Seq(
     organization := "danslapman",
-    version := "1.4",
-    scalaVersion := "2.12.10",
-    crossScalaVersions := Seq("2.12.10"),
+    version := "1.5",
+    scalaVersion := "2.13.0",
+    crossScalaVersions := Seq("2.12.10", "2.13.0"),
     scalacOptions ++= Seq(
       "-language:higherKinds,implicitConversions",
       "-Ywarn-unused:imports"
@@ -19,7 +19,7 @@ object Settings {
         case _ => Seq("-Ypartial-unification")
       }
     },
-    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.10.3"),
+    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
     addCompilerPlugin(scalafixSemanticdb),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
     bintrayOrganization := Some("danslapman"),

@@ -104,7 +104,7 @@ object ToTypeable {
             ps match {
               case req: Required[I, SwaggerTypeable, i] =>
                 req.default.cata(
-                  default => {
+                  _ => {
                     val optionalField = SwaggerProperty(req.fieldName, None, Eval.now(req.base.typ))
                     Const.of(SwaggerObject(Vector(optionalField)))
                   },
@@ -128,12 +128,14 @@ object ToTypeable {
     )
   }
 
-  implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, *]] = new ToTypeable[EitherK[P, Q, *]] {
-    override val toTypeable: EitherK[P, Q, *] ~> SwaggerTypeable = new (EitherK[P, Q, *] ~> SwaggerTypeable) {
-      override def apply[A](fa: EitherK[P, Q, A]): SwaggerTypeable[A] = fa.run.fold(
-        ToTypeable[P].toTypeable(_),
-        ToTypeable[Q].toTypeable(_),
-      )
+  implicit def eitherKTypeable[P[_]: ToTypeable, Q[_]: ToTypeable]: ToTypeable[EitherK[P, Q, *]] =
+    new ToTypeable[EitherK[P, Q, *]] {
+      override val toTypeable: EitherK[P, Q, *] ~> SwaggerTypeable =
+        new (EitherK[P, Q, *] ~> SwaggerTypeable) {
+          override def apply[A](fa: EitherK[P, Q, A]): SwaggerTypeable[A] = fa.run.fold(
+            ToTypeable[P].toTypeable(_),
+            ToTypeable[Q].toTypeable(_),
+          )
+        }
     }
-  }
 }

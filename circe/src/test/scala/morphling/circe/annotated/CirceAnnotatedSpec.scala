@@ -36,22 +36,20 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
   test("A value should be deserialised from JSON") {
     implicit val encoder = AnnPerson.schema.encoder
     val decoder = AnnPerson.schema.decoder
-    val accDecoder = AnnPerson.schema.accumulatingDecoder
 
     decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
-    accDecoder.apply(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
+    decoder.decodeAccumulating(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
   test("Serialization should round-trip values produced by a generator") {
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(AnnPerson.schema.gen)
     implicit val encoder = AnnPerson.schema.encoder
     val decoder = AnnPerson.schema.decoder
-    val accDecoder = AnnPerson.schema.accumulatingDecoder
     check {
       (p: Person) => decoder.decodeJson(p.asJson).toOption == Some(p)
     }
     check {
-      (p: Person) => accDecoder(p.asJson.hcursor).toOption == Some(p)
+      (p: Person) => decoder.decodeAccumulating(p.asJson.hcursor).toOption == Some(p)
     }
   }
 

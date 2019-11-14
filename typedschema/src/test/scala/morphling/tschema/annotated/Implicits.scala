@@ -10,7 +10,7 @@ object Implicits extends TypeablePack {
   implicit val typeableRestriction: (Restriction ~> λ[T => Endo[SwaggerTypeable[T]]]) =
     new (Restriction ~> λ[T => Endo[SwaggerTypeable[T]]]) {
       override def apply[A](rs: Restriction[A]): Endo[SwaggerTypeable[A]] = rs match {
-        case Non => identity
+        case Non() => identity
         case Range(from, to) =>
           (typ: SwaggerTypeable[Int]) => typ.updateTyp {
             case SwaggerPrimitive.integer => SwaggerPrimitive.integer.mod(_.copy(minimum = Some(from), maximum = Some(to)))

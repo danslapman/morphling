@@ -19,7 +19,7 @@ trait CircePack {
         case SDoubleT() => Encoder.encodeDouble
         case SCharT() => Encoder.encodeChar
         case SStrT() => Encoder.encodeString
-        case SArrayT(elem) => Encoder.encodeVector(elem.encoder)
+        case sa: SArrayT[F, i] => Encoder.encodeVector(sa.elem.encoder)
       }
     }
 
@@ -36,7 +36,7 @@ trait CircePack {
         case SDoubleT() => Decoder.decodeDouble
         case SCharT() => Decoder.decodeChar
         case SStrT() => Decoder.decodeString
-        case SArrayT(elem) => Decoder.decodeVector(elem.decoder)
+        case sa: SArrayT[F, i] => Decoder.decodeVector(sa.elem.decoder)
       }
     }
 
@@ -53,7 +53,7 @@ trait CircePack {
         case SDoubleT() => _.asNumber.map(Json.fromJsonNumber)
         case SCharT() => _.asString.map(Json.fromString)
         case SStrT() => _.asString.map(Json.fromString)
-        case SArrayT(elem) => _.asArray.map(_.flatMap(elem.jsonFilter.apply)).map(Json.fromValues)
+        case sa: SArrayT[F, i] => _.asArray.map(_.flatMap(sa.elem.jsonFilter.apply)).map(Json.fromValues)
       })
     }
 }

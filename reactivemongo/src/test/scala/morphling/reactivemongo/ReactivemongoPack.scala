@@ -1,44 +1,52 @@
 package morphling.reactivemongo
 
 import cats.~>
+import cats.instances.try_._
+import cats.instances.vector._
+import cats.syntax.all._
 import morphling.protocol._
-import ops._
-import reactivemongo.bson._
+import reactivemongo.api.bson._
+
+import scala.util.Success
 
 trait ReactivemongoPack {
-  def sTypeWriter[F[_]: ToBson]: (SType[F, *] ~> BSONWriter[*, BSONValue]) =
-    new (SType[F, *] ~> BSONWriter[*, BSONValue]) {
+  def sTypeWriter[F[_]: ToBson]: (SType[F, *] ~> BSONWriter) =
+    new (SType[F, *] ~> BSONWriter) {
       import ToBson._
 
-      override def apply[I](st: SType[F, I]): BSONWriter[I, BSONValue] = st match {
-        case SNullT() => _: I => BSONNull
-        case SBoolT() => BSONBoolean(_)
-        case SIntT() => BSONInteger(_)
-        case SLongT() => BSONLong(_)
-        case SFloatT() => BSONDouble(_)
-        case SDoubleT() => BSONDouble(_)
-        case SCharT() => c => BSONString(c.toString)
-        case SStrT() => BSONString(_)
-        case SArrayT(elem) =>
-          xs => BSONArray(xs.map(elem.writer.write).toList)
+      override def apply[I](st: SType[F, I]): BSONWriter[I] = {
+        st match {
+          case SNullT() => _: I => Success(BSONNull)
+          case SBoolT() => b => Success(BSONBoolean(b))
+          case SIntT() => i => Success(BSONInteger(i))
+          case SLongT() => l => Success(BSONLong(l))
+          case SFloatT() => f => Success(BSONDouble(f))
+          case SDoubleT() => d => Success(BSONDouble(d))
+          case SCharT() => c => Success(BSONString(c.toString))
+          case SStrT() => s => Success(BSONString(s))
+          case sa: SArrayT[F, i] =>
+            (xs: Vector[i]) => xs.traverse(sa.elem.writer.writeTry).map(BSONArray(_))
+        }
       }
     }
 
-  def sTypeReader[F[_]: FromBson]: (SType[F, *] ~> BSONReader[BSONValue, *]) =
-    new (SType[F, *] ~> BSONReader[BSONValue, *]) {
+  def sTypeReader[F[_]: FromBson]: (SType[F, *] ~> BSONReader) =
+    new (SType[F, *] ~> BSONReader) {
       import FromBson._
 
-      override def apply[I](st: SType[F, I]): BSONReader[BSONValue, I] = st match {
-        case SNullT()    => BSONReader[BSONValue, I](_ => ())
-        case SBoolT()    => bsonBooleanLikeReader.afterRead(_.toBoolean)
-        case SIntT()     => bsonNumberLikeReader.afterRead(_.toInt)
-        case SLongT()    => bsonNumberLikeReader.afterRead(_.toLong)
-        case SFloatT()   => bsonNumberLikeReader.afterRead(_.toFloat)
-        case SDoubleT()  => bsonNumberLikeReader.afterRead(_.toDouble)
-        case SCharT()    => BSONStringHandler.afterRead(_.head).widenReader
-        case SStrT()     => BSONStringHandler.widenReader
+      override def apply[I](st: SType[F, I]): BSONReader[I] = st match {
+        case SNullT()    => BSONReader[I](_ => ())
+        case SBoolT()    => BSONBooleanLike.BSONBooleanLikeHandler.readTry(_).flatMap(_.toBoolean)
+        case SIntT()     => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toInt)
+        case SLongT()    => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toLong)
+        case SFloatT()   => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toFloat)
+        case SDoubleT()  => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toDouble)
+        case SCharT()    => BSONStringHandler.afterRead(_.head)
+        case SStrT()     => BSONStringHandler
         case sa: SArrayT[F, i] =>
-          BSONReader[BSONArray, I]((arr: BSONArray) => arr.values.map(sa.elem.reader.read).toVector).widenReader
+          BSONReader.collect { case arr: BSONArray => arr }.readTry(_).flatMap { arr =>
+            arr.values.toVector.traverse(sa.elem.reader.readTry)
+          }
       }
     }
 }

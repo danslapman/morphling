@@ -9,51 +9,50 @@ import morphling.annotated.Schema.AnnotatedSchema
 import morphling.{Absent, Alt, Constant, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import mouse.option._
-import ops._
-import reactivemongo.bson._
+import reactivemongo.api.bson._
 import simulacrum.typeclass
 
 @typeclass
 trait FromBson[S[_]] {
-  def reader: S ~> BSONReader[BSONValue, *]
+  def reader: S ~> BSONReader
 }
 
 object FromBson {
   implicit class FromBsonOps[F[_], A](fa: F[A]) {
-    def reader(implicit FB: FromBson[F]): BSONReader[BSONValue, A] = FB.reader(fa)
+    def reader(implicit FB: FromBson[F]): BSONReader[A] = FB.reader(fa)
   }
 
   implicit def schemaFromBson[P[_]: FromBson]: FromBson[Schema[P, *]] = new FromBson[Schema[P, *]] {
-    override val reader: Schema[P, *] ~> BSONReader[BSONValue, *] = new (Schema[P, *] ~> BSONReader[BSONValue, *]) {
-      override def apply[I](schema: Schema[P, I]) = {
-        HFix.cataNT[SchemaF[P, *[_], *], BSONReader[BSONValue, *]](decoderAlg[P]).apply(schema)
+    override val reader: Schema[P, *] ~> BSONReader = new (Schema[P, *] ~> BSONReader) {
+      override def apply[I](schema: Schema[P, I]): BSONReader[I] = {
+        HFix.cataNT[SchemaF[P, *[_], *], BSONReader](decoderAlg[P]).apply(schema)
       }
     }
   }
 
-  implicit def annSchemaFromBson[P[_]: FromBson, A[_]: *[_] ~> λ[T => Endo[BSONReader[BSONValue, T]]]]: FromBson[AnnotatedSchema[P, A, *]] =
+  implicit def annSchemaFromBson[P[_]: FromBson, A[_]: *[_] ~> λ[T => Endo[BSONReader[T]]]]: FromBson[AnnotatedSchema[P, A, *]] =
     new FromBson[AnnotatedSchema[P, A, *]] {
-      override val reader: AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *] = new (AnnotatedSchema[P, A, *] ~> BSONReader[BSONValue, *]) {
-        override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONReader[BSONValue, I] = {
-          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]](annDecoderAlg[P, A]).apply(schema)
+      override val reader: AnnotatedSchema[P, A, *] ~> BSONReader = new (AnnotatedSchema[P, A, *] ~> BSONReader) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): BSONReader[I] = {
+          HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], BSONReader](annDecoderAlg[P, A]).apply(schema)
         }
       }
     }
 
-  def decoderAlg[P[_]: FromBson]: HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] =
-    new HAlgebra[SchemaF[P, *[_], *], BSONReader[BSONValue, *]] {
-      def apply[I](s: SchemaF[P, BSONReader[BSONValue, *], I]): BSONReader[BSONValue, I] = s match {
+  def decoderAlg[P[_]: FromBson]: HAlgebra[SchemaF[P, *[_], *], BSONReader] =
+    new HAlgebra[SchemaF[P, *[_], *], BSONReader] {
+      def apply[I](s: SchemaF[P, BSONReader, I]): BSONReader[I] = s match {
         case PrimSchema(p) =>
           FromBson[P].reader(p)
 
         case OneOfSchema(alts, None) =>
-          BSONReader[BSONDocument, I] { doc =>
+          BSONDocumentReader[I] { doc =>
             val results = for {
               fields <- doc.elements.map(_.name).toList
               altResult <- alts.toList flatMap {
                 case Alt(id, base, prism) =>
                   fields.contains(id).option(
-                    doc.getAs(id)(base).map(prism.reverseGet)
+                    doc.getAsOpt(id)(base).map(prism.reverseGet)
                   ).toList
               }
             } yield altResult
@@ -61,21 +60,21 @@ object FromBson {
             val altIds = alts.map(_.id)
             results match {
               case Some(x) :: Nil => x
-              case None :: Nil => throw exceptions.TypeDoesNotMatch(s"Could not deserialize ${alts.head.id}")
-              case Nil => throw exceptions.DocumentKeyNotFound(s"No fields found matching any of $altIds")
+              case None :: Nil => throw TypeDoesNotMatch(s"Could not deserialize ${alts.head.id}")
+              case Nil => throw DocumentKeyNotFound(s"No fields found matching any of $altIds")
               case _ => throw MultipleKeysFound(s"More than one matching field found among $altIds}")
             }
-          }.widenReader
+          }
 
         case OneOfSchema(alts, Some(discriminatorField)) =>
-          BSONReader[BSONDocument, I] { doc =>
+          BSONDocumentReader.from [I] { doc =>
             (for {
               altId <- doc.getAsTry[String](discriminatorField)
               Alt(_, base, prism) <- alts.find(_.id == altId)
-                .toTry(exceptions.DocumentKeyNotFound(s"No '$discriminatorField' case of value '$altId'"))
-              altResult <- doc.asTry(base.beforeRead(_.asInstanceOf[BSONValue])).map(prism.reverseGet)
-            } yield altResult).get
-          }.widenReader
+                .toTry(DocumentKeyNotFound(s"No '$discriminatorField' case of value '$altId'"))
+              altResult <- doc.asTry(base).map(prism.reverseGet)
+            } yield altResult)
+          }
 
         case RecordSchema(rb) =>
           decodeObj(rb)
@@ -85,56 +84,57 @@ object FromBson {
       }
     }
 
-  def annDecoderAlg[P[_]: FromBson, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[BSONReader[BSONValue, T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]] =
-    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader[BSONValue, *]] {
-      override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], BSONReader[BSONValue, *], I]): BSONReader[BSONValue, I] =
+  def annDecoderAlg[P[_]: FromBson, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[BSONReader[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], BSONReader] {
+      override def apply[I](s: HEnvT[Ann, SchemaF[P, *[_], *], BSONReader, I]): BSONReader[I] =
         interpret(s.ask).apply(decoderAlg[P].apply(s.fa))
     }
 
-  def decodeObj[I](rb: FreeApplicative[PropSchema[I, BSONReader[BSONValue, *], *], I]): BSONReader[BSONValue, I] = {
-    implicit val djap: Applicative[BSONReader[BSONValue, *]] = new Applicative[BSONReader[BSONValue, *]] {
-      override def pure[T](a: T): BSONReader[BSONValue, T] = BSONReader[BSONValue, T](_ => a)
+  def decodeObj[I](rb: FreeApplicative[PropSchema[I, BSONReader, *], I]): BSONReader[I] = {
+    implicit val djap: Applicative[BSONReader[*]] = new Applicative[BSONReader] {
+      override def pure[T](a: T): BSONReader[T] = BSONReader[T](_ => a)
 
-      override def ap[T, U](ff: BSONReader[BSONValue, T => U])(fa: BSONReader[BSONValue, T]): BSONReader[BSONValue, U] =
-        (v: BSONValue) => ff.read(v)(fa.read(v))
+      override def ap[T, U](ff: BSONReader[T => U])(fa: BSONReader[T]): BSONReader[U] =
+        (v: BSONValue) => ff.readTry(v).flatMap(fa.readTry(v).map(_))
     }
 
     rb.foldMap(
-      new (PropSchema[I, BSONReader[BSONValue, *], *] ~> BSONReader[BSONValue, *]) {
-        def apply[B](ps: PropSchema[I, BSONReader[BSONValue, *], B]): BSONReader[BSONValue, B] = ps match {
+      new (PropSchema[I, BSONReader, *] ~> BSONReader) {
+        def apply[B](ps: PropSchema[I, BSONReader, B]): BSONReader[B] = ps match {
           case Required(field, base, _, None) =>
-            BSONReader[BSONDocument, B](doc =>
-              doc.getAs[B](field)(base).getOrElse(throw exceptions.DocumentKeyNotFound(field))
-            ).widenReader
+            BSONDocumentReader[B](doc =>
+              doc.getAsOpt[B](field)(base).getOrElse(throw DocumentKeyNotFound(field))
+            )
 
           case Required(field, base, _, Some(default)) =>
-            BSONReader[BSONDocument, B](doc =>
-              doc.getAs[B](field)(base).getOrElse(default)
-            ).widenReader
+            BSONDocumentReader[B](doc =>
+              doc.getAsOpt[B](field)(base).getOrElse(default)
+            )
 
-          case opt: Optional[I, BSONReader[BSONValue, *], i] =>
-            BSONReader[BSONDocument, B](doc =>
-              doc.getAs[i](opt.fieldName)(opt.base)
-            ).widenReader
+          case opt: Optional[I, BSONReader, i] =>
+            BSONDocumentReader[B](doc =>
+              doc.getAsOpt[i](opt.fieldName)(opt.base)
+            )
 
           case Constant(_, value, _) =>
-            BSONReader[BSONValue, B](_ => value)
+            BSONReader[B](_ => value)
 
-          case abs: Absent[I, BSONReader[BSONValue, *], i] =>
+          case abs: Absent[I, BSONReader, i] =>
             BSONReader(_ => Option.empty[i])
         }
       }
     )
   }
 
-  implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson]: FromBson[EitherK[P, Q, *]] = new FromBson[EitherK[P, Q, *]] {
-    override val reader = new (EitherK[P, Q, *] ~> BSONReader[BSONValue, *]) {
-      def apply[A](p: EitherK[P, Q, A]): BSONReader[BSONValue, A] = {
-        p.run.fold(
-          FromBson[P].reader(_),
-          FromBson[Q].reader(_),
-        )
+  implicit def eitherKFromBson[P[_]: FromBson, Q[_]: FromBson]: FromBson[EitherK[P, Q, *]] =
+    new FromBson[EitherK[P, Q, *]] {
+      override val reader = new (EitherK[P, Q, *] ~> BSONReader) {
+        def apply[A](p: EitherK[P, Q, A]): BSONReader[A] = {
+          p.run.fold(
+            FromBson[P].reader(_),
+            FromBson[Q].reader(_),
+          )
+        }
       }
     }
-  }
 }
