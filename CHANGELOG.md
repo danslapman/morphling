@@ -1,3 +1,11 @@
+## version 1.5
+
+> 14.11.2019
+
+- upgrade `circe`
+- upgrade `reactivemongo`
+- upgrade `typed-schema`
+
 ## version 1.4
 
 > 19.09.2019
