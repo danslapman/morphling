@@ -3,7 +3,7 @@ package morphling
 import cats._
 import cats.data.NonEmptyList
 import cats.free._
-import monocle._
+import tofu.optics._
 
 /** The base trait for the schema GADT.
   *
@@ -174,10 +174,10 @@ final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, _]], di
   *          the selected constructor.
   *  @param id The unique identifier of the constructor
   *  @param base The schema for the `I0` type
-  *  @param prism Prism between the sum type and the selected constructor.
+  *  @param subset Subset between the sum type and the selected constructor.
   */
-final case class Alt[F[_], I, I0](id: String, base: F[I0], prism: Prism[I, I0]) {
-  def hfmap[G[_]](nt: F ~> G): Alt[G, I, I0] = Alt(id, nt(base), prism)
+final case class Alt[F[_], I, I0](id: String, base: F[I0], subset: Subset[I, I0]) {
+  def hfmap[G[_]](nt: F ~> G): Alt[G, I, I0] = Alt(id, nt(base), subset)
 }
 
 /** Wrapper for the free applicative structure which is used to construct
@@ -206,7 +206,7 @@ final case class RecordSchema[P[_], F[_], I](props: FreeApplicative[PropSchema[I
   */
 sealed trait PropSchema[O, F[_], I] {
   def fieldName: String
-  def getter: Getter[O, I]
+  def extract: Extract[O, I]
 
   def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, I]
 }
@@ -215,18 +215,18 @@ sealed trait PropSchema[O, F[_], I] {
   *
   * @param fieldName The name of the property.
   * @param base Schema for the property's value type.
-  * @param getter Getter lens from the record type to the property.
+  * @param extract Extract lens from the record type to the property.
   * @param default Optional default value, for use in the case that a
   *        serialized form is missing the property.
   */
 final case class Required[O, F[_], I](
   fieldName: String,
   base: F[I],
-  getter: Getter[O, I],
+  extract: Extract[O, I],
   default: Option[I]
 ) extends PropSchema[O, F, I] {
   def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, I] =
-    Required(fieldName, nt(base), getter, default)
+    Required(fieldName, nt(base), extract, default)
 }
 
 /** Class describing an optional property of a record. Since in many
@@ -236,40 +236,40 @@ final case class Required[O, F[_], I](
   *
   * @param fieldName The name of the property.
   * @param base Schema for the property's value type.
-  * @param getter Getter lens from the record type to the property.
+  * @param extract Extract lens from the record type to the property.
   */
 final case class Optional[O, F[_], I](
   fieldName: String,
   base: F[I],
-  getter: Getter[O, Option[I]]
+  extract: Extract[O, Option[I]]
 ) extends PropSchema[O, F, Option[I]] {
   def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, Option[I]] =
-    Optional(fieldName, nt(base), getter)
+    Optional(fieldName, nt(base), extract)
 }
 
 /** Class describing an optional property of a record that is always absent.
   *
   * @param fieldName The name of the property.
-  * @param getter Getter lens from the record type to the property.
+  * @param extract Extract lens from the record type to the property.
   */
 final case class Absent[O, F[_], I](
   fieldName: String,
-  getter: Getter[O, Option[I]]
+  extract: Extract[O, Option[I]]
 ) extends PropSchema[O, F, Option[I]] {
   def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, Option[I]] =
-    Absent(fieldName, getter)
+    Absent(fieldName, extract)
 }
 
 /**
   * Class describing a constant (non-serializable) property of a record.
   * @param fieldName The name of the property.
   * @param value The value of the property.
-  * @param getter Getter lens from the record type to the property.
+  * @param extract Extract lens from the record type to the property.
   */
 final case class Constant[O, F[_], I](
   fieldName: String,
   value: I,
-  getter: Getter[O, I]
+  extract: Extract[O, I]
 ) extends PropSchema[O, F, I] {
   override def hfmap[G[_]](nt: F ~> G): PropSchema[O, G, I] =
     this.asInstanceOf[PropSchema[O, G, I]]
@@ -284,20 +284,22 @@ object PropSchema {
         }
     }
 
+  private def extract[A, B](f: A => B): Extract[A, B] = (s: A) => f(s)
+
   def contraNT[O, N, F[_]](f: N => O): PropSchema[O, F, *] ~> PropSchema[N, F, *] =
     new (PropSchema[O, F, *] ~> PropSchema[N, F, *]) {
       def apply[I](pso: PropSchema[O, F, I]): PropSchema[N, F, I] = {
         pso match {
-          case Required(n, s, g, d) => Required(n, s, Getter(f).composeGetter(g), d)
-          case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, Getter(f).composeGetter(opt.getter))
-          case Constant(fn, v, g) => Constant(fn, v, Getter(f).composeGetter(g))
-          case abs: Absent[O, F, i] => Absent(abs.fieldName, Getter(f).composeGetter(abs.getter))
+          case Required(n, s, g, d) => Required(n, s, extract(f) >> g, d)
+          case opt: Optional[O, F, i] => Optional(opt.fieldName, opt.base, extract(f) >> opt.extract)
+          case Constant(fn, v, g) => Constant(fn, v, extract(f) >> g)
+          case abs: Absent[O, F, i] => Absent(abs.fieldName, extract(f) >> abs.extract)
         }
       }
   }
 }
 
-case class IsoSchema[P[_], F[_], I, J](base: F[I], iso: Iso[I, J]) extends SchemaF[P, F, J] {
-  def hfmap[G[_]](nt: F ~> G) = IsoSchema(nt(base), iso)
-  def pmap[Q[_]](nt: P ~> Q) = IsoSchema(base, iso)
+case class IsoSchema[P[_], F[_], I, J](base: F[I], eqv: Equivalent[I, J]) extends SchemaF[P, F, J] {
+  def hfmap[G[_]](nt: F ~> G) = IsoSchema(nt(base), eqv)
+  def pmap[Q[_]](nt: P ~> Q) = IsoSchema(base, eqv)
 }
