@@ -10,7 +10,7 @@ import morphling._
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
-import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerStringValue, SwaggerTypeable}
+import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerTypeable}
 import simulacrum.typeclass
 
 @typeclass
@@ -50,7 +50,7 @@ object ToTypeable {
               s.discriminator.cata(
                 dField => {
                   def discriminatorProp(id: String) =
-                    SwaggerProperty(dField, None, Eval.now(SwaggerPrimitive.string.mod(SwaggerStringValue.pattern.set(id.some))))
+                    SwaggerProperty(dField, None, Eval.now(SwaggerPrimitive.string.mod(_.copy(pattern = id.some))))
 
                   s.alts.map {
                     case Alt(id, b, p) =>

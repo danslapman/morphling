@@ -75,7 +75,7 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
     name := "morphling-reactivemongo",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "org.reactivemongo" %% "reactivemongo-bson-api" % "0.19.0",
+      "org.reactivemongo" %% "reactivemongo-bson-api" % "0.19.3",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
@@ -97,7 +97,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
     name := "morphling-typed-schema",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "ru.tinkoff" %% "typed-schema-swagger" % "0.11.0",
+      "ru.tinkoff" %% "typed-schema-swagger" % "0.11.1",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,

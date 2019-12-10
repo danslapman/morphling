@@ -12,13 +12,14 @@ All You need is ~~love~~:
 ```
     resolvers += Resolver.bintrayRepo("danslapman", "maven")
 
-    libraryDependencies += "danslapman" %% "morphling" % "1.4"
+    libraryDependencies += "danslapman" %% "morphling" % "1.5.1"
 ```
 
 # Version compatibility table
 
 | morphling | cats | circe | reactivemongo | typed-schema | scalacheck |
 |-----------|------| ----- | ------------- | ------------ | ---------- |
+| 1.5.1 | 2.0.0 | 0.12.3 | 0.19.3 | 0.11.1 | 1.14.0 |
 | 1.5 | 2.0.0 | 0.12.3 | 0.19.0 | 0.11.0 | 1.14.0 |
 | 1.1 | 2.0.0 | 0.11.1 | 0.17.0 | 0.11.0-beta6 | 1.14.0 |
 | 1.0 | 1.6.1 | 0.11.1 | 0.16.4 | 0.11.0-beta6 | 1.14.0 |

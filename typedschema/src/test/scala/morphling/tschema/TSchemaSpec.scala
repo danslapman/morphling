@@ -38,7 +38,6 @@ class TSchemaSpec extends FunSuite with Matchers with JsonMatchers {
                 "properties" := Json.obj(
                   "user" := Json.obj(
                     "type" := "object",
-                    "required" := List.empty[String],
                     "properties" := Json.obj()
                   )
                 )

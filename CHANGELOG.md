@@ -1,3 +1,10 @@
+## version 1.5.1
+
+> 10.12.2019
+
+- upgrade `reactivemongo`
+- upgrade `typed-schema`
+
 ## version 1.5
 
 > 14.11.2019

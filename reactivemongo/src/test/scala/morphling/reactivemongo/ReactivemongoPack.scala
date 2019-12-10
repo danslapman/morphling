@@ -36,11 +36,11 @@ trait ReactivemongoPack {
 
       override def apply[I](st: SType[F, I]): BSONReader[I] = st match {
         case SNullT()    => BSONReader[I](_ => ())
-        case SBoolT()    => BSONBooleanLike.BSONBooleanLikeHandler.readTry(_).flatMap(_.toBoolean)
-        case SIntT()     => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toInt)
-        case SLongT()    => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toLong)
-        case SFloatT()   => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toFloat)
-        case SDoubleT()  => BSONNumberLike.BSONNumberLikeHandler.readTry(_).flatMap(_.toDouble)
+        case SBoolT()    => BSONBooleanLike.Handler.readTry(_).flatMap(_.toBoolean)
+        case SIntT()     => BSONNumberLike.Handler.readTry(_).flatMap(_.toInt)
+        case SLongT()    => BSONNumberLike.Handler.readTry(_).flatMap(_.toLong)
+        case SFloatT()   => BSONNumberLike.Handler.readTry(_).flatMap(_.toFloat)
+        case SDoubleT()  => BSONNumberLike.Handler.readTry(_).flatMap(_.toDouble)
         case SCharT()    => BSONStringHandler.afterRead(_.head)
         case SStrT()     => BSONStringHandler
         case sa: SArrayT[F, i] =>
