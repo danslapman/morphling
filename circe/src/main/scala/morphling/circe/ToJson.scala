@@ -64,7 +64,7 @@ object ToJson {
             serializeObjF[P, I](s.props)
 
           case s: IsoSchema[P, Encoder, i0, I] =>
-            s.base.contramap(s.iso.reverseGet(_))
+            s.base.contramap(s.eqv.upcast(_))
         }
       }
     }
@@ -78,17 +78,17 @@ object ToJson {
               _ <- modify { (obj: JsonObject) =>
                 ps match {
                   case req: Required[I, Encoder, i] =>
-                    (req.fieldName, req.base(req.getter.get(value))) +: obj
+                    (req.fieldName, req.base(req.extract.extract(value))) +: obj
 
                   case opt: Optional[I, Encoder, i] =>
-                    opt.getter.get(value).cata(v => (opt.fieldName, opt.base(v)) +: obj, obj)
+                    opt.extract.extract(value).cata(v => (opt.fieldName, opt.base(v)) +: obj, obj)
 
                   case Constant(_, _, _) => obj
 
                   case Absent(_, _) => obj
                 }
               }
-            } yield ps.getter.get(value)
+            } yield ps.extract.extract(value)
           }
         }
       ).runS(JsonObject.empty).value

@@ -1,13 +1,13 @@
 package morphling.samples
 
 import cats.syntax.apply._
-import monocle.macros.GenLens
 import morphling.Schema
 import morphling.Schema._
 import morphling.protocol.SType._
-import java.time.Instant
+import tofu.optics._
+import tofu.optics.macros._
 
-import monocle.Iso
+import java.time.Instant
 
 case class Person(
   name: String,
@@ -19,14 +19,14 @@ case class Person(
 )
 
 object Person {
-  val name = GenLens[Person](_.name)
-  val birthDate = GenLens[Person](_.birthDate)
-  val roles = GenLens[Person](_.roles)
-  val updateCounter = GenLens[Person](_.updateCounter)
-  val stamp = GenLens[Person](_.stamp)
-  val ignored = GenLens[Person](_.ignored)
+  val name = GenContains[Person](_.name)
+  val birthDate = GenContains[Person](_.birthDate)
+  val roles = GenContains[Person](_.roles)
+  val updateCounter = GenContains[Person](_.updateCounter)
+  val stamp = GenContains[Person](_.stamp)
+  val ignored = GenContains[Person](_.ignored)
 
-  private val instantIso = Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)
+  private val instantIso = Equivalent[Long](Instant.ofEpochMilli)(_.toEpochMilli)
 
   val schema: Schema[SSchema, Person] = rec(
     (

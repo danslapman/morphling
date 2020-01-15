@@ -52,7 +52,7 @@ object FromBson {
               altResult <- alts.toList flatMap {
                 case Alt(id, base, prism) =>
                   fields.contains(id).option(
-                    doc.getAsOpt(id)(base).map(prism.reverseGet)
+                    doc.getAsOpt(id)(base).map(prism.upcast)
                   ).toList
               }
             } yield altResult
@@ -72,7 +72,7 @@ object FromBson {
               altId <- doc.getAsTry[String](discriminatorField)
               Alt(_, base, prism) <- alts.find(_.id == altId)
                 .toTry(DocumentKeyNotFound(s"No '$discriminatorField' case of value '$altId'"))
-              altResult <- doc.asTry(base).map(prism.reverseGet)
+              altResult <- doc.asTry(base).map(prism.upcast)
             } yield altResult)
           }
 

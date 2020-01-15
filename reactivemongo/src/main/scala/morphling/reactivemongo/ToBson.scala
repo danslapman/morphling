@@ -54,7 +54,7 @@ object ToBson {
               s.discriminator.cata(
                 dField => {
                   s.alts.map { case alt: Alt[BSONWriter, I, i] =>
-                    alt.prism.getOption(value).map(v =>
+                    alt.subset.getOption(value).map(v =>
                       alt.base.writeTry(v).map {
                         case BSONDocument(elems) =>
                           BSONDocument((BSONElement(dField, BSONString(alt.id)) +: elems):_*)
@@ -63,7 +63,7 @@ object ToBson {
                   )}.collect { case Some(doc) => doc}.head
                 },
                 Success(s.alts.map { case alt: Alt[BSONWriter, I, i] =>
-                  alt.prism.getOption(value).flatMap(alt.base.writeOpt(_)).map(bson => document(alt.id -> bson))
+                  alt.subset.getOption(value).flatMap(alt.base.writeOpt(_)).map(bson => document(alt.id -> bson))
                 }.collect { case Some(bson) => bson }.head)
               )
             }
@@ -72,7 +72,7 @@ object ToBson {
             serializeObjF[P, I](s.props).asInstanceOf[BSONWriter[I]]
 
           case s: IsoSchema[P, BSONWriter, i0, I] =>
-            s.base.beforeWrite(s.iso.reverseGet(_))
+            s.base.beforeWrite(s.eqv.upcast(_))
         }
       }
     }
@@ -86,11 +86,11 @@ object ToBson {
               _ <- modify { (tryDoc: Try[BSONDocument]) => tryDoc.flatMap { (doc: BSONDocument) =>
                 ps match {
                   case req: Required[I, BSONWriter, i] =>
-                    req.base.writeTry(req.getter.get(value)).map(doc ++ BSONElement(req.fieldName, _))
+                    req.base.writeTry(req.extract.extract(value)).map(doc ++ BSONElement(req.fieldName, _))
 
                   case opt: Optional[I, BSONWriter, i] =>
 
-                    opt.getter.get(value).cata(v => opt.base.writeTry(v)
+                    opt.extract.extract(value).cata(v => opt.base.writeTry(v)
                       .map(doc ++ BSONElement(opt.fieldName, _)), Success(doc))
 
                   case const: Constant[I, BSONWriter, i] => Success(doc)
@@ -99,7 +99,7 @@ object ToBson {
                 }
               }
               }
-            } yield ps.getter.get(value)
+            } yield ps.extract.extract(value)
           }
         }
       ).runS(Success(document)).value

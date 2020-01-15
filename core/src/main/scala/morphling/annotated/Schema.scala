@@ -5,10 +5,10 @@ import cats._
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free._
-import monocle.{Optional => MOptional, _}
 import morphling._
 import morphling.HFix._
 import shapeless.HList
+import tofu.optics.{Property => TProp, _}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -140,27 +140,11 @@ object Schema {
     *  @tparam I $IDefn
     *  @param fieldName name of the record property
     *  @param valueSchema schema for the record property's type
-    *  @param getter Getter lens from the record type to the property's value
+    *  @param extract Extract lens from the record type to the property's value
     */
-  def required[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], getter: Getter[O, I]): Prop[P, A, O, I] = {
+  def required[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], extract: Extract[O, I]): Prop[P, A, O, I] = {
     FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, getter, None)
-    )
-  }
-
-  /** Smart constructor for required Prop instances.
-    *
-    *  @tparam P $PDefn
-    *  @tparam A $ADefn
-    *  @tparam O $ODefn
-    *  @tparam I $IDefn
-    *  @param fieldName name of the record property
-    *  @param valueSchema schema for the record property's type
-    *  @param lens Lens from the record type to the property's value
-    */
-  def required[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], lens: Lens[O, I]): Prop[P, A, O, I] = {
-    FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, lens.asGetter, None)
+      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, extract, None)
     )
   }
 
@@ -176,31 +160,11 @@ object Schema {
     *  @param valueSchema Schema for the record property's type
     *  @param default Default value for use in the case that a serialized form
     *         is missing the required field.
-    *  @param getter Getter lens from the record type to the property's value
+    *  @param extract Extract lens from the record type to the property's value
     */
-  def property[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], default: I, getter: Getter[O, I]): Prop[P, A, O, I] = {
+  def property[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], default: I, extract: Extract[O, I]): Prop[P, A, O, I] = {
     FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, getter, Some(default))
-    )
-  }
-
-  /** Smart constructor for required Prop instances, with a default
-    *  provided for the case where a serialized form is missing the
-    *  required field.
-    *
-    *  @tparam P $PDefn
-    *  @tparam A $ADefn
-    *  @tparam O $ODefn
-    *  @tparam I $IDefn
-    *  @param fieldName Name of the record property
-    *  @param valueSchema Schema for the record property's type
-    *  @param default Default value for use in the case that a serialized form
-    *         is missing the required field.
-    *  @param lens Lens from the record type to the property's value
-    */
-  def property[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], default: I, lens: Lens[O, I]): Prop[P, A, O, I] = {
-    FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, lens.asGetter, Some(default))
+      Required[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, extract, Some(default))
     )
   }
 
@@ -211,11 +175,11 @@ object Schema {
     *  @tparam I $IDefn
     *  @param fieldName name of the record property
     *  @param valueSchema schema for the record property's type
-    *  @param getter Getter lens from the record type to the property's value
+    *  @param extract Extract lens from the record type to the property's value
     */
-  def optional[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], getter: Getter[O, Option[I]]): Prop[P, A, O, Option[I]] = {
+  def optional[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], extract: Extract[O, Option[I]]): Prop[P, A, O, Option[I]] = {
     FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, getter)
+      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, extract)
     )
   }
 
@@ -226,26 +190,11 @@ object Schema {
     *  @tparam I $IDefn
     *  @param fieldName name of the record property
     *  @param valueSchema schema for the record property's type
-    *  @param lens Lens from the record type to the property's value
+    *  @param property Property lens from the record type to the property's value
     */
-  def optional[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], lens: Lens[O, Option[I]]): Prop[P, A, O, Option[I]] = {
+  def optional[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], property: TProp[O, I]): Prop[P, A, O, Option[I]] = {
     FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, lens.asGetter)
-    )
-  }
-
-  /** Smart constructor for optional Prop instances.
-    *  @tparam P $PDefn
-    *  @tparam A $ADefn
-    *  @tparam O $ODefn
-    *  @tparam I $IDefn
-    *  @param fieldName name of the record property
-    *  @param valueSchema schema for the record property's type
-    *  @param optional Optional lens from the record type to the property's value
-    */
-  def optional[P[_], A[_], O, I](fieldName: String, valueSchema: AnnotatedSchema[P, A, I], optional: MOptional[O, I]): Prop[P, A, O, Option[I]] = {
-    FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, Getter(optional.getOption))
+      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, property.getOption)
     )
   }
 
@@ -260,23 +209,19 @@ object Schema {
     * Builder class used to construct a Absent property
     */
   final class AbsentBuilder[P[_], A[_]] {
-    def apply[O, I](fieldName: String, getter: Getter[O, Option[I]]): Prop[P, A, O, Option[I]] = {
+    def apply[O, I](fieldName: String, extract: Extract[O, Option[I]]): Prop[P, A, O, Option[I]] = {
       FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, getter)
+        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, extract)
       )
     }
 
-    def apply[O, I](fieldName: String, lens: Lens[O, Option[I]]): Prop[P, A, O, Option[I]] = {
+    /*
+    def apply[O, I](fieldName: String, property: TProp[O, I]): Prop[P, A, O, Option[I]] = {
       FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, lens.asGetter)
+        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, property.getOption)
       )
     }
-
-    def apply[O, I](fieldName: String, optional: MOptional[O, I]): Prop[P, A, O, Option[I]] = {
-      FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, Getter(optional.getOption))
-      )
-    }
+     */
   }
 
   /**
@@ -290,14 +235,9 @@ object Schema {
     * Builder class used to construct a Constant property
     */
   final class ConstantBuilder[P[_], A[_]] {
-    def apply[O, I](fieldName: String, value: I, getter: Getter[O, I]): Prop[P, A, O, I] =
+    def apply[O, I](fieldName: String, value: I, extract: Extract[O, I]): Prop[P, A, O, I] =
       FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-        Constant(fieldName, value, getter)
-      )
-
-    def apply[O, I](fieldName: String, value: I, lens: Lens[O, I]): Prop[P, A, O, I] =
-      FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], I](
-        Constant(fieldName, value, lens.asGetter)
+        Constant(fieldName, value, extract)
       )
   }
 
@@ -401,14 +341,14 @@ object Schema {
     *  @tparam J The type of the base value which can be mapped into the `I` algebra.
     *  @param id The unique identifier of the constructor
     *  @param base The schema for the `J` type
-    *  @param prism Prism between the sum type and the selected constructor.
+    *  @param subset Subset between the sum type and the selected constructor.
     */
-  def alt[P[_], A[_], I, J](id: String, base: AnnotatedSchema[P, A, J], prism: Prism[I, J]): Alt[AnnotatedSchema[P, A, *], I, J] =
-    Alt[AnnotatedSchema[P, A, *], I, J](id, base, prism)
+  def alt[P[_], A[_], I, J](id: String, base: AnnotatedSchema[P, A, J], subset: Subset[I, J]): Alt[AnnotatedSchema[P, A, *], I, J] =
+    Alt[AnnotatedSchema[P, A, *], I, J](id, base, subset)
 
   implicit class SchemaOps[P[_], A[_], I](base: AnnotatedSchema[P, A, I]) {
-    def composeIso[J](iso: Iso[I, J], transform: A[I] => A[J]): AnnotatedSchema[P, A, J] = {
-      schema(IsoSchema[P, AnnotatedSchema[P, A, *], I, J](base, iso), transform(base.unfix.value.ask))
+    def composeIso[J](eqv: Equivalent[I, J], transform: A[I] => A[J]): AnnotatedSchema[P, A, J] = {
+      schema(IsoSchema[P, AnnotatedSchema[P, A, *], I, J](base, eqv), transform(base.unfix.value.ask))
     }
   }
 }

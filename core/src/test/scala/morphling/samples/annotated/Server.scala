@@ -1,15 +1,15 @@
 package morphling.samples.annotated
 
 import cats.syntax.apply._
-import monocle.macros.GenLens
 import morphling.annotated.Schema._
 import morphling.protocol.annotated.Range
 import morphling.protocol.annotated.STypeAnn._
+import tofu.optics.macros._
 
 case class Server(host: String, port: Int)
 object Server {
-  val host = GenLens[Server](_.host)
-  val port = GenLens[Server](_.port)
+  val host = GenContains[Server](_.host)
+  val port = GenContains[Server](_.port)
 
   val schema: Schema[ASchema, Server] = rec(
     (

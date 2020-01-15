@@ -3,14 +3,14 @@ package morphling.samples.annotated
 import java.time.Instant
 
 import cats.syntax.apply._
-import monocle.Iso
 import morphling.annotated.Schema._
 import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn._
 import morphling.samples.Person
+import tofu.optics.Equivalent
 
 object AnnPerson {
-  private val instantIso = Iso[Long, Instant](Instant.ofEpochMilli)(_.toEpochMilli)
+  private val instantIso = Equivalent[Long](Instant.ofEpochMilli)(_.toEpochMilli)
 
   val schema: Schema[ASchema, Person] = rec(
     (

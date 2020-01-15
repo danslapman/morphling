@@ -50,7 +50,7 @@ object FromJson {
               altResult <- alts.toList flatMap {
                 case Alt(id, base, prism) =>
                   fields.contains(id).option(
-                    c.downField(id).as(base).map(prism.reverseGet)
+                    c.downField(id).as(base).map(prism.upcast)
                   ).toList
               }
             } yield altResult
@@ -69,7 +69,7 @@ object FromJson {
               altId <- c.downField(discriminatorField).as[String]
               Alt(_, base, prism) <- alts.find(_.id == altId)
                 .toRight(DecodingFailure(s"No '$discriminatorField' case of value '$altId'", c.history))
-              altResult <- c.as(base).map(prism.reverseGet)
+              altResult <- c.as(base).map(prism.upcast)
             } yield altResult
           }
 

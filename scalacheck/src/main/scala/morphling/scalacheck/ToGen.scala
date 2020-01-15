@@ -43,14 +43,14 @@ object ToGen {
       def apply[I](schema: SchemaF[P, Gen, I]): Gen[I] = schema match {
         case s: PrimSchema[P, Gen, I] => ToGen[P].toGen(s.prim)
         case s: OneOfSchema[P, Gen, I] =>
-          val altGens = s.alts.map({ case Alt(_, b, p) => b.map(p.reverseGet) })
+          val altGens = s.alts.map({ case Alt(_, b, p) => b.map(p.upcast) })
           altGens.tail.headOption.cata(
             th => Gen.oneOf(altGens.head, th, altGens.tail.toList.tail: _*),
             altGens.head
           )
 
         case s: RecordSchema[P, Gen, I] => recordGen[P,I](s.props)
-        case s: IsoSchema[P, Gen, i0, I] => s.base.map(s.iso.get(_))
+        case s: IsoSchema[P, Gen, i0, I] => s.base.map(s.eqv.get(_))
       }
     }
 
