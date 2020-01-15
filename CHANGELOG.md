@@ -1,3 +1,9 @@
+## version 2.0-RC2
+
+> 15.01.2020
+
+Bump tofu
+
 ## version 2.0-RC1
 
 > 15.01.2020

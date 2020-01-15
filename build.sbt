@@ -8,7 +8,7 @@ val versions = Map(
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
-  "tofu" -> "0.5.5"
+  "tofu" -> "0.6.1"
 )
 
 val morphling = (project in file("core"))
