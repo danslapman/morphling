@@ -1,3 +1,9 @@
+## version 2.0-RC1
+
+> 15.01.2020
+
+Replace monocle with tofu-optics
+
 ## version 1.5.1
 
 > 10.12.2019

@@ -2,9 +2,6 @@
 Cats-based Scala library for free applicative schemas. Core module of morphling
 initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
-# Note about future (2.x) versions
-The next major version of morphling will use [tofu-optics](https://github.com/TinkoffCreditSystems/tofu) instead of monocle
-
 # Getting started
 
 All You need is ~~love~~:
@@ -12,7 +9,7 @@ All You need is ~~love~~:
 ```
     resolvers += Resolver.bintrayRepo("danslapman", "maven")
 
-    libraryDependencies += "danslapman" %% "morphling" % "1.5.1"
+    libraryDependencies += "danslapman" %% "morphling" % "2.0-RC1"
 ```
 
 # Version compatibility table
@@ -74,12 +71,12 @@ Now we can define a schema for an arbitrary type using our protocol:
 
 ```scala
 import cats.syntax.apply._
-import monocle.macros._
 import morphling.Schema
 import morphling.Schema._
+import tofu.optics.macros._
 import SType._ //Defined above
 
-case @Lenses class Server(host: String, port: Int)
+case @Optics class Server(host: String, port: Int)
 object Server {
   val serverSchema: Schema[SSchema, Server] = rec(
     (
