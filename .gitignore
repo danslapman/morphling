@@ -1,8 +1,6 @@
 *.class
 *.log
-*/target
-target
-project/project/target
+**/target
 .idea
 .metals
 .bloop
