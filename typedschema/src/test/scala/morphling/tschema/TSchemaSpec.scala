@@ -9,11 +9,12 @@ import morphling.samples.Person
 import morphling.tschema.Implicits._
 import morphling.tschema.ToTypeable._
 import org.scalactic.Equality
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.ClassTag
 
-class TSchemaSpec extends FunSuite with Matchers with JsonMatchers {
+class TSchemaSpec extends AnyFunSuite with Matchers with JsonMatchers {
   implicit def eqEquality[T: Eq : ClassTag]: Equality[T] =
     (a: T, b: Any) => b match {
       case bt: T => Eq.eqv(a, bt)

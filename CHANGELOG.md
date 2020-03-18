@@ -1,3 +1,9 @@
+## version 2.0
+
+> 18.03.2020
+
+Identical to 2.0-RC2, just fixed some deprecated stuff in tests
+
 ## version 2.0-RC2
 
 > 15.01.2020

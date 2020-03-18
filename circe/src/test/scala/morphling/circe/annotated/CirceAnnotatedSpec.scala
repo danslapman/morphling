@@ -11,10 +11,14 @@ import morphling.samples.{Person, person}
 import morphling.scalacheck.annotated.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary
-import org.scalatest.{EitherValues, FunSuite, Matchers}
+import org.scalatest.EitherValues
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with ValidatedValues with Checkers {
+class CirceAnnotatedSpec extends AnyFunSuite with Matchers with EitherValues with ValidatedValues with Checkers {
+  private val left = Symbol("left")
+
   test("A value should serialise to JSON") {
     implicit val encoder = AnnPerson.schema.encoder
 
@@ -56,7 +60,7 @@ class CirceAnnotatedSpec extends FunSuite with Matchers with EitherValues with V
   test("Deserialization should fail if some value does not fit limitations") {
     val decoder = Server.schema.decoder
 
-    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 0)) shouldBe 'left
-    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 70000)) shouldBe 'left
+    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 0)) shouldBe left
+    decoder.decodeJson(Json.obj("host" := "peka.com", "port" := 70000)) shouldBe left
   }
 }

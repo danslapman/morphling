@@ -10,10 +10,12 @@ import morphling.samples._
 import morphling.scalacheck.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary
-import org.scalatest.{EitherValues, FunSuite, Matchers}
+import org.scalatest.EitherValues
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 
-class CirceSpec extends FunSuite with Matchers with EitherValues with ValidatedValues with Checkers {
+class CirceSpec extends AnyFunSuite with Matchers with EitherValues with ValidatedValues with Checkers {
   test("A value should serialise to JSON") {
     implicit val encoder = Person.schema.encoder
 

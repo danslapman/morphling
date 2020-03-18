@@ -8,14 +8,15 @@ import morphling.samples.Person
 import morphling.scalacheck.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSuite, Matchers, TryValues}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.TryValues
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
-
 import reactivemongo.api.bson._
 
 import scala.util.Success
 
-class ReactivemongoSpec extends FunSuite with Matchers with TryValues with Checkers {
+class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Checkers {
   test("A value should serialise to BSON") {
     val result = Person.schema.writer.writeTry(person).success.value
     result shouldBe document(

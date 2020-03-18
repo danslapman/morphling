@@ -6,12 +6,13 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 object Settings {
   val common = Seq(
     organization := "danslapman",
-    version := "2.0-RC2",
+    version := "2.0",
     scalaVersion := "2.13.0",
     crossScalaVersions := Seq("2.12.10", "2.13.0"),
     scalacOptions ++= Seq(
       "-language:higherKinds,implicitConversions",
-      "-Ywarn-unused:imports"
+      "-Ywarn-unused:imports",
+      "-deprecation"
     ),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
@@ -21,6 +22,7 @@ object Settings {
     },
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
     addCompilerPlugin(scalafixSemanticdb),
+    //scalafixDependencies += "com.nequissimus" %% "sort-imports" % "0.3.2",
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
     bintrayOrganization := Some("danslapman"),
     bintrayReleaseOnPublish in ThisBuild := false

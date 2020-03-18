@@ -8,13 +8,17 @@ import morphling.samples.annotated.{AnnPerson, Server}
 import morphling.scalacheck.ToGen._
 import morphling.scalacheck.annotated.Implicits._
 import org.scalacheck.Arbitrary
-import org.scalatest.{FunSuite, Matchers, TryValues}
+import org.scalatest.TryValues
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import reactivemongo.api.bson._
 
 import scala.util.Success
 
-class ReactivemongoAnnotatedSpec extends FunSuite with Matchers with TryValues with Checkers {
+class ReactivemongoAnnotatedSpec extends AnyFunSuite with Matchers with TryValues with Checkers {
+  private val failure = Symbol("failure")
+
   test("A value should serialise to BSON") {
     val result = AnnPerson.schema.writer.writeTry(person).success.value
     result shouldBe document(
@@ -52,7 +56,7 @@ class ReactivemongoAnnotatedSpec extends FunSuite with Matchers with TryValues w
   test("Deserialization should fail if some value does not fit limitations") {
     val decoder = Server.schema.reader
 
-    decoder.readTry(document("host" -> "peka.com", "port" -> 0)) shouldBe 'failure
-    decoder.readTry(document("host" -> "peka.com", "port" -> 70000)) shouldBe 'failure
+    decoder.readTry(document("host" -> "peka.com", "port" -> 0)) shouldBe failure
+    decoder.readTry(document("host" -> "peka.com", "port" -> 70000)) shouldBe failure
   }
 }

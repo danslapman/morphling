@@ -3,8 +3,8 @@ val versions = Map(
   "circe" -> "0.12.3",
   "monocle" -> "2.0.0",
   "mouse" -> "0.23",
-  "scalacheck" -> "1.14.0",
-  "scalatest" -> "3.0.8",
+  "scalacheck" -> "1.14.3",
+  "scalatest" -> "3.1.1",
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
@@ -58,6 +58,7 @@ val `morphling-circe` = (project in file("circe"))
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
+      "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % Test,
       "com.ironcorelabs" %% "cats-scalatest" % "3.0.0"
     ),
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
@@ -80,7 +81,8 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
-      "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test
+      "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
+      "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % Test
     ),
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>

@@ -7,9 +7,10 @@ import morphling.circe.ToJson._
 import morphling.circe.annotated.Implicits._
 import morphling.samples.annotated.AnnPerson
 import morphling.samples.person
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class JsonFilterAnnotatedSpec extends FunSuite with Matchers {
+class JsonFilterAnnotatedSpec extends AnyFunSuite with Matchers {
   test("Filter should keep correct values as-is") {
     implicit val encoder = AnnPerson.schema.encoder
     val sut = AnnPerson.schema.jsonFilter
