@@ -7,8 +7,8 @@ object Settings {
   val common = Seq(
     organization := "danslapman",
     version := "2.0",
-    scalaVersion := "2.13.0",
-    crossScalaVersions := Seq("2.12.10", "2.13.0"),
+    scalaVersion := "2.13.1",
+    crossScalaVersions := Seq("2.12.11", "2.13.1"),
     scalacOptions ++= Seq(
       "-language:higherKinds,implicitConversions",
       "-Ywarn-unused:imports",

@@ -1,3 +1,3 @@
 addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.4")
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.7")
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.12")
 addSbtPlugin("com.eed3si9n" % "sbt-doge" % "0.1.5")
