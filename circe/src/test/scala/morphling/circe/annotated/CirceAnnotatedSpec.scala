@@ -1,6 +1,6 @@
 package morphling.circe.annotated
 
-import cats.scalatest.ValidatedValues
+import cats.scalatest.{EitherValues, ValidatedValues}
 import io.circe.Json
 import io.circe.syntax._
 import morphling.circe.FromJson._
@@ -11,7 +11,6 @@ import morphling.samples.{Person, person}
 import morphling.scalacheck.annotated.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary
-import org.scalatest.EitherValues
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
@@ -41,7 +40,7 @@ class CirceAnnotatedSpec extends AnyFunSuite with Matchers with EitherValues wit
     implicit val encoder = AnnPerson.schema.encoder
     val decoder = AnnPerson.schema.decoder
 
-    decoder.decodeJson(person.asJson).right.value shouldBe person.copy(stamp = 101)
+    decoder.decodeJson(person.asJson).value shouldBe person.copy(stamp = 101)
     decoder.decodeAccumulating(person.asJson.hcursor).value shouldBe person.copy(stamp = 101)
   }
 
