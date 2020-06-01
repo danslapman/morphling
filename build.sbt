@@ -1,14 +1,13 @@
 val versions = Map(
   "cats" -> "2.0.0",
   "circe" -> "0.12.3",
-  "monocle" -> "2.0.0",
   "mouse" -> "0.23",
   "scalacheck" -> "1.14.3",
   "scalatest" -> "3.1.1",
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
-  "tofu" -> "0.6.1"
+  "tofu" -> "0.7.4"
 )
 
 val morphling = (project in file("core"))
@@ -100,7 +99,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
     name := "morphling-typed-schema",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "ru.tinkoff" %% "typed-schema-swagger" % "0.11.1",
+      "ru.tinkoff" %% "typed-schema-swagger" % "0.12.4",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,

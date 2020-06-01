@@ -55,8 +55,8 @@ object ToTypeable {
                   s.alts.map {
                     case Alt(id, b, p) =>
                       Option.empty[String] -> Eval.now(b.typ match {
-                        case SwaggerObject(properties, required) =>
-                          SwaggerObject(properties :+ discriminatorProp(id), required.map(_ :+ dField))
+                        case SwaggerObject(properties, required, discriminator) =>
+                          SwaggerObject(properties :+ discriminatorProp(id), required.map(_ :+ dField), discriminator)
                         case other => other
                       })
                     }.toList.toVector

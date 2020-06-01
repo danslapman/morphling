@@ -6,9 +6,9 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 object Settings {
   val common = Seq(
     organization := "danslapman",
-    version := "2.0",
-    scalaVersion := "2.13.1",
-    crossScalaVersions := Seq("2.12.11", "2.13.1"),
+    version := "2.1",
+    scalaVersion := "2.13.2",
+    crossScalaVersions := Seq("2.12.11", "2.13.2"),
     scalacOptions ++= Seq(
       "-language:higherKinds,implicitConversions",
       "-Ywarn-unused:imports",
