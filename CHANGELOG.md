@@ -1,3 +1,9 @@
+## version 2.3
+
+> 19.08.2020
+
+- fix annoying overload ambiguity (for annotated schemas)
+
 ## version 2.2
 
 > 19.08.2020
