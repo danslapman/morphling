@@ -22,7 +22,7 @@ object Settings {
     },
     addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full),
     addCompilerPlugin(scalafixSemanticdb),
-    //scalafixDependencies += "com.nequissimus" %% "sort-imports" % "0.3.2",
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.4.0",
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
     bintrayOrganization := Some("danslapman"),
     bintrayReleaseOnPublish in ThisBuild := false
