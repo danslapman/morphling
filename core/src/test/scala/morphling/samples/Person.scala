@@ -23,7 +23,7 @@ object Person {
   val roles = GenContains[Person](_.roles)
   val updateCounter = GenContains[Person](_.updateCounter)
   val stamp = GenContains[Person](_.stamp)
-  val ignored = GenContains[Person](_.ignored)
+  val ignored: Contains[Person, Option[Any]] = GenContains[Person](_.ignored)
 
   private val instantIso = Equivalent[Long](Instant.ofEpochMilli)(_.toEpochMilli)
 

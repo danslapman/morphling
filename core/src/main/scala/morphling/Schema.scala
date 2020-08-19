@@ -124,21 +124,7 @@ object Schema {
       Required[O, Schema[P, *], I](fieldName, valueSchema, extract, Some(default))
     )
   }
-
-  /** Smart constructor for optional Prop instances.
-    *  @tparam P $PDefn
-    *  @tparam O $ODefn
-    *  @tparam I $IDefn
-    *  @param fieldName name of the record property
-    *  @param valueSchema schema for the record property's type
-    *  @param extract Extract lens from the record type to the property's value
-    */
-  def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], extract: Extract[O, Option[I]]): Prop[P, O, Option[I]] = {
-    FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
-      Optional[O, Schema[P, *], I](fieldName, valueSchema, extract)
-    )
-  }
-
+  
   /** Smart constructor for optional Prop instances.
     *  @tparam P $PDefn
     *  @tparam O $ODefn
@@ -163,19 +149,11 @@ object Schema {
     * Builder class used to construct a Absent property
     */
   final class AbsentBuilder[P[_]] {
-    def apply[O, I](fieldName: String, extract: Extract[O, Option[I]]): Prop[P, O, Option[I]] = {
-      FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
-        Absent[O, Schema[P, *], I](fieldName, extract)
-      )
-    }
-
-    /*
     def apply[O, I](fieldName: String, property: TProp[O, I]): Prop[P, O, Option[I]] = {
       FreeApplicative.lift[PropSchema[O, Schema[P, *], *], Option[I]](
         Absent[O, Schema[P, *], I](fieldName, property.getOption)
       )
     }
-     */
   }
 
   /**

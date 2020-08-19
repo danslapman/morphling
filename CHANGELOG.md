@@ -1,3 +1,9 @@
+## version 2.2
+
+> 19.08.2020
+
+- fix annoying overload ambiguity
+
 ## version 2.1
 
 > 01.06.2020
