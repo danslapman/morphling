@@ -1,19 +1,19 @@
 package morphling.tschema.annotated
 
+import scala.reflect.ClassTag
+
 import cats.Eq
 import cats.instances.function._
 import com.stephenn.scalatest.circe.JsonMatchers
 import io.circe.Json
 import io.circe.syntax._
 import morphling.samples.annotated.Server
-import morphling.tschema.ToTypeable._
 import morphling.tschema.Implicits.JsonOps
+import morphling.tschema.ToTypeable._
 import morphling.tschema.annotated.Implicits._
 import org.scalactic.Equality
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-
-import scala.reflect.ClassTag
 
 class TSchemaAnnotatedSpec extends AnyFunSuite with Matchers with JsonMatchers {
   implicit def eqEquality[T: Eq : ClassTag]: Equality[T] =

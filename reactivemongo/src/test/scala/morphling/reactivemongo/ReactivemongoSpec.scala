@@ -1,20 +1,19 @@
 package morphling.reactivemongo
 
+import scala.util.Success
+
 import morphling.reactivemongo.FromBson._
 import morphling.reactivemongo.Implicits._
 import morphling.reactivemongo.ToBson._
-import morphling.samples._
-import morphling.samples.Person
+import morphling.samples.{Person, _}
 import morphling.scalacheck.Implicits._
 import morphling.scalacheck.ToGen._
 import org.scalacheck.Arbitrary
-import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.TryValues
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import reactivemongo.api.bson._
-
-import scala.util.Success
 
 class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Checkers {
   test("A value should serialise to BSON") {

@@ -1,13 +1,13 @@
 package morphling.reactivemongo
 
-import cats.~>
+import scala.util.Success
+
 import cats.instances.try_._
 import cats.instances.vector._
 import cats.syntax.all._
+import cats.~>
 import morphling.protocol._
 import reactivemongo.api.bson._
-
-import scala.util.Success
 
 trait ReactivemongoPack {
   def sTypeWriter[F[_]: ToBson]: (SType[F, *] ~> BSONWriter) =

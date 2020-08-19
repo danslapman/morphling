@@ -1,6 +1,6 @@
 package morphling.tschema.annotated
 
-import cats.{Endo, ~>}
+import cats.{~>, Endo}
 import morphling.protocol.annotated.{Non, Range, Restriction}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.tschema.{ToTypeable, TypeablePack}

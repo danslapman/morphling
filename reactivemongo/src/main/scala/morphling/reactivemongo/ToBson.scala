@@ -1,5 +1,7 @@
 package morphling.reactivemongo
 
+import scala.util.{Success, Try}
+
 import cats._
 import cats.data.{EitherK, State}
 import cats.data.State._
@@ -11,8 +13,6 @@ import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
 import reactivemongo.api.bson._
 import simulacrum.typeclass
-
-import scala.util.{Success, Try}
 
 @typeclass
 trait ToBson[S[_]] {

@@ -6,10 +6,10 @@ import io.circe.syntax._
 import morphling.circe.FromJson._
 import morphling.circe.ToJson._
 import morphling.circe.annotated.Implicits._
+import morphling.samples.{person, Person}
 import morphling.samples.annotated.{AnnPerson, Server}
-import morphling.samples.{Person, person}
-import morphling.scalacheck.annotated.Implicits._
 import morphling.scalacheck.ToGen._
+import morphling.scalacheck.annotated.Implicits._
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

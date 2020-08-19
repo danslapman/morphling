@@ -3,10 +3,10 @@ package morphling.reactivemongo
 import cats._
 import cats.data.EitherK
 import cats.free._
+import morphling.{Absent, Alt, Constant, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import morphling.HFunctor.HAlgebra
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
-import morphling.{Absent, Alt, Constant, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean._
 import mouse.option._
 import reactivemongo.api.bson._

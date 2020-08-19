@@ -1,6 +1,6 @@
 package morphling.scalacheck.annotated
 
-import cats.{Endo, ~>}
+import cats.{~>, Endo}
 import morphling.protocol.annotated.{Range, Restriction}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.scalacheck.{GenPack, ToGen}

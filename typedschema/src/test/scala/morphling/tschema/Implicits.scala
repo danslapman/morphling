@@ -1,9 +1,9 @@
 package morphling.tschema
 
-import cats.~>
 import cats.free.Trampoline
 import cats.instances.vector._
 import cats.syntax.traverse._
+import cats.~>
 import io.circe.Json
 import morphling.protocol.SType.SSchema
 import ru.tinkoff.tschema.swagger.SwaggerTypeable

@@ -1,12 +1,12 @@
 package morphling.tschema
 
 import cats._
-import cats.free._
 import cats.data.{Const, EitherK}
 import cats.data.Const._
+import cats.free._
 import cats.syntax.option._
-import morphling.HFunctor._
 import morphling._
+import morphling.HFunctor._
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._

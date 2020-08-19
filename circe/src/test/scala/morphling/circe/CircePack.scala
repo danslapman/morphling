@@ -1,7 +1,7 @@
 package morphling.circe
 
-import cats.~>
 import cats.data.Const
+import cats.~>
 import io.circe.{Decoder, Encoder, Json}
 import morphling.protocol._
 
