@@ -1,3 +1,9 @@
+## version 2.5
+
+> 02.09.2020
+
+- re-introduce methods removed in 2.2 and 2.3
+
 ## version 2.4
 
 > 02.09.2020
