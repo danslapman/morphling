@@ -1,3 +1,10 @@
+## version 2.4
+
+> 02.09.2020
+
+- upgrade `typed-schema`
+- upgrade `tofu`
+
 ## version 2.3
 
 > 19.08.2020

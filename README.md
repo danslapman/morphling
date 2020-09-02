@@ -9,13 +9,14 @@ All You need is ~~love~~:
 ```
     resolvers += Resolver.bintrayRepo("danslapman", "maven")
 
-    libraryDependencies += "danslapman" %% "morphling" % "2.3"
+    libraryDependencies += "danslapman" %% "morphling" % "2.4"
 ```
 
 # Version compatibility table
 
 | morphling | cats | circe | reactivemongo | typed-schema | scalacheck | tofu |
 |-----------|------| ----- | ------------- | ------------ | ---------- | ---- |
+| 2.4 | 2.0.0 | 0.12.3 | 0.19.3 | 0.12.5.1 | 1.14.3 | 0.7.9 |
 | 2.1 | 2.0.0 | 0.12.3 | 0.19.3 | 0.12.4 | 1.14.3 | 0.7.4 |
 | 2.0 | 2.0.0 | 0.12.3 | 0.19.3 | 0.11.1 | 1.14.3 | 0.6.1 |
 | 1.5.1 | 2.0.0 | 0.12.3 | 0.19.3 | 0.11.1 | 1.14.0 | - |
