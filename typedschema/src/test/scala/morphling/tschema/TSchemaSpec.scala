@@ -80,25 +80,18 @@ class TSchemaSpec extends AnyFunSuite with Matchers with JsonMatchers {
             "type" := "object",
             "oneOf" := Json.arr(
               Json.obj(
-                "type" := "object",
-                "required" := "type" :: Nil,
-                "properties" := Json.obj(
-                  "type" := Json.obj("pattern" := "user", "type" := "string")
-                )
+                "$ref" := "#/components/schemas/user"
               ),
               Json.obj(
-                "type" := "object",
-                "required" :=  "department" :: "subordinateCount" :: "type" :: Nil,
-                "properties" := Json.obj(
-                  "type" := Json.obj("pattern" := "administrator", "type" := "string"),
-                  "department" := Json.obj("type" := "string"),
-                  "subordinateCount" := Json.obj("format" := "int32", "type" := "integer")
-                )
+                "$ref" := "#/components/schemas/administrator"
               )
             ),
             "discriminator" := Json.obj(
               "propertyName" := "type",
-              "mapping" := Json.obj()
+              "mapping" := Json.obj(
+                "user" := "#/components/schemas/user",
+                "administrator" := "#/components/schemas/administrator"
+              )
             )
           )
         ),

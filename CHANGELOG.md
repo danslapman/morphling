@@ -1,3 +1,9 @@
+## version 2.5.1
+
+> 10.09.2020
+
+- improve SwaggerTypeable for discriminated AltSchema
+
 ## version 2.5
 
 > 02.09.2020
