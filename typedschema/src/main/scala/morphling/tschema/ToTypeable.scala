@@ -10,7 +10,7 @@ import morphling.HFunctor._
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
-import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerTypeable}
+import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerRef, SwaggerTypeable}
 import simulacrum.typeclass
 
 @typeclass
@@ -54,9 +54,13 @@ object ToTypeable {
 
                   s.alts.map {
                     case Alt(id, b, p) =>
-                      Option.empty[String] -> Eval.now(b.typ match {
+                      Option(id) -> Eval.now(b.typ match {
                         case SwaggerObject(properties, required, discriminator) =>
-                          SwaggerObject(properties :+ discriminatorProp(id), required.map(_ :+ dField), discriminator)
+                          SwaggerRef(
+                            id, None, Eval.now(
+                              SwaggerObject(properties :+ discriminatorProp(id), required.map(_ :+ dField), discriminator)
+                            )
+                          )
                         case other => other
                       })
                     }.toList.toVector
