@@ -285,10 +285,10 @@ object Schema {
     *  An easier-to-read type signature for this function is below:
     *
     *  {{{
-    *  implicit def hfunctor: HFunctor[Schema]
+    *  implicit def schemaHFunctor: HFunctor[Schema]
     *  }}}
     */
-  implicit def hfunctor: HFunctor[Schema] = new HFunctor[Schema] {
+  implicit def schemaHFunctor: HFunctor[Schema] = new HFunctor[Schema] {
     def hfmap[P[_], Q[_]](nt: P ~> Q): Schema[P, *] ~> Schema[Q, *] = cataNT(hfmapAlg(nt))
   }
 

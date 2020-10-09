@@ -91,7 +91,7 @@ final case class HEnvT[E[_], F[_[_], _], G[_], I](ask: E[I], fa: F[G, I])
 object HEnvT {
   import HFunctor._
 
-  implicit def hfunctor[E[_], F[_[_], _]: HFunctor]: HFunctor[HEnvT[E, F, *[_], *]] =
+  implicit def hEnvTHFunctor[E[_], F[_[_], _]: HFunctor]: HFunctor[HEnvT[E, F, *[_], *]] =
     new HFunctor[HEnvT[E, F, *[_], *]] {
       def hfmap[M[_], N[_]](nt: M ~> N):HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *] =
         new (HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *]) {
