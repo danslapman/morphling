@@ -84,6 +84,9 @@ object HFix {
 
 final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I]) {
   type Inner[T] = G[HMutu[F, G, *], T]
+
+  def transformInner[H[_[_], _]](f: Inner ~> H[HMutu[F, H, *], *])(implicit hfg: HFunctor[F]): HMutu[F, H, I] =
+    HMutu(hfg.hfmap(f)(unmutu))
 }
 
 final case class HEnvT[E[_], F[_[_], _], G[_], I](ask: E[I], fa: F[G, I])
