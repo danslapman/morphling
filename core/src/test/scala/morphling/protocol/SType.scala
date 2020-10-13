@@ -1,6 +1,7 @@
 package morphling.protocol
 
-import morphling.HMutu
+import cats.~>
+import morphling.{HFunctor, HMutu}
 import morphling.Schema._
 
 sealed trait SType[F[_], I]
@@ -33,4 +34,23 @@ object SType {
 
   def sArray[I](elem: Schema[SSchema, I]): Schema[SSchema, Vector[I]] =
     prim(HMutu[SType, Schema, Vector[I]](SArrayT(elem)))
+
+  implicit val sTypeHFunctor: HFunctor[SType] =
+    new HFunctor[SType] {
+      override def hfmap[M[_], N[_]](nt: M ~> N): SType[M, *] ~> SType[N, *] =
+        new (SType[M, *] ~> SType[N, *]) {
+          override def apply[A](stm: SType[M, A]): SType[N, A] =
+            stm match {
+              case SNullT()      => SNullT()
+              case SBoolT()      => SBoolT()
+              case SIntT()       => SIntT()
+              case SLongT()      => SLongT()
+              case SFloatT()     => SFloatT()
+              case SDoubleT()    => SDoubleT()
+              case SCharT()      => SCharT()
+              case SStrT()       => SStrT()
+              case SArrayT(elem) => SArrayT(nt(elem))
+            }
+        }
+    }
 }

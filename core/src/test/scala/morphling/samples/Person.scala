@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.syntax.apply._
 import morphling.Schema._
 import morphling.protocol.SType._
+import morphling.samples.annotated.AnnPerson
 import tofu.optics._
 import tofu.optics.macros._
 
@@ -54,4 +55,7 @@ object Person {
       absent[SSchema]("ignored", Person.ignored)
     ).mapN(Person.apply)
   )
+
+  val deannotatedSchema: Schema[SSchema, Person] =
+    Deannotator(AnnPerson.schema)
 }

@@ -1,3 +1,10 @@
+## version 2.5.2
+
+> 13.10.2020
+
+- add HMutu.transformInner
+- add example of schema de-annotating (see Deannotator & CirceSpec)
+
 ## version 2.5.1
 
 > 10.09.2020
