@@ -1,6 +1,9 @@
 *.class
 *.log
 **/target
+.bsp
 .idea
 .metals
+.theia
 .bloop
+project/metals.sbt
