@@ -56,6 +56,6 @@ object Person {
     ).mapN(Person.apply)
   )
 
-  val deannotatedSchema: Schema[SSchema, Person] =
+  lazy val deannotatedSchema: Schema[SSchema, Person] =
     Deannotator(AnnPerson.schema)
 }
