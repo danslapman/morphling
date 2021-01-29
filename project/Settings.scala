@@ -9,20 +9,42 @@ object Settings {
     version := "2.5.2",
     scalaVersion := "2.13.4",
     crossScalaVersions := Seq("2.12.12", "2.13.4"),
-    scalacOptions ++= Seq(
-      "-language:higherKinds,implicitConversions",
-      "-Ywarn-unused:imports",
-      "-deprecation"
-    ),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, y)) if y == 13 => Seq("-Ymacro-annotations")
-        case _ => Seq("-Ypartial-unification")
+        case Some((2, 12)) => Seq(
+          "-language:higherKinds,implicitConversions",
+          "-Ywarn-unused:imports",
+          "-deprecation",
+          "-Ypartial-unification"
+        )
+        case Some((2, 13)) => Seq(
+          "-language:higherKinds,implicitConversions",
+          "-Ywarn-unused:imports",
+          "-deprecation",
+          "-Ymacro-annotations"
+        )
+        case _ => Seq()
       }
     },
-    addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.1" cross CrossVersion.full),
-    addCompilerPlugin(scalafixSemanticdb),
-    scalafixDependencies in ThisBuild += "com.github.liancheng" %% "organize-imports" % "0.4.4",
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq(
+          compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.3" cross CrossVersion.full),
+          compilerPlugin(scalafixSemanticdb)
+        )
+        case _ =>
+          Seq.empty[ModuleID]
+      }
+    },
+    scalafixDependencies in ThisBuild ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq(
+          "com.github.liancheng" %% "organize-imports" % "0.4.4"
+        )
+        case _ =>
+          Seq.empty[ModuleID]
+      }
+    },
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
     bintrayOrganization := Some("danslapman"),
     bintrayReleaseOnPublish in ThisBuild := false
