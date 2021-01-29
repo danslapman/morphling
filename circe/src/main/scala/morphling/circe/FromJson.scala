@@ -6,7 +6,6 @@ import cats.free._
 import cats.syntax.either._
 import io.circe.{Decoder, DecodingFailure, HCursor}
 import morphling._
-import morphling.HFunctor._
 import morphling.Schema._
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.boolean._

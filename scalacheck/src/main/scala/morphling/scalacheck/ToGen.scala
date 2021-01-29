@@ -4,7 +4,6 @@ import cats._
 import cats.data.EitherK
 import cats.free._
 import morphling._
-import morphling.HFunctor._
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._

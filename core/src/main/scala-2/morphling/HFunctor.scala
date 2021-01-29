@@ -12,9 +12,6 @@ object HFunctor {
   final implicit class HFunctorOps[F[_[_], _], M[_], A](val fa: F[M, A])(implicit F: HFunctor[F]) {
     def hfmap[N[_]](nt: M ~> N): F[N, A] = F.hfmap(nt)(fa)
   }
-
-  type HAlgebra[F[_[_], _], G[_]] = F[G, *] ~> G
-  type HCoAlgebra[F[_[_], _], G[_]] = G ~> F[G, *]
 }
 
 /** Fixpoint data type that can preserve a type index through
@@ -41,8 +38,6 @@ object HFix {
         hfix(alg.apply[I](fa).hfmap(self))
       }
     }
-
-  type HCofree[F[_[_], _], A[_], I] = HFix[HEnvT[A, F, *[_], *], I]
 
   /** Smart constructor for HCofree values. */
   def hcofree[F[_[_], _], A[_], I](ask: A[I], fga: => F[HCofree[F, A, *], I]): HCofree[F, A, I] =

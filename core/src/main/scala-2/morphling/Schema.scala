@@ -5,7 +5,6 @@ import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free._
 import morphling.HFix._
-import morphling.HFunctor._
 import shapeless.{Lens => _, Prism => _, _}
 import tofu.optics.{Property => TProp, _}
 

@@ -8,7 +8,6 @@ import cats.instances.option._
 import cats.syntax.all._
 import io.circe.{Json, JsonObject}
 import morphling._
-import morphling.HFunctor._
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._

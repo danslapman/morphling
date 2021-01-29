@@ -6,8 +6,7 @@ import cats._
 import cats.data.{EitherK, State}
 import cats.data.State._
 import cats.free._
-import morphling.{Absent, Alt, Constant, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
-import morphling.HFunctor._
+import morphling.{Absent, Alt, Constant, HAlgebra, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import morphling.Schema._
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._

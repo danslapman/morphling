@@ -7,7 +7,6 @@ import cats.free._
 import io.circe.{Encoder, Json, JsonObject}
 import io.circe.syntax._
 import morphling._
-import morphling.HFunctor._
 import morphling.Schema._
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option._
