@@ -300,6 +300,6 @@ object PropSchema {
 }
 
 case class IsoSchema[P[_], F[_], I, J](base: F[I], eqv: Equivalent[I, J]) extends SchemaF[P, F, J] {
-  def hfmap[G[_]](nt: F ~> G) = IsoSchema(nt(base), eqv)
-  def pmap[Q[_]](nt: P ~> Q) = IsoSchema(base, eqv)
+  def hfmap[G[_]](nt: F ~> G): IsoSchema[P, G, I, J] = IsoSchema(nt(base), eqv)
+  def pmap[Q[_]](nt: P ~> Q): IsoSchema[Q, F, I, J] = IsoSchema(base, eqv)
 }

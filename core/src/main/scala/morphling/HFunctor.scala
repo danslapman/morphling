@@ -82,11 +82,23 @@ object HFix {
     }
 }
 
-final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I]) {
-  type Inner[T] = G[HMutu[F, G, *], T]
+//final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[G[HMutu[F, G, *], *], I]) {
+final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[HMutu.Inner[F, G]#IAux , I]) {
+  //type Inner[T] = G[HMutu[F, G, *], T]
+  type Inner[T] = G[HMutu.Aux[F, G]#Aux, T]
 
   def transformInner[H[_[_], _]](f: Inner ~> H[HMutu[F, H, *], *])(implicit hfg: HFunctor[F]): HMutu[F, H, I] =
     HMutu(hfg.hfmap(f)(unmutu))
+}
+
+object HMutu {
+  type Aux[F[_[_], _], G[_[_], _]] = {
+    type Aux[I] = HMutu[F, G, I]
+  }
+
+  type Inner[F[_[_], _], G[_[_], _]] = {
+    type IAux[I] = G[Aux[F, G]#Aux, I]
+  }
 }
 
 final case class HEnvT[E[_], F[_[_], _], G[_], I](ask: E[I], fa: F[G, I])
@@ -98,7 +110,7 @@ object HEnvT {
     new HFunctor[HEnvT[E, F, *[_], *]] {
       def hfmap[M[_], N[_]](nt: M ~> N):HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *] =
         new (HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *]) {
-          def apply[I](fm: HEnvT[E, F, M, I]) = HEnvT(fm.ask, fm.fa.hfmap[N](nt))
+          def apply[I](fm: HEnvT[E, F, M, I]): HEnvT[E, F, N, I] = HEnvT(fm.ask, fm.fa.hfmap[N](nt))
         }
     }
 }

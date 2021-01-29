@@ -117,7 +117,6 @@ val `morphling-typed-schema` = (project in file("typedschema"))
 val root = (project in file("."))
   .dependsOn(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
   .aggregate(morphling, `morphling-circe`, `morphling-scalacheck`, `morphling-reactivemongo`, `morphling-typed-schema`)
-  .enablePlugins(CrossPerProjectPlugin)
   .settings(Settings.common)
   .settings(
     publish := {},
