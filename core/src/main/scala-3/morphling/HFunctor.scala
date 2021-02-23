@@ -1,6 +1,6 @@
 package morphling
 
-import cats._
+import cats.*
 
 type HAlgebra[F[_[_], _], G[_]] = ([Z] =>> F[G, Z]) ~> G
 type HCoAlgebra[F[_[_], _], G[_]] = G ~> ([Z] =>> F[G, Z])
