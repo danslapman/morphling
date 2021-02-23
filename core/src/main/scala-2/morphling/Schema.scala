@@ -288,7 +288,7 @@ object Schema {
     *  }}}
     */
   implicit def schemaHFunctor: HFunctor[Schema] = new HFunctor[Schema] {
-    def hfmap[P[_], Q[_]](nt: P ~> Q): Schema[P, *] ~> Schema[Q, *] = cataNT(hfmapAlg(nt))
+    def hlift[P[_], Q[_]](nt: P ~> Q): Schema[P, *] ~> Schema[Q, *] = cataNT(hfmapAlg(nt))
   }
 
   implicit class SchemaOps[P[_], I](base: Schema[P, I]) {

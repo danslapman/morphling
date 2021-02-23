@@ -44,7 +44,7 @@ sealed trait SchemaF[P[_], F[_], I] {
 
 object SchemaF {
   implicit def schemaFHFunctor[P[_]]: HFunctor[SchemaF[P, *[_], *]] = new HFunctor[SchemaF[P, *[_], *]] {
-    def hfmap[M[_], N[_]](nt: M ~> N): SchemaF[P, M, *] ~> SchemaF[P, N, *] =
+    def hlift[M[_], N[_]](nt: M ~> N): SchemaF[P, M, *] ~> SchemaF[P, N, *] =
       new (SchemaF[P, M, *] ~> SchemaF[P, N, *]) {
         def apply[I](fa: SchemaF[P, M, I]): SchemaF[P, N, I] = fa.hfmap(nt)
       }
@@ -189,7 +189,7 @@ final case class Alt[F[_], I, I0](id: String, base: F[I0], subset: Subset[I, I0]
   *  @param props the free applicative value composed of zero or more PropSchema instances
   */
 final case class RecordSchema[P[_], F[_], I](props: FreeApplicative[PropSchema[I, F, *], I]) extends SchemaF[P, F, I] {
-  def hfmap[G[_]](nt: F ~> G): RecordSchema[P, G, I] = RecordSchema[P, G, I](props.compile[PropSchema[I, G, *]](PropSchema.propSchemaHFunctor[I].hfmap[F, G](nt)))
+  def hfmap[G[_]](nt: F ~> G): RecordSchema[P, G, I] = RecordSchema[P, G, I](props.compile[PropSchema[I, G, *]](PropSchema.propSchemaHFunctor[I].hlift[F, G](nt)))
   def pmap[Q[_]](nt: P ~> Q): RecordSchema[Q, F, I] = RecordSchema[Q, F, I](props)
 }
 
@@ -278,7 +278,7 @@ final case class Constant[O, F[_], I](
 object PropSchema {
   implicit def propSchemaHFunctor[O]: HFunctor[PropSchema[O, *[_], *]] =
     new HFunctor[PropSchema[O, *[_], *]] {
-      def hfmap[M[_], N[_]](nt: M ~> N): PropSchema[O, M, *] ~> PropSchema[O, N, *] =
+      def hlift[M[_], N[_]](nt: M ~> N): PropSchema[O, M, *] ~> PropSchema[O, N, *] =
         new (PropSchema[O, M, *] ~> PropSchema[O, N, *]) {
           def apply[I](ps: PropSchema[O, M, I]): PropSchema[O, N, I] = ps.hfmap(nt)
         }

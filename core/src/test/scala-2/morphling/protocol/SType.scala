@@ -37,7 +37,7 @@ object SType {
 
   implicit val sTypeHFunctor: HFunctor[SType] =
     new HFunctor[SType] {
-      override def hfmap[M[_], N[_]](nt: M ~> N): SType[M, *] ~> SType[N, *] =
+      override def hlift[M[_], N[_]](nt: M ~> N): SType[M, *] ~> SType[N, *] =
         new (SType[M, *] ~> SType[N, *]) {
           override def apply[A](stm: SType[M, A]): SType[N, A] =
             stm match {

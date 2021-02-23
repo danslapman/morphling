@@ -3,14 +3,14 @@ package morphling
 import cats._
 
 trait HFunctor[F[_[_], _]] {
-  def hfmap[M[_], N[_]](nt: M ~> N): F[M, *] ~> F[N, *]
+  def hlift[M[_], N[_]](nt: M ~> N): F[M, *] ~> F[N, *]
 }
 
 object HFunctor {
   def apply[F[_[_], _]](implicit v: HFunctor[F]): HFunctor[F] = v
 
   final implicit class HFunctorOps[F[_[_], _], M[_], A](val fa: F[M, A])(implicit F: HFunctor[F]) {
-    def hfmap[N[_]](nt: M ~> N): F[N, A] = F.hfmap(nt)(fa)
+    def hfmap[N[_]](nt: M ~> N): F[N, A] = F.hlift(nt)(fa)
   }
 }
 
@@ -67,11 +67,11 @@ object HFix {
   /** HFunctor over the annotation type of an HCofree value */
   implicit def hCoFreeHFunctor[F[_[_], _]](implicit HF: HFunctor[F]): HFunctor[HCofree[F, *[_], *]] =
     new HFunctor[HCofree[F, *[_], *]] {
-      override def hfmap[M[_], N[_]](nt: M ~> N): HCofree[F, M, *] ~> HCofree[F, N, *] =
+      override def hlift[M[_], N[_]](nt: M ~> N): HCofree[F, M, *] ~> HCofree[F, N, *] =
         new (HCofree[F, M, *] ~> HCofree[F, N, *]) {
           override def apply[I](hc: HCofree[F, M, I]): HCofree[F, N, I] = {
             val step = hc.unfix.value
-            hcofree(nt.apply(step.ask), HF.hfmap(hCoFreeHFunctor[F].hfmap(nt)).apply(step.fa))
+            hcofree(nt.apply(step.ask), HF.hlift(hCoFreeHFunctor[F].hlift(nt)).apply(step.fa))
           }
         }
     }
@@ -83,7 +83,7 @@ final case class HMutu[F[_[_], _], G[_[_], _], I](unmutu: F[HMutu.Inner[F, G]#IA
   type Inner[T] = G[HMutu.Aux[F, G]#Aux, T]
 
   def transformInner[H[_[_], _]](f: Inner ~> H[HMutu[F, H, *], *])(implicit hfg: HFunctor[F]): HMutu[F, H, I] =
-    HMutu(hfg.hfmap(f)(unmutu))
+    HMutu(hfg.hlift(f)(unmutu))
 }
 
 object HMutu {
@@ -103,7 +103,7 @@ object HEnvT {
 
   implicit def hEnvTHFunctor[E[_], F[_[_], _]: HFunctor]: HFunctor[HEnvT[E, F, *[_], *]] =
     new HFunctor[HEnvT[E, F, *[_], *]] {
-      def hfmap[M[_], N[_]](nt: M ~> N):HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *] =
+      def hlift[M[_], N[_]](nt: M ~> N):HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *] =
         new (HEnvT[E, F, M, *] ~> HEnvT[E, F, N, *]) {
           def apply[I](fm: HEnvT[E, F, M, I]): HEnvT[E, F, N, I] = HEnvT(fm.ask, fm.fa.hfmap[N](nt))
         }
