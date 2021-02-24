@@ -1,4 +1,4 @@
-# morphling [ ![Download](https://api.bintray.com/packages/danslapman/maven/morphling/images/download.svg) ](https://bintray.com/danslapman/maven/morphling/_latestVersion)[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/danslapman/morphling)
+# morphling [![Release Artifacts][Badge-SonatypeReleases]][Link-SonatypeReleases][![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/danslapman/morphling)
 Cats-based Scala library for free applicative schemas. Core module of morphling
 initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
@@ -131,3 +131,7 @@ With such a transformation defined we can derive an `Encoder` for `Server`:
 ```scala
 val encoder = Server.schema.encoder
 ```
+
+[Link-SonatypeReleases]: https://oss.sonatype.org/content/repositories/releases/com/github/danslapman/morphling_2.13/ "Sonatype Releases"
+
+[Badge-SonatypeReleases]: https://img.shields.io/nexus/r/https/oss.sonatype.org/com.github.danslapman/morphling_2.13.svg "Sonatype Releases"
