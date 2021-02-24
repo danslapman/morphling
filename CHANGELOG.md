@@ -5,6 +5,7 @@
 - change organization to `com.github.danslapman`
 - now hosts on Sonatype OSS
 - renamed HFunctor.hfmap to HFunctor.hlift
+- experimental HFunctor Scala 3 implementation
 
 ## version 2.5.2
 
