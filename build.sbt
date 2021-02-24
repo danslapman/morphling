@@ -1,5 +1,5 @@
 val versions = Map(
-  "cats" -> "2.0.0",
+  "cats" -> "2.4.2",
   "circe" -> "0.12.3",
   "mouse" -> "0.23",
   "scalacheck" -> "1.14.3",
@@ -15,15 +15,23 @@ val morphling = (project in file("core"))
   .settings(
     name := "morphling",
     parallelExecution in ThisBuild := false,
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % versions("cats"),
-      "org.typelevel" %% "cats-free" % versions("cats"),
-      "org.typelevel" %% "alleycats-core" % versions("cats"),
-      "ru.tinkoff" %%  "tofu-optics-core" % versions("tofu"),
-      "ru.tinkoff" %%  "tofu-optics-macro" % versions("tofu") % Test,
-      "com.chuusai" %% "shapeless" % "2.3.3",
-      "org.scalatest" %% "scalatest" % versions("scalatest") % Test
-    )
+    crossScalaVersions += "3.0.0-RC1",
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq(
+          "org.typelevel" %% "cats-core" % versions("cats"),
+          "org.typelevel" %% "cats-free" % versions("cats"),
+          "org.typelevel" %% "alleycats-core" % versions("cats"),
+          "ru.tinkoff" %%  "tofu-optics-core" % versions("tofu"),
+          "ru.tinkoff" %%  "tofu-optics-macro" % versions("tofu") % Test,
+          "com.chuusai" %% "shapeless" % "2.3.3",
+          "org.scalatest" %% "scalatest" % versions("scalatest") % Test
+        )
+        case _ => Seq(
+          "org.typelevel" %% "cats-core" % versions("cats")
+        )
+      }
+    }
   )
 
 val `morphling-scalacheck` = (project in file("scalacheck"))
@@ -120,6 +128,5 @@ val root = (project in file("."))
   .settings(Settings.common)
   .settings(
     publish := {},
-    bintrayRelease := {},
-    bintrayUnpublish := {}
+    publishArtifact := false
   )
