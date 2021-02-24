@@ -1,12 +1,13 @@
-import bintray.BintrayKeys._
 import sbt._
 import sbt.Keys._
 import scalafix.sbt.ScalafixPlugin.autoImport._
 
 object Settings {
   val common = Seq(
-    organization := "danslapman",
-    version := "2.5.2",
+    organization := "com.github.danslapman",
+    organizationName := "danslapman",
+    organizationHomepage := Some(url("https://github.com/danslapman")),
+    version := "2.6.0",
     scalaVersion := "2.13.4",
     crossScalaVersions := Seq("2.12.12", "2.13.4"),
     scalacOptions ++= {
@@ -45,8 +46,28 @@ object Settings {
           Seq.empty[ModuleID]
       }
     },
+    scmInfo := Some(
+      ScmInfo(
+        url("https://github.com/danslapman/morphling"),
+        "scm:git@github.com:danslapman/morphling.git"
+      )
+    ),
+    developers := List(
+      Developer(
+        id    = "danslapman",
+        name  = "Daniil Smirnov",
+        email = "danslapman@gmail.com",
+        url   = url("https://github.com/danslapman")
+      )
+    ),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
-    bintrayOrganization := Some("danslapman"),
-    bintrayReleaseOnPublish in ThisBuild := false
+    homepage := Some(url("https://github.com/danslapman/morphling")),
+    pomIncludeRepository := { _ => false },
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
+      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
+    },
+    publishMavenStyle := true
   )
 }

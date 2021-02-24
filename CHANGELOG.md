@@ -1,3 +1,11 @@
+## version 2.6.0
+
+> 24.02.2021
+
+- change organization to `com.github.danslapman`
+- now hosts on Sonatype OSS
+- renamed HFunctor.hfmap to HFunctor.hlift
+
 ## version 2.5.2
 
 > 13.10.2020

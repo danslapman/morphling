@@ -128,6 +128,5 @@ val root = (project in file("."))
   .settings(Settings.common)
   .settings(
     publish := {},
-    bintrayRelease := {},
-    bintrayUnpublish := {}
+    publishArtifact := false
   )
