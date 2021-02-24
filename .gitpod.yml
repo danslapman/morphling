@@ -7,7 +7,7 @@ tasks:
 vscode:
   extensions:
     - scala-lang.scala@0.5.0:3FIiaU1vnooQsX3PkBlBvQ==
-    - scalameta.metals@1.9.13:jexAtKcmdDn+2ttxa+kTTw==
+    - scalameta.metals@1.10.0:wOYpsld/e93zZ250A0uKHA==
 
 ports:
   - port: 8212
