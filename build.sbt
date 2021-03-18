@@ -1,13 +1,14 @@
 val versions = Map(
   "cats" -> "2.4.2",
-  "circe" -> "0.12.3",
+  "circe" -> "0.13.0",
   "mouse" -> "0.23",
-  "scalacheck" -> "1.14.3",
-  "scalatest" -> "3.1.1",
+  "scalacheck" -> "1.15.3",
+  "scalatest" -> "3.2.6",
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
-  "tofu" -> "0.7.9"
+  "tofu" -> "0.10.0",
+  "scalatestplus-scalacheck" -> "3.2.6.0"
 )
 
 val morphling = (project in file("core"))
@@ -22,8 +23,8 @@ val morphling = (project in file("core"))
           "org.typelevel" %% "cats-core" % versions("cats"),
           "org.typelevel" %% "cats-free" % versions("cats"),
           "org.typelevel" %% "alleycats-core" % versions("cats"),
-          "ru.tinkoff" %%  "tofu-optics-core" % versions("tofu"),
-          "ru.tinkoff" %%  "tofu-optics-macro" % versions("tofu") % Test,
+          "tf.tofu" %%  "tofu-optics-core" % versions("tofu"),
+          "tf.tofu" %%  "tofu-optics-macro" % versions("tofu") % Test,
           "com.chuusai" %% "shapeless" % "2.3.3",
           "org.scalatest" %% "scalatest" % versions("scalatest") % Test
         )
@@ -65,7 +66,7 @@ val `morphling-circe` = (project in file("circe"))
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
-      "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % Test,
+      "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test,
       "com.ironcorelabs" %% "cats-scalatest" % "3.0.0"
     ),
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
@@ -84,12 +85,12 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
     name := "morphling-reactivemongo",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "org.reactivemongo" %% "reactivemongo-bson-api" % "0.19.3",
+      "org.reactivemongo" %% "reactivemongo-bson-api" % "1.0.3",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
-      "org.scalatestplus" %% "scalatestplus-scalacheck" % "3.1.0.0-RC2" % Test
+      "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test
     ),
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
@@ -107,7 +108,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
     name := "morphling-typed-schema",
     parallelExecution in ThisBuild := false,
     libraryDependencies ++= Seq(
-      "ru.tinkoff" %% "typed-schema-swagger" % "0.12.5.1",
+      "ru.tinkoff" %% "typed-schema-swagger" % "0.14.3",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,

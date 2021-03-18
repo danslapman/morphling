@@ -26,7 +26,7 @@ object Person {
   val stamp = GenContains[Person](_.stamp)
   val ignored: Contains[Person, Option[Any]] = GenContains[Person](_.ignored)
 
-  private val instantIso = Equivalent[Long](Instant.ofEpochMilli)(_.toEpochMilli)
+  private val instantIso = Equivalent[Long](Instant.ofEpochMilli _)(_.toEpochMilli)
 
   val schema: Schema[SSchema, Person] = rec(
     (

@@ -1,3 +1,13 @@
+## version 2.7.0
+
+> 18.03.2021
+
+- upgrade `circe`
+- upgrade `tofu`
+- upgrade `typed-schema`
+- upgrade `scalacheck`
+- upgrade `reactivemongo`
+
 ## version 2.6.0
 
 > 24.02.2021

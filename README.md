@@ -7,13 +7,14 @@ initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](h
 All You need is ~~love~~:
 
 ```
-    libraryDependencies += "com.github.danslapman" %% "morphling" % "2.6.0"
+    libraryDependencies += "com.github.danslapman" %% "morphling" % "2.7.0"
 ```
 
 # Version compatibility table
 
 | morphling | cats | circe | reactivemongo | typed-schema | scalacheck | tofu |
 |-----------|------| ----- | ------------- | ------------ | ---------- | ---- |
+| 2.7 | 2.4.2 | 0.13.0 | 1.0.3 | 0.14.3 | 1.15.3 | 0.10.0 |
 | 2.6 | 2.4.2 | 0.12.3 | 0.19.3 | 0.12.5.1 | 1.14.3 | 0.7.9 |
 | 2.4 | 2.0.0 | 0.12.3 | 0.19.3 | 0.12.5.1 | 1.14.3 | 0.7.9 |
 | 2.1 | 2.0.0 | 0.12.3 | 0.19.3 | 0.12.4 | 1.14.3 | 0.7.4 |

@@ -10,7 +10,7 @@ import morphling.samples.Person
 import tofu.optics.Equivalent
 
 object AnnPerson {
-  private val instantIso = Equivalent[Long](Instant.ofEpochMilli)(_.toEpochMilli)
+  private val instantIso = Equivalent[Long](Instant.ofEpochMilli _)(_.toEpochMilli)
 
   val schema: Schema[ASchema, Person] = rec(
     (
