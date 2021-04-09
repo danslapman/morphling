@@ -8,8 +8,8 @@ object Settings {
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
     version := "2.7.0",
-    scalaVersion := "2.13.4",
-    crossScalaVersions := Seq("2.12.12", "2.13.4"),
+    scalaVersion := "2.13.5",
+    crossScalaVersions := Seq("2.12.13", "2.13.5"),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => Seq(
@@ -37,10 +37,10 @@ object Settings {
           Seq.empty[ModuleID]
       }
     },
-    scalafixDependencies in ThisBuild ++= {
+    ThisBuild / scalafixDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
-          "com.github.liancheng" %% "organize-imports" % "0.4.4"
+          "com.github.liancheng" %% "organize-imports" % "0.5.0"
         )
         case _ =>
           Seq.empty[ModuleID]

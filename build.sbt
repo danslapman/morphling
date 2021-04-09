@@ -1,5 +1,5 @@
 val versions = Map(
-  "cats" -> "2.4.2",
+  "cats" -> "2.5.0",
   "circe" -> "0.13.0",
   "mouse" -> "0.23",
   "scalacheck" -> "1.15.3",
@@ -15,8 +15,8 @@ val morphling = (project in file("core"))
   .settings(Settings.common)
   .settings(
     name := "morphling",
-    parallelExecution in ThisBuild := false,
-    crossScalaVersions += "3.0.0-RC1",
+    ThisBuild / parallelExecution := false,
+    crossScalaVersions += "3.0.0-RC2",
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
@@ -40,7 +40,7 @@ val `morphling-scalacheck` = (project in file("scalacheck"))
   .settings(Settings.common)
   .settings(
     name := "morphling-scalacheck",
-    parallelExecution in ThisBuild := false,
+    ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
@@ -59,7 +59,7 @@ val `morphling-circe` = (project in file("circe"))
   .settings(Settings.common)
   .settings(
     name := "morphling-circe",
-    parallelExecution in ThisBuild := false,
+    ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % versions("circe"),
       "org.typelevel" %% "mouse" % versions("mouse"),
@@ -83,7 +83,7 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
   .settings(Settings.common)
   .settings(
     name := "morphling-reactivemongo",
-    parallelExecution in ThisBuild := false,
+    ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "org.reactivemongo" %% "reactivemongo-bson-api" % "1.0.3",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
@@ -106,7 +106,7 @@ val `morphling-typed-schema` = (project in file("typedschema"))
   .settings(Settings.common)
   .settings(
     name := "morphling-typed-schema",
-    parallelExecution in ThisBuild := false,
+    ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "ru.tinkoff" %% "typed-schema-swagger" % "0.14.3",
       "org.typelevel" %% "simulacrum" % versions("simulacrum"),
