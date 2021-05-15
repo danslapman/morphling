@@ -1,5 +1,5 @@
 val versions = Map(
-  "cats" -> "2.5.0",
+  "cats" -> "2.6.1",
   "circe" -> "0.13.0",
   "mouse" -> "0.23",
   "scalacheck" -> "1.15.3",
@@ -16,7 +16,7 @@ val morphling = (project in file("core"))
   .settings(
     name := "morphling",
     ThisBuild / parallelExecution := false,
-    crossScalaVersions += "3.0.0-RC2",
+    crossScalaVersions += "3.0.0",
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
