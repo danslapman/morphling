@@ -3,13 +3,13 @@ package morphling.tschema
 import scala.reflect.ClassTag
 
 import cats.Eq
-import cats.instances.function._
+import cats.instances.function.*
 import com.stephenn.scalatest.circe.JsonMatchers
 import io.circe.Json
-import io.circe.syntax._
+import io.circe.syntax.*
 import morphling.samples.Person
-import morphling.tschema.Implicits._
-import morphling.tschema.ToTypeable._
+import morphling.tschema.Implicits.*
+import morphling.tschema.ToTypeable.*
 import org.scalactic.Equality
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

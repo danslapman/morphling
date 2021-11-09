@@ -1,6 +1,6 @@
 package morphling
 
-import cats._
+import cats.*
 
 trait HFunctor[F[_[_], _]] {
   def hlift[M[_], N[_]](nt: M ~> N): F[M, *] ~> F[N, *]
@@ -20,7 +20,7 @@ object HFunctor {
 final case class HFix[F[_[_], _], I](unfix: Eval[F[HFix[F, *], I]])
 
 object HFix {
-  import HFunctor._
+  import HFunctor.*
 
   def hfix[F[_[_], _], I](fa: => F[HFix[F, *], I]): HFix[F, I] =
     HFix[F, I](Later(fa))
@@ -99,7 +99,7 @@ object HMutu {
 final case class HEnvT[E[_], F[_[_], _], G[_], I](ask: E[I], fa: F[G, I])
 
 object HEnvT {
-  import HFunctor._
+  import HFunctor.*
 
   implicit def hEnvTHFunctor[E[_], F[_[_], _]: HFunctor]: HFunctor[HEnvT[E, F, *[_], *]] =
     new HFunctor[HEnvT[E, F, *[_], *]] {

@@ -1,14 +1,14 @@
 package morphling.annotated
 
 import alleycats.EmptyK
-import cats._
+import cats.*
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
-import cats.free._
-import morphling._
-import morphling.HFix._
+import cats.free.*
+import morphling.*
+import morphling.HFix.*
 import shapeless.HList
-import tofu.optics.{Property => TProp, _}
+import tofu.optics.{Property as TProp, _}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -320,16 +320,16 @@ object Schema {
     *  @tparam A $ADefn
     *  @tparam I $IDefn
     */
-  def unsafeOneOf[P[_], A[_], I](ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOf[P[_], A[_], I](ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, ?]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts), ann)
 
-  def unsafeOneOf[P[_], A[_]: EmptyK, I](alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOf[P[_], A[_]: EmptyK, I](alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, ?]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts))
 
-  def unsafeOneOfDiscr[P[_], A[_], I](discriminatorField: String, ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOfDiscr[P[_], A[_], I](discriminatorField: String, ann: A[I])(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, ?]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts, Some(discriminatorField)), ann)
 
-  def unsafeOneOfDiscr[P[_], A[_]: EmptyK, I](discriminatorField: String)(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, _]]): AnnotatedSchema[P, A, I] =
+  def unsafeOneOfDiscr[P[_], A[_]: EmptyK, I](discriminatorField: String)(alts: NonEmptyList[Alt[AnnotatedSchema[P, A, *], I, ?]]): AnnotatedSchema[P, A, I] =
     schema(OneOfSchema[P, AnnotatedSchema[P, A, *], I](alts, Some(discriminatorField)))
 
   /** Convenience constructor for oneOf schema alternatives.

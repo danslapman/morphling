@@ -1,9 +1,9 @@
 package morphling
 
-import cats._
+import cats.*
 import cats.data.NonEmptyList
-import cats.free._
-import tofu.optics._
+import cats.free.*
+import tofu.optics.*
 
 /** The base trait for the schema GADT.
   *
@@ -148,7 +148,7 @@ final case class PrimSchema[P[_], F[_], I](prim: P[I]) extends SchemaF[P, F, I] 
   *  @tparam F $FDefn
   *  @tparam I $IDefn
   */
-final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, _]], discriminator: Option[String] = None) extends SchemaF[P, F, I] {
+final case class OneOfSchema[P[_], F[_], I](alts: NonEmptyList[Alt[F, I, ?]], discriminator: Option[String] = None) extends SchemaF[P, F, I] {
   def hfmap[G[_]](nt: F ~> G): OneOfSchema[P, G, I] = OneOfSchema[P, G, I](alts.map(_.hfmap(nt)), discriminator)
   def pmap[Q[_]](nt: P ~> Q): OneOfSchema[Q, F, I] = OneOfSchema[Q, F, I](alts, discriminator)
 }

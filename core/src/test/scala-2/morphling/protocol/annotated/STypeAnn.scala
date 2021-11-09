@@ -3,7 +3,7 @@ package morphling.protocol.annotated
 import alleycats.EmptyK
 import morphling.HMutu
 import morphling.annotated.Schema.{prim, AnnotatedSchema}
-import morphling.protocol._
+import morphling.protocol.*
 
 object STypeAnn {
   type Schema[P[_], I] = AnnotatedSchema[P, Restriction, I]

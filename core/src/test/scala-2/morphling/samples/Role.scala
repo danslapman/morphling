@@ -1,11 +1,11 @@
 package morphling.samples
 
-import cats.syntax.apply._
+import cats.syntax.apply.*
 import morphling.Schema
-import morphling.Schema._
-import morphling.protocol.SType._
+import morphling.Schema.*
+import morphling.protocol.SType.*
 import shapeless.HNil
-import tofu.optics.macros._
+import tofu.optics.macros.*
 
 sealed trait Role
 

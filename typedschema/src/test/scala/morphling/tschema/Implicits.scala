@@ -1,8 +1,8 @@
 package morphling.tschema
 
 import cats.free.Trampoline
-import cats.instances.vector._
-import cats.syntax.traverse._
+import cats.instances.vector.*
+import cats.syntax.traverse.*
 import cats.~>
 import io.circe.Json
 import morphling.protocol.SType.SSchema

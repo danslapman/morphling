@@ -1,10 +1,10 @@
 package morphling.circe.annotated
 
 import io.circe.Json
-import io.circe.syntax._
-import morphling.circe.ToFilter._
-import morphling.circe.ToJson._
-import morphling.circe.annotated.Implicits._
+import io.circe.syntax.*
+import morphling.circe.ToFilter.*
+import morphling.circe.ToJson.*
+import morphling.circe.annotated.Implicits.*
 import morphling.samples.annotated.AnnPerson
 import morphling.samples.person
 import org.scalatest.funsuite.AnyFunSuite

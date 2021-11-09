@@ -1,15 +1,15 @@
 package morphling.scalacheck
 
 import cats.~>
-import morphling.protocol._
-import org.scalacheck.Arbitrary._
+import morphling.protocol.*
+import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen
-import org.scalacheck.Gen._
+import org.scalacheck.Gen.*
 
 trait GenPack {
   def sTypeGen[F[_]: ToGen]: (SType[F, *] ~> Gen) =
     new (SType[F, *] ~> Gen) {
-      import ToGen._
+      import ToGen.*
 
       override def apply[A](st: SType[F, A]): Gen[A] = st match {
         case SNullT()   => arbitrary[Unit]

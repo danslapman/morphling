@@ -1,14 +1,14 @@
 package morphling.tschema
 
-import cats._
+import cats.*
 import cats.data.{Const, EitherK}
-import cats.data.Const._
-import cats.free._
-import cats.syntax.option._
-import morphling._
+import cats.data.Const.*
+import cats.free.*
+import cats.syntax.option.*
+import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.option._
+import mouse.option.*
 import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerRef, SwaggerTypeable}
 import simulacrum.typeclass
 

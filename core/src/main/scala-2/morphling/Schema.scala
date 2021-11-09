@@ -1,12 +1,12 @@
 package morphling
 
-import cats._
+import cats.*
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
-import cats.free._
-import morphling.HFix._
-import shapeless.{Lens => _, Prism => _, _}
-import tofu.optics.{Property => TProp, _}
+import cats.free.*
+import morphling.HFix.*
+import shapeless.{Lens as _, Prism as _, _}
+import tofu.optics.{Property as TProp, _}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -254,10 +254,10 @@ object Schema {
     *  @tparam P $PDefn
     *  @tparam I $IDefn
     */
-  def unsafeOneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, *], I, _]]): Schema[P, I] =
+  def unsafeOneOf[P[_], I](alts: NonEmptyList[Alt[Schema[P, *], I, ?]]): Schema[P, I] =
     schema(OneOfSchema[P, Schema[P, *], I](alts))
 
-  def unsafeOneOfDiscr[P[_], I](discriminatorField: String)(alts: NonEmptyList[Alt[Schema[P, *], I, _]]): Schema[P, I] =
+  def unsafeOneOfDiscr[P[_], I](discriminatorField: String)(alts: NonEmptyList[Alt[Schema[P, *], I, ?]]): Schema[P, I] =
     schema(OneOfSchema[P, Schema[P, *], I](alts, Some(discriminatorField)))
 
   /** Convenience constructor for oneOf schema alternatives.

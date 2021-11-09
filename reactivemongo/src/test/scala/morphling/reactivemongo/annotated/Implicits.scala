@@ -4,7 +4,7 @@ import cats.{~>, Endo}
 import morphling.protocol.annotated.{Non, Range, Restriction}
 import morphling.protocol.annotated.STypeAnn.ASchema
 import morphling.reactivemongo.{FromBson, ReactivemongoPack, ToBson}
-import reactivemongo.api.bson._
+import reactivemongo.api.bson.*
 
 object Implicits extends ReactivemongoPack {
   implicit val readerRestrictions: (Restriction ~> λ[T => Endo[BSONReader[T]]]) =

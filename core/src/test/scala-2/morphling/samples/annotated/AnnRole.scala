@@ -1,10 +1,10 @@
 package morphling.samples.annotated
 
-import cats.syntax.apply._
+import cats.syntax.apply.*
 import morphling.annotated.Schema
-import morphling.annotated.Schema._
+import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Restriction
-import morphling.protocol.annotated.STypeAnn._
+import morphling.protocol.annotated.STypeAnn.*
 import morphling.samples.{Administrator, Role, User}
 import shapeless.HNil
 

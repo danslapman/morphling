@@ -3,12 +3,12 @@ package morphling.circe
 import cats.data.Const
 import cats.~>
 import io.circe.{Decoder, Encoder, Json}
-import morphling.protocol._
+import morphling.protocol.*
 
 trait CircePack {
   def sTypeEncoder[F[_]: ToJson]: SType[F, *] ~> Encoder =
     new (SType[F, *] ~> Encoder) {
-      import ToJson._
+      import ToJson.*
 
       override def apply[A](st: SType[F, A]): Encoder[A] = st match {
         case SNullT() => Encoder.encodeUnit
@@ -25,7 +25,7 @@ trait CircePack {
 
   def sTypeDecoder[F[_]: FromJson]: SType[F, *] ~> Decoder =
     new (SType[F, *] ~> Decoder) {
-      import FromJson._
+      import FromJson.*
 
       override def apply[A](st: SType[F, A]): Decoder[A] = st match {
         case SNullT() => Decoder.decodeUnit
@@ -42,7 +42,7 @@ trait CircePack {
 
   def sTypeFilter[F[_]: ToFilter]: SType[F, *] ~> Const[Json => Option[Json], *] =
     new (SType[F, *] ~> Const[Json => Option[Json], *]) {
-      import ToFilter._
+      import ToFilter.*
 
       override def apply[A](st: SType[F, A]): Const[Json => Option[Json], A] = Const.of(st match {
         case SNullT() => _.asNull.map(_ => Json.Null)

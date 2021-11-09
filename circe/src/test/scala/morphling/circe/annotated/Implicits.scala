@@ -1,8 +1,8 @@
 package morphling.circe.annotated
 
-import cats._
+import cats.*
 import cats.data.{Const, Kleisli}
-import cats.instances.option._
+import cats.instances.option.*
 import io.circe.{Decoder, Encoder, Json}
 import morphling.circe.{CircePack, FromJson, ToFilter, ToJson}
 import morphling.protocol.annotated.{Non, Range, Restriction}

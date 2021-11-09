@@ -1,14 +1,14 @@
 package morphling.reactivemongo
 
-import cats._
+import cats.*
 import cats.data.EitherK
-import cats.free._
+import cats.free.*
 import morphling.{Absent, Alt, Constant, HAlgebra, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.boolean._
-import mouse.option._
-import reactivemongo.api.bson._
+import mouse.boolean.*
+import mouse.option.*
+import reactivemongo.api.bson.*
 import simulacrum.typeclass
 
 @typeclass

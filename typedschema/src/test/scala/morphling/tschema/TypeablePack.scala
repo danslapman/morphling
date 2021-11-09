@@ -1,13 +1,13 @@
 package morphling.tschema
 
 import cats.~>
-import morphling.protocol._
+import morphling.protocol.*
 import ru.tinkoff.tschema.swagger.SwaggerTypeable
 
 trait TypeablePack {
   def sTypeGen[F[_]: ToTypeable]: (SType[F, *] ~> SwaggerTypeable) =
     new (SType[F, *] ~> SwaggerTypeable) {
-      import ToTypeable._
+      import ToTypeable.*
 
       override def apply[I](st: SType[F, I]): SwaggerTypeable[I] = st match {
         case SNullT()   => SwaggerTypeable.swaggerTypeableUnit

@@ -2,12 +2,12 @@ package morphling.samples
 
 import java.time.Instant
 
-import cats.syntax.apply._
-import morphling.Schema._
-import morphling.protocol.SType._
+import cats.syntax.apply.*
+import morphling.Schema.*
+import morphling.protocol.SType.*
 import morphling.samples.annotated.AnnPerson
-import tofu.optics._
-import tofu.optics.macros._
+import tofu.optics.*
+import tofu.optics.macros.*
 
 case class Person(
   name: String,

@@ -2,10 +2,10 @@ package morphling.samples.annotated
 
 import java.time.Instant
 
-import cats.syntax.apply._
-import morphling.annotated.Schema._
+import cats.syntax.apply.*
+import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Restriction
-import morphling.protocol.annotated.STypeAnn._
+import morphling.protocol.annotated.STypeAnn.*
 import morphling.samples.Person
 import tofu.optics.Equivalent
 
