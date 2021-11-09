@@ -3,8 +3,8 @@ package morphling
 import scala.annotation.implicitNotFound
 
 import cats.data.NonEmptyList
-import cats.syntax.list._
-import shapeless.{Prism => _, _}
+import cats.syntax.list.*
+import shapeless.{Prism as _, _}
 import shapeless.ops.coproduct.ToHList
 import shapeless.ops.hlist.{Align, Comapped, ToTraversable}
 
@@ -13,7 +13,7 @@ import shapeless.ops.hlist.{Align, Comapped, ToTraversable}
   */
 @implicitNotFound(msg = "Cannot prove the completeness of your oneOf definition; you may have not provided an alternative for each constructor of your sum type ${I}")
 sealed trait Constructors[I, F[_], H <: HList] {
-  def toNel(h: H): NonEmptyList[F[_]]
+  def toNel(h: H): NonEmptyList[F[?]]
 }
 
 object Constructors {
@@ -22,8 +22,8 @@ object Constructors {
      L: ToHList.Aux[C, H1],
      M: Comapped.Aux[H, F, H0],
      A: Align[H0, H1],
-     T: ToTraversable.Aux[H, List, F[_]]): Constructors[I, F, H] = new Constructors[I, F, H] {
-    def toNel(h: H): NonEmptyList[F[_]] = {
+     T: ToTraversable.Aux[H, List, F[?]]): Constructors[I, F, H] = new Constructors[I, F, H] {
+    def toNel(h: H): NonEmptyList[F[?]] = {
       h.toList.toNel.get
     }
   }

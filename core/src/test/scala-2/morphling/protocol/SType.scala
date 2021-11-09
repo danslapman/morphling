@@ -2,7 +2,7 @@ package morphling.protocol
 
 import cats.~>
 import morphling.{HFunctor, HMutu}
-import morphling.Schema._
+import morphling.Schema.*
 
 sealed trait SType[F[_], I]
 

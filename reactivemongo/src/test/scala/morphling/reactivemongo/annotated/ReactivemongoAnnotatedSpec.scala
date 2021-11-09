@@ -2,19 +2,19 @@ package morphling.reactivemongo.annotated
 
 import scala.util.Success
 
-import morphling.reactivemongo.FromBson._
-import morphling.reactivemongo.ToBson._
-import morphling.reactivemongo.annotated.Implicits._
+import morphling.reactivemongo.FromBson.*
+import morphling.reactivemongo.ToBson.*
+import morphling.reactivemongo.annotated.Implicits.*
 import morphling.samples.{person, Person}
 import morphling.samples.annotated.{AnnPerson, Server}
-import morphling.scalacheck.ToGen._
-import morphling.scalacheck.annotated.Implicits._
+import morphling.scalacheck.ToGen.*
+import morphling.scalacheck.annotated.Implicits.*
 import org.scalacheck.Arbitrary
 import org.scalatest.TryValues
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
-import reactivemongo.api.bson._
+import reactivemongo.api.bson.*
 
 class ReactivemongoAnnotatedSpec extends AnyFunSuite with Matchers with TryValues with Checkers {
   private val failure = Symbol("failure")

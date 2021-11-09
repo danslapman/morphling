@@ -1,15 +1,15 @@
 package morphling.circe
 
-import cats._
+import cats.*
 import cats.data.{EitherK, State}
-import cats.data.State._
-import cats.free._
+import cats.data.State.*
+import cats.free.*
 import io.circe.{Encoder, Json, JsonObject}
-import io.circe.syntax._
-import morphling._
-import morphling.Schema._
+import io.circe.syntax.*
+import morphling.*
+import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.option._
+import mouse.option.*
 import simulacrum.typeclass
 
 @typeclass

@@ -1,6 +1,6 @@
 package morphling.samples
 
-import cats._
+import cats.*
 import morphling.HFix
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema

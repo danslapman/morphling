@@ -8,21 +8,25 @@ object Settings {
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
     version := "2.7.0",
-    scalaVersion := "2.13.5",
-    crossScalaVersions := Seq("2.12.13", "2.13.5"),
+    scalaVersion := "2.13.6",
+    crossScalaVersions := Seq("2.12.15", "2.13.6"),
     scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 12)) => Seq(
           "-language:higherKinds,implicitConversions",
           "-Ywarn-unused:imports",
           "-deprecation",
-          "-Ypartial-unification"
+          "-Ypartial-unification",
+          "-Xsource:3",
+          "-P:kind-projector:underscore-placeholders"
         )
         case Some((2, 13)) => Seq(
           "-language:higherKinds,implicitConversions",
           "-Ywarn-unused:imports",
           "-deprecation",
-          "-Ymacro-annotations"
+          "-Ymacro-annotations",
+          "-Xsource:3",
+          "-P:kind-projector:underscore-placeholders"
         )
         case _ => Seq()
       }
@@ -30,7 +34,7 @@ object Settings {
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
-          compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.3" cross CrossVersion.full),
+          compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
           compilerPlugin(scalafixSemanticdb)
         )
         case _ =>
@@ -40,7 +44,7 @@ object Settings {
     ThisBuild / scalafixDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
-          "com.github.liancheng" %% "organize-imports" % "0.5.0"
+          "com.github.liancheng" %% "organize-imports" % "0.6.0"
         )
         case _ =>
           Seq.empty[ModuleID]

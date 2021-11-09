@@ -1,11 +1,11 @@
 package morphling.circe
 
 import io.circe.Json
-import io.circe.syntax._
-import morphling.circe.Implicits._
-import morphling.circe.ToFilter._
-import morphling.circe.ToJson._
-import morphling.samples._
+import io.circe.syntax.*
+import morphling.circe.Implicits.*
+import morphling.circe.ToFilter.*
+import morphling.circe.ToJson.*
+import morphling.samples.*
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

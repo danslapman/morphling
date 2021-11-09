@@ -1,6 +1,6 @@
 package morphling.scalacheck
 
-import cats._
+import cats.*
 import morphling.protocol.SType.SSchema
 import org.scalacheck.Gen
 

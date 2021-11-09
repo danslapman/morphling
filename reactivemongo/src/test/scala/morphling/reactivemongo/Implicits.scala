@@ -2,7 +2,7 @@ package morphling.reactivemongo
 
 import cats.~>
 import morphling.protocol.SType.SSchema
-import reactivemongo.api.bson._
+import reactivemongo.api.bson.*
 
 object Implicits extends ReactivemongoPack {
   implicit val primToBson: ToBson[SSchema] = new ToBson[SSchema] { self =>

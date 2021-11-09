@@ -2,15 +2,15 @@ package morphling.reactivemongo
 
 import scala.util.{Success, Try}
 
-import cats._
+import cats.*
 import cats.data.{EitherK, State}
-import cats.data.State._
-import cats.free._
+import cats.data.State.*
+import cats.free.*
 import morphling.{Absent, Alt, Constant, HAlgebra, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
-import morphling.Schema._
+import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.option._
-import reactivemongo.api.bson._
+import mouse.option.*
+import reactivemongo.api.bson.*
 import simulacrum.typeclass
 
 @typeclass

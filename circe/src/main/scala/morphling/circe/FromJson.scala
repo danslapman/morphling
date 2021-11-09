@@ -1,14 +1,14 @@
 package morphling.circe
 
-import cats._
+import cats.*
 import cats.data.EitherK
-import cats.free._
-import cats.syntax.either._
+import cats.free.*
+import cats.syntax.either.*
 import io.circe.{Decoder, DecodingFailure, HCursor}
-import morphling._
-import morphling.Schema._
+import morphling.*
+import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.boolean._
+import mouse.boolean.*
 import simulacrum.typeclass
 
 @typeclass

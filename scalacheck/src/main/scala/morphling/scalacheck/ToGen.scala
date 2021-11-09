@@ -1,12 +1,12 @@
 package morphling.scalacheck
 
-import cats._
+import cats.*
 import cats.data.EitherK
-import cats.free._
-import morphling._
+import cats.free.*
+import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
-import mouse.option._
+import mouse.option.*
 import org.scalacheck.Gen
 import simulacrum.typeclass
 

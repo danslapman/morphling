@@ -2,17 +2,17 @@ package morphling.reactivemongo
 
 import scala.util.Success
 
-import cats.instances.try_._
-import cats.instances.vector._
-import cats.syntax.all._
+import cats.instances.try_.*
+import cats.instances.vector.*
+import cats.syntax.all.*
 import cats.~>
-import morphling.protocol._
-import reactivemongo.api.bson._
+import morphling.protocol.*
+import reactivemongo.api.bson.*
 
 trait ReactivemongoPack {
   def sTypeWriter[F[_]: ToBson]: (SType[F, *] ~> BSONWriter) =
     new (SType[F, *] ~> BSONWriter) {
-      import ToBson._
+      import ToBson.*
 
       override def apply[I](st: SType[F, I]): BSONWriter[I] = {
         st match {
@@ -32,7 +32,7 @@ trait ReactivemongoPack {
 
   def sTypeReader[F[_]: FromBson]: (SType[F, *] ~> BSONReader) =
     new (SType[F, *] ~> BSONReader) {
-      import FromBson._
+      import FromBson.*
 
       override def apply[I](st: SType[F, I]): BSONReader[I] = st match {
         case SNullT()    => BSONReader[I](_ => ())

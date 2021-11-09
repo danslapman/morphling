@@ -2,14 +2,14 @@ package morphling.circe.annotated
 
 import cats.scalatest.{EitherValues, ValidatedValues}
 import io.circe.Json
-import io.circe.syntax._
-import morphling.circe.FromJson._
-import morphling.circe.ToJson._
-import morphling.circe.annotated.Implicits._
+import io.circe.syntax.*
+import morphling.circe.FromJson.*
+import morphling.circe.ToJson.*
+import morphling.circe.annotated.Implicits.*
 import morphling.samples.{person, Person}
 import morphling.samples.annotated.{AnnPerson, Server}
-import morphling.scalacheck.ToGen._
-import morphling.scalacheck.annotated.Implicits._
+import morphling.scalacheck.ToGen.*
+import morphling.scalacheck.annotated.Implicits.*
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers

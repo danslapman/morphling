@@ -2,13 +2,13 @@ package morphling.circe
 
 import cats.scalatest.{EitherValues, ValidatedValues}
 import io.circe.Json
-import io.circe.syntax._
-import morphling.circe.FromJson._
-import morphling.circe.Implicits._
-import morphling.circe.ToJson._
-import morphling.samples._
-import morphling.scalacheck.Implicits._
-import morphling.scalacheck.ToGen._
+import io.circe.syntax.*
+import morphling.circe.FromJson.*
+import morphling.circe.Implicits.*
+import morphling.circe.ToJson.*
+import morphling.samples.*
+import morphling.scalacheck.Implicits.*
+import morphling.scalacheck.ToGen.*
 import org.scalacheck.Arbitrary
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
