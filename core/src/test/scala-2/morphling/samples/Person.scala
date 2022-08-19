@@ -6,8 +6,8 @@ import cats.syntax.apply.*
 import morphling.Schema.*
 import morphling.protocol.SType.*
 import morphling.samples.annotated.AnnPerson
-import tofu.optics.*
-import tofu.optics.macros.*
+import glass.*
+import glass.macros.*
 
 case class Person(
   name: String,

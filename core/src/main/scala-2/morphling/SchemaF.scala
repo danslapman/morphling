@@ -3,7 +3,7 @@ package morphling
 import cats.*
 import cats.data.NonEmptyList
 import cats.free.*
-import tofu.optics.*
+import glass.*
 
 /** The base trait for the schema GADT.
   *

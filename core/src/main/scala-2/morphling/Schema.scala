@@ -6,7 +6,7 @@ import cats.data.NonEmptyList
 import cats.free.*
 import morphling.HFix.*
 import shapeless.{Lens as _, Prism as _, _}
-import tofu.optics.{Property as TProp, _}
+import glass.{Property as TProp, _}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.

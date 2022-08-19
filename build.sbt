@@ -1,14 +1,14 @@
 val versions = Map(
-  "cats" -> "2.6.1",
-  "circe" -> "0.13.0",
-  "mouse" -> "0.23",
+  "cats" -> "2.8.0",
+  "circe" -> "0.14.2",
+  "mouse" -> "1.0.11",
   "scalacheck" -> "1.15.3",
   "scalatest" -> "3.2.6",
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
-  "tofu" -> "0.10.0",
-  "scalatestplus-scalacheck" -> "3.2.6.0"
+  "scalatestplus-scalacheck" -> "3.2.6.0",
+  "glass" -> "0.1.0"
 )
 
 val morphling = (project in file("core"))
@@ -23,8 +23,8 @@ val morphling = (project in file("core"))
           "org.typelevel" %% "cats-core" % versions("cats"),
           "org.typelevel" %% "cats-free" % versions("cats"),
           "org.typelevel" %% "alleycats-core" % versions("cats"),
-          "tf.tofu" %%  "tofu-optics-core" % versions("tofu"),
-          "tf.tofu" %%  "tofu-optics-macro" % versions("tofu") % Test,
+          "tf.tofu" %%  "glass-core" % versions("glass"),
+          "tf.tofu" %%  "glass-macro" % versions("glass") % Test,
           "com.chuusai" %% "shapeless" % "2.3.3",
           "org.scalatest" %% "scalatest" % versions("scalatest") % Test
         )

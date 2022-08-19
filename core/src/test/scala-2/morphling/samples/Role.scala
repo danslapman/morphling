@@ -5,7 +5,7 @@ import morphling.Schema
 import morphling.Schema.*
 import morphling.protocol.SType.*
 import shapeless.HNil
-import tofu.optics.macros.*
+import glass.macros.*
 
 sealed trait Role
 

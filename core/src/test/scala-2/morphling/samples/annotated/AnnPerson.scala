@@ -7,7 +7,7 @@ import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.*
 import morphling.samples.Person
-import tofu.optics.Equivalent
+import glass.Equivalent
 
 object AnnPerson {
   private val instantIso = Equivalent[Long](Instant.ofEpochMilli _)(_.toEpochMilli)
