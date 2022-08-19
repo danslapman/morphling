@@ -16,7 +16,7 @@ val morphling = (project in file("core"))
   .settings(
     name := "morphling",
     ThisBuild / parallelExecution := false,
-    crossScalaVersions += "3.0.0",
+    crossScalaVersions += "3.1.2",
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
