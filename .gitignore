@@ -6,4 +6,5 @@
 .metals
 .theia
 .bloop
-project/metals.sbt
+.vscode
+**/metals.sbt
