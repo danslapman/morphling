@@ -28,7 +28,9 @@ object Settings {
           "-Xsource:3",
           "-P:kind-projector:underscore-placeholders"
         )
-        case _ => Seq()
+        case Some((3, _)) => Seq(
+          "-Ykind-projector:underscores"
+        )
       }
     },
     libraryDependencies ++= {

@@ -8,8 +8,8 @@ import shapeless.{Prism as _, _}
 import shapeless.ops.coproduct.ToHList
 import shapeless.ops.hlist.{Align, Comapped, ToTraversable}
 
-/** Implicit proof type
-  *
+/**
+  * Implicit proof type
   */
 @implicitNotFound(msg = "Cannot prove the completeness of your oneOf definition; you may have not provided an alternative for each constructor of your sum type ${I}")
 sealed trait Constructors[I, F[_], H <: HList] {

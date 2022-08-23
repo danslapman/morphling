@@ -3,11 +3,11 @@ val versions = Map(
   "circe" -> "0.14.2",
   "mouse" -> "1.0.11",
   "scalacheck" -> "1.15.3",
-  "scalatest" -> "3.2.6",
+  "scalatest" -> "3.2.11",
   "simulacrum" -> "1.0.0",
   "paradise" -> "2.1.1",
   "bm4" -> "0.3.1",
-  "scalatestplus-scalacheck" -> "3.2.6.0",
+  "scalatestplus-scalacheck" -> "3.2.11.0",
   "glass" -> "0.1.0"
 )
 
@@ -17,20 +17,20 @@ val morphling = (project in file("core"))
     name := "morphling",
     ThisBuild / parallelExecution := false,
     crossScalaVersions += "3.1.2",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % versions("cats"),
+      "org.typelevel" %% "cats-free" % versions("cats"),
+      "org.typelevel" %% "alleycats-core" % versions("cats"),
+      "tf.tofu" %% "glass-core" % versions("glass"),
+      "tf.tofu" %% "glass-macro" % versions("glass") % Test,
+      "org.scalatest" %% "scalatest" % versions("scalatest") % Test
+    ),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) => Seq(
-          "org.typelevel" %% "cats-core" % versions("cats"),
-          "org.typelevel" %% "cats-free" % versions("cats"),
-          "org.typelevel" %% "alleycats-core" % versions("cats"),
-          "tf.tofu" %%  "glass-core" % versions("glass"),
-          "tf.tofu" %%  "glass-macro" % versions("glass") % Test,
           "com.chuusai" %% "shapeless" % "2.3.3",
-          "org.scalatest" %% "scalatest" % versions("scalatest") % Test
         )
-        case _ => Seq(
-          "org.typelevel" %% "cats-core" % versions("cats")
-        )
+        case Some((3, _)) => Seq()
       }
     }
   )
