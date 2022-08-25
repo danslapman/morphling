@@ -9,9 +9,11 @@ import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import org.scalacheck.Gen
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
+@implicitNotFound("Could not find an instance of ToGen for ${S}")
 @typeclass
-trait ToGen[S[_]] {
+trait ToGen[S[_]] extends Serializable {
   def toGen: S ~> Gen
 }
 
@@ -88,4 +90,44 @@ object ToGen {
       )
     }
   }
+
+  /* ======================================================================== */
+  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
+  /* ======================================================================== */
+
+  /**
+   * Summon an instance of [[ToGen]] for `S`.
+   */
+  @inline def apply[S[_]](implicit instance: ToGen[S]): ToGen[S] = instance
+
+  object ops {
+    implicit def toAllToGenOps[S[_], A](target: S[A])(implicit tc: ToGen[S]): AllOps[S, A] {
+      type TypeClassType = ToGen[S]
+    } = new AllOps[S, A] {
+      type TypeClassType = ToGen[S]
+      val self: S[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  trait Ops[S[_], A] extends Serializable {
+    type TypeClassType <: ToGen[S]
+    def self: S[A]
+    val typeClassInstance: TypeClassType
+  }
+  trait AllOps[S[_], A] extends Ops[S, A]
+  trait ToToGenOps extends Serializable {
+    implicit def toToGenOps[S[_], A](target: S[A])(implicit tc: ToGen[S]): Ops[S, A] {
+      type TypeClassType = ToGen[S]
+    } = new Ops[S, A] {
+      type TypeClassType = ToGen[S]
+      val self: S[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToToGenOps
+
+  /* ======================================================================== */
+  /* END OF SIMULACRUM-MANAGED CODE                                           */
+  /* ======================================================================== */
+
 }

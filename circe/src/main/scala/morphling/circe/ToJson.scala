@@ -11,9 +11,11 @@ import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
+import scala.annotation.implicitNotFound
 
+@implicitNotFound("Could not find an instance of ToJson for ${S}")
 @typeclass
-trait ToJson[S[_]] {
+trait ToJson[S[_]] extends Serializable {
   def encoder: S ~> Encoder
 }
 
@@ -102,4 +104,44 @@ object ToJson {
         }
       }
     }
+
+  /* ======================================================================== */
+  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
+  /* ======================================================================== */
+
+  /**
+   * Summon an instance of [[ToJson]] for `S`.
+   */
+  @inline def apply[S[_]](implicit instance: ToJson[S]): ToJson[S] = instance
+
+  object ops {
+    implicit def toAllToJsonOps[S[_], A](target: S[A])(implicit tc: ToJson[S]): AllOps[S, A] {
+      type TypeClassType = ToJson[S]
+    } = new AllOps[S, A] {
+      type TypeClassType = ToJson[S]
+      val self: S[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  trait Ops[S[_], A] extends Serializable {
+    type TypeClassType <: ToJson[S]
+    def self: S[A]
+    val typeClassInstance: TypeClassType
+  }
+  trait AllOps[S[_], A] extends Ops[S, A]
+  trait ToToJsonOps extends Serializable {
+    implicit def toToJsonOps[S[_], A](target: S[A])(implicit tc: ToJson[S]): Ops[S, A] {
+      type TypeClassType = ToJson[S]
+    } = new Ops[S, A] {
+      type TypeClassType = ToJson[S]
+      val self: S[A] = target
+      val typeClassInstance: TypeClassType = tc
+    }
+  }
+  object nonInheritedOps extends ToToJsonOps
+
+  /* ======================================================================== */
+  /* END OF SIMULACRUM-MANAGED CODE                                           */
+  /* ======================================================================== */
+
 }

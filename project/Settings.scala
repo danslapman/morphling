@@ -52,6 +52,9 @@ object Settings {
           Seq.empty[ModuleID]
       }
     },
+    ThisBuild / scalafixDependencies ++= Seq(
+      "org.typelevel" %% "simulacrum-scalafix" % "0.5.4"
+    ),
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/danslapman/morphling"),
