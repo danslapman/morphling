@@ -31,6 +31,7 @@ val morphling = (project in file("core"))
           "com.chuusai" %% "shapeless" % "2.3.3",
         )
         case Some((3, _)) => Seq()
+        case Some((_, _)) => Seq()
       }
     }
   )
