@@ -42,6 +42,7 @@ val `morphling-scalacheck` = (project in file("scalacheck"))
   .settings(
     name := "morphling-scalacheck",
     ThisBuild / parallelExecution := false,
+    crossScalaVersions += "3.1.2",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.typelevel" %% "simulacrum-scalafix-annotations" % versions("simulacrum"),

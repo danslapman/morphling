@@ -46,7 +46,7 @@ object ToGen {
         case s: OneOfSchema[P, Gen, I] =>
           val altGens = s.alts.map({ case Alt(_, b, p) => b.map(p.upcast) })
           altGens.tail.headOption.cata(
-            th => Gen.oneOf(altGens.head, th, altGens.tail.toList.tail: _*),
+            th => Gen.oneOf(altGens.head, th, altGens.tail.tail*),
             altGens.head
           )
 
