@@ -5,7 +5,7 @@ import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free.*
 import morphling.HFix.*
-import glass.{Property as TProp, _}
+import glass.{Property as TProp, *}
 
 /** Data types and smart constructors which simplify the creation
   *  of schema values.
@@ -151,7 +151,7 @@ object Schema {
     */
   def optional[P[_], O, I](fieldName: String, valueSchema: Schema[P, I], property: TProp[O, I]): Prop[P, O, Option[I]] = {
     FreeApplicative.lift[PropSchema[O, Schema[P, _], _], Option[I]](
-      Optional[O, Schema[P, _], I](fieldName, valueSchema, property.getOption _)
+      Optional[O, Schema[P, _], I](fieldName, valueSchema, property.getOption(_))
     )
   }
 

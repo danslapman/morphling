@@ -29,7 +29,8 @@ object Settings {
           "-P:kind-projector:underscore-placeholders"
         )
         case Some((3, _)) => Seq(
-          "-Ykind-projector:underscores"
+          "-Ykind-projector:underscores",
+          "-source:future"
         )
       }
     },

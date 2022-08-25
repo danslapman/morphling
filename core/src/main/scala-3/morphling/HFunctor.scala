@@ -24,7 +24,7 @@ object HFunctor {
 final case class HFix[F[_[_], _], I](unfix: Eval[F[HFix[F, _], I]])
 
 object HFix {
-  import HFunctor._
+  import HFunctor.*
 
   def hfix[F[_[_], _], I](fa: => F[HFix[F, _], I]): HFix[F, I] =
     HFix[F, I](Later(fa))

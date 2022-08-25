@@ -66,22 +66,36 @@ val `morphling-circe` = (project in file("circe"))
   .settings(
     name := "morphling-circe",
     ThisBuild / parallelExecution := false,
+    crossScalaVersions += "3.1.2",
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % versions("circe"),
       "org.typelevel" %% "mouse" % versions("mouse"),
       "org.typelevel" %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test,
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
-      "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test,
-      "com.ironcorelabs" %% "cats-scalatest" % "3.0.0"
+      "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test
     ),
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq(
+          "com.ironcorelabs" %% "cats-scalatest" % "3.0.0" % Test
+        )
+        case Some((_, _)) => Seq()
+      }
+    },
     libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+        Seq(
+          compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full),
+          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
+        )
+      case Some((2, y)) =>
+        Seq(
+          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
+        )
       case _ =>
         Seq.empty[ModuleID]
     }),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4")),
     addCommandAlias(
       "simulacrum",
       "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"

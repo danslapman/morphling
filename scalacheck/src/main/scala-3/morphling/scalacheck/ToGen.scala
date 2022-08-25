@@ -31,7 +31,7 @@ object ToGen {
       }
     }
 
-  given [P[_]: ToGen, A[_]: ([Y[_]] =>> Y ~> ([T] =>> Endo[Gen[T]]))]: ToGen[AnnotatedSchema[P, A, _]] =
+  given [P[_]: ToGen, A[_]: [Y[_]] =>> Y ~> ([T] =>> Endo[Gen[T]])]: ToGen[AnnotatedSchema[P, A, _]] =
     new ToGen[AnnotatedSchema[P, A, *]] {
       override val toGen: AnnotatedSchema[P, A, _] ~> Gen = new (AnnotatedSchema[P, A, _] ~> Gen) {
         override def apply[I](schema: AnnotatedSchema[P, A, I]): Gen[I] = {

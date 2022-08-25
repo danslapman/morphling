@@ -1,6 +1,7 @@
 package morphling.circe
 
 import cats.scalatest.{EitherValues, ValidatedValues}
+import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax.*
 import morphling.circe.FromJson.*
@@ -16,7 +17,7 @@ import org.scalatestplus.scalacheck.Checkers
 
 class CirceSpec extends AnyFunSuite with Matchers with EitherValues with ValidatedValues with Checkers {
   test("A value should serialise to JSON") {
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
 
     person.asJson shouldBe Json.obj(
       "updateCounter" := 42,
@@ -34,7 +35,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A value should serialise to JSON [deannotated]") {
-    implicit val encoder = Person.deannotatedSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.deannotatedSchema.encoder
 
     person.asJson shouldBe Json.obj(
       "updateCounter" := 42,
@@ -52,7 +53,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A value should be deserialised from JSON"){
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
     val decoder = Person.schema.decoder
 
     decoder.decodeJson(person.asJson).value shouldBe person.copy(stamp = 101)
@@ -60,7 +61,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A value should be deserialised from JSON [deannotated]"){
-    implicit val encoder = Person.deannotatedSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.deannotatedSchema.encoder
     val decoder = Person.deannotatedSchema.decoder
 
     decoder.decodeJson(person.asJson).value shouldBe person.copy(stamp = 101)
@@ -68,7 +69,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A default value should be applied during deserialization") {
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
     val decoder = Person.schema.decoder
 
     decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).value shouldBe person.copy(updateCounter = 0, stamp = 101)
@@ -76,7 +77,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A default value should be applied during deserialization [deannotated]") {
-    implicit val encoder = Person.deannotatedSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.deannotatedSchema.encoder
     val decoder = Person.deannotatedSchema.decoder
 
     decoder.decodeJson(person.asJson.mapObject(_.filterKeys(_ != "updateCounter"))).value shouldBe person.copy(updateCounter = 0, stamp = 101)
@@ -85,7 +86,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
 
   test("Serialization should round-trip values produced by a generator"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.gen)
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
     val decoder = Person.schema.decoder
     check {
       (p: Person) => decoder.decodeJson(p.asJson).toOption.contains(p)
@@ -97,7 +98,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
 
   test("Serialization should round-trip values produced by a generator [deannotated]"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.deannotatedSchema.gen)
-    implicit val encoder = Person.deannotatedSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.deannotatedSchema.encoder
     val decoder = Person.deannotatedSchema.decoder
     check {
       (p: Person) => decoder.decodeJson(p.asJson).toOption.contains(p)
@@ -108,7 +109,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A value should serialize to JSON flat") {
-    implicit val encoder = Person.flatSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.flatSchema.encoder
 
     person.asJson shouldBe Json.obj(
       "updateCounter" := 42,
@@ -125,7 +126,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
   }
 
   test("A value should be deserialized from JSON flat") {
-    implicit val encoder = Person.flatSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.flatSchema.encoder
     val decoder = Person.flatSchema.decoder
 
     decoder.decodeJson(person.asJson).value shouldBe person.copy(stamp = 101)
@@ -133,7 +134,7 @@ class CirceSpec extends AnyFunSuite with Matchers with EitherValues with Validat
 
   test("Flat serialization should round-trip values produced by a generator"){
     implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.gen)
-    implicit val encoder = Person.flatSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.flatSchema.encoder
     val decoder = Person.flatSchema.decoder
     check {
       (p: Person) => decoder.decodeJson(p.asJson).toOption.contains(p)

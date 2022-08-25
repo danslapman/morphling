@@ -1,5 +1,6 @@
 package morphling.circe
 
+import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax.*
 import morphling.circe.Implicits.*
@@ -11,14 +12,14 @@ import org.scalatest.matchers.should.Matchers
 
 class JsonFilterSpec extends AnyFunSuite with Matchers {
   test("Filter should keep correct values as-is") {
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
     val sut = Person.schema.jsonFilter
 
     sut(person.asJson) shouldBe Some(person.asJson)
   }
 
   test("Filter should discard all unrelated data") {
-    implicit val encoder = Person.schema.encoder
+    implicit val encoder: Encoder[Person] = Person.schema.encoder
     val sut = Person.schema.jsonFilter
 
     val json = Json.obj(
@@ -42,7 +43,7 @@ class JsonFilterSpec extends AnyFunSuite with Matchers {
   }
 
   test("Filter should discard all unrelated data with flat schema") {
-    implicit val encoder = Person.flatSchema.encoder
+    implicit val encoder: Encoder[Person] = Person.flatSchema.encoder
     val sut = Person.flatSchema.jsonFilter
 
     val json = Json.obj(

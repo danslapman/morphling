@@ -1,5 +1,6 @@
 package morphling.circe.annotated
 
+import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax.*
 import morphling.circe.ToFilter.*
@@ -7,19 +8,20 @@ import morphling.circe.ToJson.*
 import morphling.circe.annotated.Implicits.*
 import morphling.samples.annotated.AnnPerson
 import morphling.samples.person
+import morphling.samples.Person
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 class JsonFilterAnnotatedSpec extends AnyFunSuite with Matchers {
   test("Filter should keep correct values as-is") {
-    implicit val encoder = AnnPerson.schema.encoder
+    implicit val encoder: Encoder[Person] = AnnPerson.schema.encoder
     val sut = AnnPerson.schema.jsonFilter
 
     sut(person.asJson) shouldBe Some(person.asJson)
   }
 
   test("Filter should discard all unrelated data") {
-    implicit val encoder = AnnPerson.schema.encoder
+    implicit val encoder: Encoder[Person] = AnnPerson.schema.encoder
     val sut = AnnPerson.schema.jsonFilter
 
     val json = Json.obj(
