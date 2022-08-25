@@ -172,11 +172,13 @@ object Schema {
       )
     }
 
+    /*
     def apply[O, I](fieldName: String, property: TProp[O, I]): Prop[P, O, Option[I]] = {
       FreeApplicative.lift[PropSchema[O, Schema[P, _], _], Option[I]](
         Absent[O, Schema[P, _], I](fieldName, property.getOption _)
       )
     }
+     */
   }
 
   /**
