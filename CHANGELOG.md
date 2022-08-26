@@ -1,3 +1,9 @@
+## version 2.7.0-glass
+
+> 26.08.2022
+
+- replace `tofu-optics` with glass
+
 ## version 2.7.0
 
 > 18.03.2021
