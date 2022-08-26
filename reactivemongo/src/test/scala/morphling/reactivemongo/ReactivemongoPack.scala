@@ -1,5 +1,6 @@
 package morphling.reactivemongo
 
+import scala.Float.float2double
 import scala.util.Success
 
 import cats.instances.try_.*
@@ -16,7 +17,7 @@ trait ReactivemongoPack {
 
       override def apply[I](st: SType[F, I]): BSONWriter[I] = {
         st match {
-          case SNullT() => _: I => Success(BSONNull)
+          case SNullT() => (_: I) => Success(BSONNull)
           case SBoolT() => b => Success(BSONBoolean(b))
           case SIntT() => i => Success(BSONInteger(i))
           case SLongT() => l => Success(BSONLong(l))

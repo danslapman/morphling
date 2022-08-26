@@ -108,6 +108,7 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
   .settings(
     name := "morphling-reactivemongo",
     ThisBuild / parallelExecution := false,
+    crossScalaVersions += "3.1.2",
     libraryDependencies ++= Seq(
       "org.reactivemongo" %% "reactivemongo-bson-api" % "1.0.3",
       "org.typelevel" %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
@@ -116,13 +117,29 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
       "org.scalacheck" %% "scalacheck"  % versions("scalacheck") % Test,
       "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test
     ),
-    libraryDependencies ++= ( CrossVersion.partialVersion(scalaVersion.value) match {
+    libraryDependencies ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) => Seq(
+          "org.reactivemongo" %% "reactivemongo-bson-api" % "1.0.3"
+        )
+        case Some((3, _)) => Seq(
+          "org.reactivemongo" %% "reactivemongo-bson-api" % "1.1.0-RC6"
+        )
+      }
+    },
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+        Seq(
+          compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full),
+          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
+        )
+      case Some((2, y)) =>
+        Seq(
+          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
+        )
       case _ =>
         Seq.empty[ModuleID]
     }),
-    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4")),
     addCommandAlias(
       "simulacrum",
       "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
