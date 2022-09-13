@@ -7,7 +7,7 @@ object Settings {
     organization := "com.github.danslapman",
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
-    version := "2.7.0",
+    version := "3.0.0",
     scalaVersion := "2.13.6",
     crossScalaVersions := Seq("2.12.15", "2.13.6"),
     scalacOptions ++= {
