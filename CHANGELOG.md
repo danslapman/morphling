@@ -1,3 +1,11 @@
+## version 3.0.0
+
+> 13.09.2022
+
+- complete Scala 3 support
+- upgrade `circe`
+- upgrade `reactivemongo`
+
 ## version 2.7.0-glass
 
 > 26.08.2022
