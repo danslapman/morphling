@@ -26,7 +26,7 @@ val morphling = (project in file("core"))
       "org.scalatest" %% "scalatest" % versions("scalatest") % Test
     ),
     libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
+      (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) => Seq(
           "com.chuusai" %% "shapeless" % "2.3.3",
         )
@@ -76,7 +76,7 @@ val `morphling-circe` = (project in file("circe"))
       "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test
     ),
     libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
+      (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) => Seq(
           "com.ironcorelabs" %% "cats-scalatest" % "3.0.0" % Test
         )
@@ -118,7 +118,7 @@ val `morphling-reactivemongo` = (project in file("reactivemongo"))
       "org.scalatestplus" %% "scalacheck-1-15" % versions("scalatestplus-scalacheck") % Test
     ),
     libraryDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
+      (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) => Seq(
           "org.reactivemongo" %% "reactivemongo-bson-api" % "1.0.3"
         )
