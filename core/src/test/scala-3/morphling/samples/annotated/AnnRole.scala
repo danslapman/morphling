@@ -6,7 +6,9 @@ import morphling.annotated.Schema
 import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.*
-import morphling.samples.{Administrator, Role, User}
+import morphling.samples.Administrator
+import morphling.samples.Role
+import morphling.samples.User
 
 object AnnRole {
   val schema: Schema[ASchema, Role] = Schema.unsafeOneOf(
@@ -22,7 +24,7 @@ object AnnRole {
           (
             required("department", sStr(), Administrator.department),
             required("subordinateCount", sInt(), Administrator.subordinateCount)
-            ).mapN(Administrator.apply)
+          ).mapN(Administrator.apply)
         ),
         Administrator.prism
       )

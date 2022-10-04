@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        scala: [2.12.15, 2.13.6, 3.1.2]
+        scala-version: [ "2.12", "2.13", "3" ]
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,16 @@ jobs:
         uses: coursier/cache-action@v6
 
       - name: Compile and test
-        run: sbt test
+        run: sbt "project root2_12; test"
+        if: matrix.scala-version == '2.12'
+
+      - name: Compile and test
+        run: sbt "project root; test"
+        if: matrix.scala-version == '2.13'
+
+      - name: Compile and test
+        run: sbt "project root3; test"
+        if: matrix.scala-version == '3'
 
   ci-passed:
     runs-on: ubuntu-latest
