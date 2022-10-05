@@ -24,16 +24,16 @@ class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Ch
         document(
           "administrator" -> document(
             "subordinateCount" -> 0,
-            "department" -> "windmill-tilting"
+            "department"       -> "windmill-tilting"
           )
         )
       ),
       "birthDate" -> 20147028000L,
-      "name" -> "Kris Nuttycombe"
+      "name"      -> "Kris Nuttycombe"
     )
   }
 
-  test("A value should be deserialised from BSON"){
+  test("A value should be deserialised from BSON") {
     val result = Person.schema.writer.writeTry(person).success.value
     Person.schema.reader.readTry(result) shouldBe Success(person.copy(stamp = 101))
   }
@@ -43,10 +43,10 @@ class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Ch
     Person.schema.reader.readTry(result -- "updateCounter") shouldBe Success(person.copy(updateCounter = 0, stamp = 101))
   }
 
-  test("Serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.schema.gen)
-    check {
-      (p: Person) => Person.schema.reader.readOpt(Person.schema.writer.writeTry(p).get) == Some(p)
+  test("Serialization should round-trip values produced by a generator") {
+    implicit val arbPerson: Arbitrary[Person] = Arbitrary(Person.schema.gen)
+    check { (p: Person) =>
+      Person.schema.reader.readOpt(Person.schema.writer.writeTry(p).get) == Some(p)
     }
   }
 
@@ -56,25 +56,25 @@ class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Ch
       "updateCounter" -> 42,
       "roles" -> array(
         document(
-          "type" -> "administrator",
+          "type"             -> "administrator",
           "subordinateCount" -> 0,
-          "department" -> "windmill-tilting"
+          "department"       -> "windmill-tilting"
         )
       ),
       "birthDate" -> 20147028000L,
-      "name" -> "Kris Nuttycombe"
+      "name"      -> "Kris Nuttycombe"
     )
   }
 
-  test("A value should be deserialised from BSON flat"){
+  test("A value should be deserialised from BSON flat") {
     val result = Person.flatSchema.writer.writeTry(person).success.value
     Person.flatSchema.reader.readTry(result) shouldBe Success(person.copy(stamp = 101))
   }
 
-  test("Flat serialization should round-trip values produced by a generator"){
-    implicit val arbPerson : Arbitrary[Person] = Arbitrary(Person.flatSchema.gen)
-    check {
-      (p: Person) => Person.flatSchema.reader.readOpt(Person.flatSchema.writer.writeTry(p).get) == Some(p)
+  test("Flat serialization should round-trip values produced by a generator") {
+    implicit val arbPerson: Arbitrary[Person] = Arbitrary(Person.flatSchema.gen)
+    check { (p: Person) =>
+      Person.flatSchema.reader.readOpt(Person.flatSchema.writer.writeTry(p).get) == Some(p)
     }
   }
 }

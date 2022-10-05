@@ -9,7 +9,8 @@ import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.ASchema
 
 object Deannotator extends (AnnotatedSchema[ASchema, Restriction, *] ~> Schema[SSchema, *]) {
-  override def apply[T](as: AnnotatedSchema[ASchema, Restriction, T]): Schema[SSchema, T] = {
-    HFix.hfix(as.unfix.value.fa.pmap[SSchema](λ[ASchema ~> SSchema](_.transformInner[Schema](Deannotator))).hfmap(Deannotator))
-  }
+  override def apply[T](as: AnnotatedSchema[ASchema, Restriction, T]): Schema[SSchema, T] =
+    HFix.hfix(
+      as.unfix.value.fa.pmap[SSchema](λ[ASchema ~> SSchema](_.transformInner[Schema](Deannotator))).hfmap(Deannotator)
+    )
 }

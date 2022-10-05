@@ -1,22 +1,25 @@
 package morphling.circe
 
+import scala.annotation.implicitNotFound
+
 import cats.*
-import cats.data.{Const, EitherK}
+import cats.data.Const
+import cats.data.EitherK
 import cats.free.*
 import cats.instances.function.*
 import cats.instances.option.*
 import cats.syntax.all.*
-import io.circe.{Json, JsonObject}
+import io.circe.Json
+import io.circe.JsonObject
 import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
-import scala.annotation.implicitNotFound
 
 /**
-  * Allows to filter Json via specific schema
-  */
+ * Allows to filter Json via specific schema
+ */
 @implicitNotFound("Could not find an instance of ToFilter for ${S}")
 @typeclass
 trait ToFilter[S[_]] extends Serializable {
@@ -24,7 +27,7 @@ trait ToFilter[S[_]] extends Serializable {
 }
 
 object ToFilter {
-  type Subset[T] = T => Option[T]
+  type Subset[T]     = T => Option[T]
   type JsonFilter[T] = Const[Subset[Json], T]
 
   implicit class ToFilterOps[S[_], A](s: S[A]) {
@@ -33,18 +36,17 @@ object ToFilter {
 
   implicit def schemaToFilter[P[_]: ToFilter]: ToFilter[Schema[P, *]] = new ToFilter[Schema[P, *]] {
     override val filter: Schema[P, *] ~> JsonFilter = new (Schema[P, *] ~> JsonFilter) {
-      override def apply[I](schema: Schema[P, I]): JsonFilter[I] = {
+      override def apply[I](schema: Schema[P, I]): JsonFilter[I] =
         HFix.cataNT[SchemaF[P, *[_], *], JsonFilter](filterAlg[P]).apply(schema)
-      }
     }
   }
 
-  implicit def annSchemaToFilter[P[_]: ToFilter, A[_]: *[_] ~> λ[T => Endo[JsonFilter[T]]]]: ToFilter[AnnotatedSchema[P, A, *]] =
+  implicit def annSchemaToFilter[P[_]: ToFilter, A[_]: *[_] ~> λ[T => Endo[JsonFilter[T]]]]
+      : ToFilter[AnnotatedSchema[P, A, *]] =
     new ToFilter[AnnotatedSchema[P, A, *]] {
       override val filter: AnnotatedSchema[P, A, *] ~> JsonFilter = new (AnnotatedSchema[P, A, *] ~> JsonFilter) {
-        override def apply[I](schema: AnnotatedSchema[P, A, I]): JsonFilter[I] = {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): JsonFilter[I] =
           HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], JsonFilter](annFilterAlg).apply(schema)
-        }
       }
     }
 
@@ -52,50 +54,49 @@ object ToFilter {
     new HAlgebra[SchemaF[P, *[_], *], JsonFilter] {
       override def apply[I](schema: SchemaF[P, JsonFilter, I]): JsonFilter[I] = schema match {
         case s: PrimSchema[P, JsonFilter, I] => ToFilter[P].filter(s.prim)
-        case s: OneOfSchema[P, JsonFilter, I] => Const.of {
-          s.discriminator.cata(
-            dField =>
-              s.alts.map {
-                case Alt(_, f, _) =>
+        case s: OneOfSchema[P, JsonFilter, I] =>
+          Const.of {
+            s.discriminator.cata(
+              dField =>
+                s.alts.map { case Alt(_, f, _) =>
                   extractField(dField) |+| f.getConst
-              }.fold,
-            s.alts.map {
-              case Alt(id, f, _) =>
+                }.fold,
+              s.alts.map { case Alt(id, f, _) =>
                 extractFieldContentsStrict(id, f.getConst)
-            }.fold
-          )
-        }
-        case s: RecordSchema[P, JsonFilter, I] => recordFilter[P,I](s.props)
+              }.fold
+            )
+          }
+        case s: RecordSchema[P, JsonFilter, I]  => recordFilter[P, I](s.props)
         case s: IsoSchema[P, JsonFilter, i0, I] => s.base.retag[I]
       }
     }
 
-  def annFilterAlg[P[_]: ToFilter, Ann[_]](implicit interpret: Ann ~> λ[T => Endo[JsonFilter[T]]]): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], JsonFilter] =
+  def annFilterAlg[P[_]: ToFilter, Ann[_]](implicit
+      interpret: Ann ~> λ[T => Endo[JsonFilter[T]]]
+  ): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], JsonFilter] =
     new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], JsonFilter] {
       override def apply[A](schema: HEnvT[Ann, SchemaF[P, *[_], *], JsonFilter, A]): JsonFilter[A] =
         interpret.apply(schema.ask).apply(filterAlg[P].apply(schema.fa))
     }
 
-  def recordFilter[P[_]: ToFilter, I](rb: FreeApplicative[PropSchema[I, JsonFilter, *], I]): JsonFilter[I] = {
+  def recordFilter[P[_]: ToFilter, I](rb: FreeApplicative[PropSchema[I, JsonFilter, *], I]): JsonFilter[I] =
     rb.foldMap[JsonFilter](
       new (PropSchema[I, JsonFilter, *] ~> JsonFilter) {
-        override def apply[B](ps: PropSchema[I, JsonFilter, B]): JsonFilter[B] = {
+        override def apply[B](ps: PropSchema[I, JsonFilter, B]): JsonFilter[B] =
           ps match {
-            case req: Required[I, JsonFilter, i] => Const.of(extractFieldContentsStrict(req.fieldName, req.base.getConst))
+            case req: Required[I, JsonFilter, i] =>
+              Const.of(extractFieldContentsStrict(req.fieldName, req.base.getConst))
             case opt: Optional[I, JsonFilter, i] => Const.of(extractFieldContents(opt.fieldName, opt.base.getConst))
-            case _ => Const.of(sjm.empty)
+            case _                               => Const.of(sjm.empty)
           }
-        }
       }
     )
-  }
 
   implicit def eitherKToFilter[P[_]: ToFilter, Q[_]: ToFilter]: ToFilter[EitherK[P, Q, *]] =
     new ToFilter[EitherK[P, Q, *]] {
       override val filter = new (EitherK[P, Q, *] ~> JsonFilter) {
-        def apply[A](p: EitherK[P, Q, A]): JsonFilter[A] = {
+        def apply[A](p: EitherK[P, Q, A]): JsonFilter[A] =
           p.run.fold(ToFilter[P].filter(_), ToFilter[Q].filter(_))
-        }
       }
     }
 
@@ -104,22 +105,27 @@ object ToFilter {
   }
 
   private def extractFieldContents(name: String, inner: Subset[Json]): Subset[Json] = { j =>
-    j.mapObject(jo => JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _)}))
-      .asObject.map(Json.fromJsonObject)
+    j.mapObject(jo =>
+      JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _) })
+    ).asObject
+      .map(Json.fromJsonObject)
   }
 
   private def extractFieldContentsStrict(name: String, inner: Subset[Json]): Subset[Json] = { j =>
-    j.mapObject(jo => JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _)}))
-      .asObject.filter(_.nonEmpty).map(Json.fromJsonObject)
+    j.mapObject(jo =>
+      JsonObject.fromIterable(jo.filterKeys(_ == name).toIterable.flatMap { case (k, v) => inner(v).map(k -> _) })
+    ).asObject
+      .filter(_.nonEmpty)
+      .map(Json.fromJsonObject)
   }
 
-  private implicit val semiJ: Semigroup[Json] = _ deepMerge _
+  implicit private val semiJ: Semigroup[Json] = _ deepMerge _
 
-  private implicit val sjm: Monoid[Subset[Json]] = new Monoid[Subset[Json]] {
+  implicit private val sjm: Monoid[Subset[Json]] = new Monoid[Subset[Json]] {
     override val empty: Subset[Json] = _ => None
 
     override def combine(x: Subset[Json], y: Subset[Json]): Subset[Json] =
-      x &&& y andThen { case (lhs, rhs) => lhs |+| rhs}
+      x &&& y andThen { case (lhs, rhs) => lhs |+| rhs }
   }
 
   /* ======================================================================== */
@@ -136,7 +142,7 @@ object ToFilter {
       type TypeClassType = ToFilter[S]
     } = new AllOps[S, A] {
       type TypeClassType = ToFilter[S]
-      val self: S[A] = target
+      val self: S[A]                       = target
       val typeClassInstance: TypeClassType = tc
     }
   }
@@ -151,7 +157,7 @@ object ToFilter {
       type TypeClassType = ToFilter[S]
     } = new Ops[S, A] {
       type TypeClassType = ToFilter[S]
-      val self: S[A] = target
+      val self: S[A]                       = target
       val typeClassInstance: TypeClassType = tc
     }
   }

@@ -1,10 +1,10 @@
 package morphling.samples.annotated
 
 import cats.syntax.apply.*
+import glass.macros.*
 import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Range
 import morphling.protocol.annotated.STypeAnn.*
-import glass.macros.*
 
 case class Server(host: String, port: Int)
 object Server {

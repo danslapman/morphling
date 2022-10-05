@@ -1,17 +1,21 @@
 package morphling.circe
 
+import scala.annotation.implicitNotFound
+
 import cats.*
-import cats.data.{EitherK, State}
+import cats.data.EitherK
+import cats.data.State
 import cats.data.State.*
 import cats.free.*
-import io.circe.{Encoder, Json, JsonObject}
+import io.circe.Encoder
+import io.circe.Json
+import io.circe.JsonObject
 import io.circe.syntax.*
 import morphling.*
 import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
-import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of ToJson for ${S}")
 @typeclass
@@ -26,40 +30,46 @@ object ToJson {
 
   implicit def schemaToJson[P[_]: ToJson]: ToJson[Schema[P, *]] = new ToJson[Schema[P, *]] {
     override val encoder: Schema[P, *] ~> Encoder = new (Schema[P, *] ~> Encoder) {
-      override def apply[I](schema: Schema[P, I]): Encoder[I] = {
+      override def apply[I](schema: Schema[P, I]): Encoder[I] =
         HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(schema)
-      }
     }
   }
 
-  implicit def annSchemaToJson[P[_]: ToJson, A[_]]: ToJson[AnnotatedSchema[P, A, *]] = new ToJson[AnnotatedSchema[P, A, *]] {
-    override val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
-      override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] = {
-        HFix.cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg).apply(
-          HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
-        )
+  implicit def annSchemaToJson[P[_]: ToJson, A[_]]: ToJson[AnnotatedSchema[P, A, *]] =
+    new ToJson[AnnotatedSchema[P, A, *]] {
+      override val encoder: AnnotatedSchema[P, A, *] ~> Encoder = new (AnnotatedSchema[P, A, *] ~> Encoder) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): Encoder[I] =
+          HFix
+            .cataNT[SchemaF[P, *[_], *], Encoder](serializeAlg)
+            .apply(
+              HFix.forget[SchemaF[P, *[_], *], A].apply(schema)
+            )
       }
     }
-  }
 
   def serializeAlg[P[_]: ToJson]: HAlgebra[SchemaF[P, *[_], *], Encoder] =
     new HAlgebra[SchemaF[P, *[_], *], Encoder] {
-      def apply[I](schema: SchemaF[P, Encoder, I]): Encoder[I] = {
+      def apply[I](schema: SchemaF[P, Encoder, I]): Encoder[I] =
         schema match {
           case s: PrimSchema[P, Encoder, I] => ToJson[P].encoder(s.prim)
 
           case s: OneOfSchema[P, Encoder, I] =>
-            (value: I) => {
+            (value: I) =>
               s.discriminator.cata(
                 discriminator =>
-                  s.alts.map { case alt @ Alt(id, base, prism) =>
-                    prism.getOption(value).map(alt.base(_).mapObject((discriminator := alt.id) +: _))
-                  }.collect { case Some(json) => json }.head,
-                s.alts.map { case Alt(id, base, prism) =>
-                  prism.getOption(value).map(base(_)).map(json => Json.obj(id -> json))
-                }.collect { case Some(json) => json }.head
+                  s.alts
+                    .map { case alt @ Alt(id, base, prism) =>
+                      prism.getOption(value).map(alt.base(_).mapObject((discriminator := alt.id) +: _))
+                    }
+                    .collect { case Some(json) => json }
+                    .head,
+                s.alts
+                  .map { case Alt(id, base, prism) =>
+                    prism.getOption(value).map(base(_)).map(json => Json.obj(id -> json))
+                  }
+                  .collect { case Some(json) => json }
+                  .head
               )
-            }
 
           case s: RecordSchema[P, Encoder, I] =>
             serializeObjF[P, I](s.props)
@@ -67,14 +77,13 @@ object ToJson {
           case s: IsoSchema[P, Encoder, i0, I] =>
             s.base.contramap(s.eqv.upcast(_))
         }
-      }
     }
 
-  def serializeObjF[P[_]: ToJson, I](rb: FreeApplicative[PropSchema[I, Encoder, *], I]): Encoder[I] = {
-    (value: I) => Json.fromJsonObject(
+  def serializeObjF[P[_]: ToJson, I](rb: FreeApplicative[PropSchema[I, Encoder, *], I]): Encoder[I] = { (value: I) =>
+    Json.fromJsonObject(
       rb.foldMap[State[JsonObject, *]](
         new (PropSchema[I, Encoder, *] ~> State[JsonObject, *]) {
-          def apply[B](ps: PropSchema[I, Encoder, B]): State[JsonObject, B] = {
+          def apply[B](ps: PropSchema[I, Encoder, B]): State[JsonObject, B] =
             for {
               _ <- modify { (obj: JsonObject) =>
                 ps match {
@@ -90,18 +99,17 @@ object ToJson {
                 }
               }
             } yield ps.extract.extract(value)
-          }
         }
-      ).runS(JsonObject.empty).value
+      ).runS(JsonObject.empty)
+        .value
     )
   }
 
   implicit def eitherKToJson[P[_]: ToJson, Q[_]: ToJson]: ToJson[EitherK[P, Q, *]] =
     new ToJson[EitherK[P, Q, *]] {
       override val encoder = new (EitherK[P, Q, *] ~> Encoder) {
-        def apply[A](p: EitherK[P, Q, A]): Encoder[A] = {
+        def apply[A](p: EitherK[P, Q, A]): Encoder[A] =
           p.run.fold(ToJson[P].encoder(_), ToJson[Q].encoder(_))
-        }
       }
     }
 
@@ -119,7 +127,7 @@ object ToJson {
       type TypeClassType = ToJson[S]
     } = new AllOps[S, A] {
       type TypeClassType = ToJson[S]
-      val self: S[A] = target
+      val self: S[A]                       = target
       val typeClassInstance: TypeClassType = tc
     }
   }
@@ -134,7 +142,7 @@ object ToJson {
       type TypeClassType = ToJson[S]
     } = new Ops[S, A] {
       type TypeClassType = ToJson[S]
-      val self: S[A] = target
+      val self: S[A]                       = target
       val typeClassInstance: TypeClassType = tc
     }
   }

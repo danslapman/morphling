@@ -1,7 +1,8 @@
 package morphling.circe
 
 import cats.*
-import io.circe.{Decoder, Encoder}
+import io.circe.Decoder
+import io.circe.Encoder
 import morphling.circe.ToFilter.JsonFilter
 import morphling.protocol.SType.SSchema
 

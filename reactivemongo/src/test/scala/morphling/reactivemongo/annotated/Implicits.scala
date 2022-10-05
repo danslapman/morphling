@@ -1,9 +1,14 @@
 package morphling.reactivemongo.annotated
 
-import cats.{~>, Endo}
-import morphling.protocol.annotated.{Non, Range, Restriction}
+import cats.Endo
+import cats.~>
+import morphling.protocol.annotated.Non
+import morphling.protocol.annotated.Range
+import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.reactivemongo.{FromBson, ReactivemongoPack, ToBson}
+import morphling.reactivemongo.FromBson
+import morphling.reactivemongo.ReactivemongoPack
+import morphling.reactivemongo.ToBson
 import reactivemongo.api.bson.*
 
 object Implicits extends ReactivemongoPack {
@@ -12,9 +17,10 @@ object Implicits extends ReactivemongoPack {
       override def apply[A](rs: Restriction[A]): Endo[BSONReader[A]] = rs match {
         case Non() => identity
         case Range(from, to) =>
-          (rdr: BSONReader[Int]) => rdr
+          (rdr: BSONReader[Int]) =>
+            rdr
               .afterRead(i => i.ensuring(i > from, s"Value should be greater than $from"))
-            .afterRead(i => i.ensuring(i < to, s"Value should be less than $to"))
+              .afterRead(i => i.ensuring(i < to, s"Value should be less than $to"))
       }
     }
 
