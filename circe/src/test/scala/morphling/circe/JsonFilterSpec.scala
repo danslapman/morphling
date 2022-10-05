@@ -13,14 +13,14 @@ import org.scalatest.matchers.should.Matchers
 class JsonFilterSpec extends AnyFunSuite with Matchers {
   test("Filter should keep correct values as-is") {
     implicit val encoder: Encoder[Person] = Person.schema.encoder
-    val sut = Person.schema.jsonFilter
+    val sut                               = Person.schema.jsonFilter
 
     sut(person.asJson) shouldBe Some(person.asJson)
   }
 
   test("Filter should discard all unrelated data") {
     implicit val encoder: Encoder[Person] = Person.schema.encoder
-    val sut = Person.schema.jsonFilter
+    val sut                               = Person.schema.jsonFilter
 
     val json = Json.obj(
       "updateCounter" := 42,
@@ -44,7 +44,7 @@ class JsonFilterSpec extends AnyFunSuite with Matchers {
 
   test("Filter should discard all unrelated data with flat schema") {
     implicit val encoder: Encoder[Person] = Person.flatSchema.encoder
-    val sut = Person.flatSchema.jsonFilter
+    val sut                               = Person.flatSchema.jsonFilter
 
     val json = Json.obj(
       "updateCounter" := 42,

@@ -1,10 +1,15 @@
 package morphling.tschema.annotated
 
-import cats.{~>, Endo}
-import morphling.protocol.annotated.{Non, Range, Restriction}
+import cats.Endo
+import cats.~>
+import morphling.protocol.annotated.Non
+import morphling.protocol.annotated.Range
+import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.tschema.{ToTypeable, TypeablePack}
-import ru.tinkoff.tschema.swagger.{SwaggerPrimitive, SwaggerTypeable}
+import morphling.tschema.ToTypeable
+import morphling.tschema.TypeablePack
+import ru.tinkoff.tschema.swagger.SwaggerPrimitive
+import ru.tinkoff.tschema.swagger.SwaggerTypeable
 
 object Implicits extends TypeablePack {
   implicit val typeableRestriction: (Restriction ~> λ[T => Endo[SwaggerTypeable[T]]]) =
@@ -12,10 +17,12 @@ object Implicits extends TypeablePack {
       override def apply[A](rs: Restriction[A]): Endo[SwaggerTypeable[A]] = rs match {
         case Non() => identity
         case Range(from, to) =>
-          (typ: SwaggerTypeable[Int]) => typ.updateTyp {
-            case SwaggerPrimitive.integer => SwaggerPrimitive.integer.mod(_.copy(minimum = Some(from), maximum = Some(to)))
-            case other => other
-          }
+          (typ: SwaggerTypeable[Int]) =>
+            typ.updateTyp {
+              case SwaggerPrimitive.integer =>
+                SwaggerPrimitive.integer.mod(_.copy(minimum = Some(from), maximum = Some(to)))
+              case other => other
+            }
       }
     }
 

@@ -1,11 +1,19 @@
 package morphling.circe.annotated
 
 import cats.*
-import cats.data.{Const, Kleisli}
+import cats.data.Const
+import cats.data.Kleisli
 import cats.instances.option.*
-import io.circe.{Decoder, Encoder, Json}
-import morphling.circe.{CircePack, FromJson, ToFilter, ToJson}
-import morphling.protocol.annotated.{Non, Range, Restriction}
+import io.circe.Decoder
+import io.circe.Encoder
+import io.circe.Json
+import morphling.circe.CircePack
+import morphling.circe.FromJson
+import morphling.circe.ToFilter
+import morphling.circe.ToJson
+import morphling.protocol.annotated.Non
+import morphling.protocol.annotated.Range
+import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.ASchema
 
 object Implicits extends CircePack {
@@ -14,9 +22,10 @@ object Implicits extends CircePack {
       override def apply[A](rs: Restriction[A]): Endo[Decoder[A]] = rs match {
         case Non() => identity
         case Range(from, to) =>
-          (dec: Decoder[Int]) => dec
-            .ensure(_ > from, s"Value should be greater than $from")
-            .ensure(_ < to, s"Value should be less than $to")
+          (dec: Decoder[Int]) =>
+            dec
+              .ensure(_ > from, s"Value should be greater than $from")
+              .ensure(_ < to, s"Value should be less than $to")
       }
     }
 
@@ -43,9 +52,14 @@ object Implicits extends CircePack {
       override def apply[A](rs: Restriction[A]): Endo[ToFilter.JsonFilter[A]] = rs match {
         case Non() => identity
         case Range(from, to) =>
-          (jf: ToFilter.JsonFilter[Int]) => Const.of[Int](
-            Kleisli(jf.getConst).andThen((json: Json) => json.asNumber.filter(jn => jn.toInt.exists(n => n > from && n < to)).map(Json.fromJsonNumber)).run
-          )
+          (jf: ToFilter.JsonFilter[Int]) =>
+            Const.of[Int](
+              Kleisli(jf.getConst)
+                .andThen((json: Json) =>
+                  json.asNumber.filter(jn => jn.toInt.exists(n => n > from && n < to)).map(Json.fromJsonNumber)
+                )
+                .run
+            )
       }
     }
 }
