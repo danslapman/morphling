@@ -1,6 +1,7 @@
-import sbt._
-import sbt.Keys._
 import scalafix.sbt.ScalafixPlugin.autoImport._
+
+import sbt.Keys._
+import sbt._
 
 object Settings {
   val common = Seq(
@@ -8,47 +9,50 @@ object Settings {
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
     version := "3.0.0",
-    scalaVersion := "2.13.6",
-    crossScalaVersions := Seq("2.12.15", "2.13.6"),
     scalacOptions ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 12)) => Seq(
-          "-language:higherKinds,implicitConversions",
-          "-Ywarn-unused:imports",
-          "-deprecation",
-          "-Ypartial-unification",
-          "-Xsource:3",
-          "-P:kind-projector:underscore-placeholders"
-        )
-        case Some((2, 13)) => Seq(
-          "-language:higherKinds,implicitConversions",
-          "-Ywarn-unused:imports",
-          "-deprecation",
-          "-Ymacro-annotations",
-          "-Xsource:3",
-          "-P:kind-projector:underscore-placeholders"
-        )
-        case Some((3, _)) => Seq(
-          "-Ykind-projector:underscores",
-          "-source:future"
-        )
+      (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
+        case Some((2, 12)) =>
+          Seq(
+            "-language:higherKinds,implicitConversions",
+            "-Ywarn-unused:imports",
+            "-deprecation",
+            "-Ypartial-unification",
+            "-Xsource:3",
+            "-P:kind-projector:underscore-placeholders"
+          )
+        case Some((2, 13)) =>
+          Seq(
+            "-language:higherKinds,implicitConversions",
+            "-Ywarn-unused:imports",
+            "-deprecation",
+            "-Ymacro-annotations",
+            "-Xsource:3",
+            "-P:kind-projector:underscore-placeholders"
+          )
+        case Some((3, _)) =>
+          Seq(
+            "-Ykind-projector:underscores",
+            "-source:future"
+          )
       }
     },
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) => Seq(
-          compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
-          compilerPlugin(scalafixSemanticdb)
-        )
+        case Some((2, _)) =>
+          Seq(
+            compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
+            compilerPlugin(scalafixSemanticdb)
+          )
         case _ =>
           Seq.empty[ModuleID]
       }
     },
     ThisBuild / scalafixDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) => Seq(
-          "com.github.liancheng" %% "organize-imports" % "0.6.0"
-        )
+        case Some((2, _)) =>
+          Seq(
+            "com.github.liancheng" %% "organize-imports" % "0.6.0"
+          )
         case _ =>
           Seq.empty[ModuleID]
       }
@@ -64,10 +68,10 @@ object Settings {
     ),
     developers := List(
       Developer(
-        id    = "danslapman",
-        name  = "Daniil Smirnov",
+        id = "danslapman",
+        name = "Daniil Smirnov",
         email = "danslapman@gmail.com",
-        url   = url("https://github.com/danslapman")
+        url = url("https://github.com/danslapman")
       )
     ),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),

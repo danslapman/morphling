@@ -2,10 +2,10 @@ package morphling.samples
 
 import cats.data.NonEmptyList
 import cats.syntax.apply.*
+import glass.macros.*
 import morphling.Schema
 import morphling.Schema.*
 import morphling.protocol.SType.*
-import glass.macros.*
 
 sealed trait Role
 
@@ -23,7 +23,7 @@ object Role {
           (
             required("department", sStr, Administrator.department),
             required("subordinateCount", sInt, Administrator.subordinateCount)
-            ).mapN(Administrator.apply)
+          ).mapN(Administrator.apply)
         ),
         Administrator.prism
       )
@@ -43,7 +43,7 @@ object Role {
           (
             required("department", sStr, Administrator.department),
             required("subordinateCount", sInt, Administrator.subordinateCount)
-            ).mapN(Administrator.apply)
+          ).mapN(Administrator.apply)
         ),
         Administrator.prism
       )
@@ -57,7 +57,7 @@ case object User extends Role {
 
 case class Administrator(department: String, subordinateCount: Int) extends Role
 object Administrator {
-  val department = GenContains[Administrator](_.department)
+  val department       = GenContains[Administrator](_.department)
   val subordinateCount = GenContains[Administrator](_.subordinateCount)
-  val prism = GenSubset[Role, Administrator]
+  val prism            = GenSubset[Role, Administrator]
 }
