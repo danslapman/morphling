@@ -8,7 +8,7 @@ object Settings {
     organization := "com.github.danslapman",
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
-    version := "3.0.0",
+    version := "3.1.0",
     scalacOptions ++= {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, 12)) =>

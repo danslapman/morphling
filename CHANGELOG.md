@@ -1,3 +1,9 @@
+## version 3.1.0
+
+> 20.10.2022
+
+- Tapir support
+
 ## version 3.0.0
 
 > 13.09.2022
