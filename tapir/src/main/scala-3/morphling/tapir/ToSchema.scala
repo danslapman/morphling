@@ -8,6 +8,8 @@ import cats.data.EitherK
 import cats.free.*
 import morphling.*
 import morphling.Schema.*
+import morphling.annotated.Schema.AnnotatedSchema
+import morphling.given
 import mouse.option.*
 import simulacrum.typeclass
 import sttp.tapir.FieldName
@@ -33,6 +35,16 @@ object ToSchema {
       override val toSchema: Schema[P, _] ~> TapirSchema = new (Schema[P, _] ~> TapirSchema) {
         override def apply[I](schema: Schema[P, I]): TapirSchema[I] =
           HFix.cataNT[[Y[_], Z] =>> SchemaF[P, Y, Z], TapirSchema](schemaAlg).apply(schema)
+      }
+    }
+
+  given [P[_]: ToSchema, A[_]: [Y[_]] =>> Y ~> ([T] =>> Endo[TapirSchema[T]])]: ToSchema[AnnotatedSchema[P, A, *]] =
+    new ToSchema[AnnotatedSchema[P, A, _]] {
+      override val toSchema: AnnotatedSchema[P, A, _] ~> TapirSchema = new (AnnotatedSchema[P, A, _] ~> TapirSchema) {
+        override def apply[I](schema: AnnotatedSchema[P, A, I]): TapirSchema[I] =
+          HFix
+            .cataNT[[Y1[_], Z1] =>> HEnvT[A, [Y[_], Z] =>> SchemaF[P, Y, Z], Y1, Z1], TapirSchema](annSchemaAlg[P, A])
+            .apply(schema)
       }
     }
 
@@ -83,6 +95,14 @@ object ToSchema {
         case s: RecordSchema[P, TapirSchema, I]  => recordSchema[P, I](s.props)
         case s: IsoSchema[P, TapirSchema, i0, I] => s.base.as[I]
       }
+    }
+
+  def annSchemaAlg[P[_]: ToSchema, Ann[_]](implicit
+      interpret: Ann ~> ([T] =>> Endo[TapirSchema[T]])
+  ): HAlgebra[[Y1[_], Z1] =>> HEnvT[Ann, [Y[_], Z] =>> SchemaF[P, Y, Z], Y1, Z1], TapirSchema] =
+    new HAlgebra[[Y1[_], Z1] =>> HEnvT[Ann, [Y[_], Z] =>> SchemaF[P, Y, Z], Y1, Z1], TapirSchema] {
+      override def apply[I](s: HEnvT[Ann, [Y[_], Z] =>> SchemaF[P, Y, Z], TapirSchema, I]): TapirSchema[I] =
+        interpret(s.ask).apply(schemaAlg[P].apply(s.fa))
     }
 
   def recordSchema[P[_]: ToSchema, I](rb: FreeApplicative[PropSchema[I, TapirSchema, *], I]): TapirSchema[I] = {
