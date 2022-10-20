@@ -8,6 +8,7 @@ import cats.data.EitherK
 import cats.free.FreeApplicative
 import morphling.*
 import morphling.Schema.Schema
+import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
 import sttp.tapir.FieldName
@@ -36,6 +37,16 @@ object ToSchema {
         HFix.cataNT[SchemaF[P, *[_], *], TapirSchema](schemaAlg[P]).apply(schema)
     }
   }
+
+  implicit def annSchemaToSchema[P[_]: ToSchema, A[_]: *[_] ~> λ[T => Endo[TapirSchema[T]]]]
+      : ToSchema[AnnotatedSchema[P, A, *]] =
+    new ToSchema[AnnotatedSchema[P, A, *]] {
+      override val toSchema: AnnotatedSchema[P, A, *] ~> TapirSchema =
+        new (AnnotatedSchema[P, A, *] ~> TapirSchema) {
+          override def apply[I](schema: AnnotatedSchema[P, A, I]): TapirSchema[I] =
+            HFix.cataNT[HEnvT[A, SchemaF[P, *[_], *], *[_], *], TapirSchema](annSchemaAlg).apply(schema)
+        }
+    }
 
   def schemaAlg[P[_]: ToSchema]: HAlgebra[SchemaF[P, *[_], *], TapirSchema] =
     new HAlgebra[SchemaF[P, *[_], *], TapirSchema] {
@@ -84,6 +95,14 @@ object ToSchema {
         case s: RecordSchema[P, TapirSchema, I]  => recordSchema[P, I](s.props)
         case s: IsoSchema[P, TapirSchema, i0, I] => s.base.as[I]
       }
+    }
+
+  def annSchemaAlg[P[_]: ToSchema, Ann[_]](implicit
+      interpret: Ann ~> λ[T => Endo[TapirSchema[T]]]
+  ): HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], TapirSchema] =
+    new HAlgebra[HEnvT[Ann, SchemaF[P, *[_], *], *[_], *], TapirSchema] {
+      override def apply[A](schema: HEnvT[Ann, SchemaF[P, *[_], *], TapirSchema, A]): TapirSchema[A] =
+        interpret.apply(schema.ask).apply(schemaAlg[P].apply(schema.fa))
     }
 
   def recordSchema[P[_]: ToSchema, I](rb: FreeApplicative[PropSchema[I, TapirSchema, *], I]): TapirSchema[I] = {
