@@ -77,10 +77,10 @@ object FromJson {
           Decoder.instance { (c: HCursor) =>
             for {
               altId <- c.downField(discriminatorField).as[String]
-              Alt(_, base, prism) <- alts
+              alt <- alts
                 .find(_.id == altId)
                 .toRight(DecodingFailure(s"No '$discriminatorField' case of value '$altId'", c.history))
-              altResult <- c.as(base).map(prism.upcast)
+              altResult <- c.as(alt.base).map(alt.subset.upcast)
             } yield altResult
           }
 
