@@ -89,10 +89,10 @@ object FromBson {
           BSONDocumentReader.from[I] { doc =>
             for {
               altId <- doc.getAsTry[String](discriminatorField)
-              Alt(_, base, prism) <- alts
+              alt <- alts
                 .find(_.id == altId)
                 .toTry(DocumentKeyNotFound(s"No '$discriminatorField' case of value '$altId'"))
-              altResult <- doc.asTry(base).map(prism.upcast)
+              altResult <- doc.asTry(alt.base).map(alt.subset.upcast)
             } yield altResult
           }
 
