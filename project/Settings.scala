@@ -8,7 +8,7 @@ object Settings {
     organization := "com.github.danslapman",
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
-    version := "3.3.0",
+    version := "3.2.0",
     scalacOptions ++= {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, 12)) =>
@@ -32,7 +32,8 @@ object Settings {
         case Some((3, _)) =>
           Seq(
             "-Ykind-projector:underscores",
-            "-source:future"
+            "-source:future",
+            "-Wunused:imports"
           )
       }
     },
