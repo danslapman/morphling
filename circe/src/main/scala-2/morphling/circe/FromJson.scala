@@ -47,7 +47,7 @@ object FromJson {
         case PrimSchema(p) => FromJson[P].decoder(p)
 
         case OneOfSchema(alts, None) =>
-          Decoder.instance { c: HCursor =>
+          Decoder.instance { (c: HCursor) =>
             val results = for {
               fields <- c.keys.toList.map(_.toList)
               altResult <- alts.toList flatMap { case Alt(id, base, prism) =>
@@ -69,7 +69,7 @@ object FromJson {
           }
 
         case OneOfSchema(alts, Some(discriminatorField)) =>
-          Decoder.instance { c: HCursor =>
+          Decoder.instance { (c: HCursor) =>
             for {
               altId <- c.downField(discriminatorField).as[String]
               Alt(_, base, prism) <- alts
