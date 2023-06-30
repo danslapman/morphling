@@ -285,7 +285,7 @@ object Schema {
       property: TProp[O, I]
   ): Prop[P, A, O, Option[I]] =
     FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, property.getOption)
+      Optional[O, AnnotatedSchema[P, A, *], I](fieldName, valueSchema, property.getOption(_))
     )
 
   /**
@@ -308,7 +308,7 @@ object Schema {
 
     def apply[O, I](fieldName: String, property: TProp[O, I]): Prop[P, A, O, Option[I]] =
       FreeApplicative.lift[PropSchema[O, AnnotatedSchema[P, A, *], *], Option[I]](
-        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, property.getOption)
+        Absent[O, AnnotatedSchema[P, A, *], I](fieldName, property.getOption(_))
       )
   }
 
