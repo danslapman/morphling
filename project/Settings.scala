@@ -8,7 +8,6 @@ object Settings {
     organization := "com.github.danslapman",
     organizationName := "danslapman",
     organizationHomepage := Some(url("https://github.com/danslapman")),
-    version := "3.2.0",
     scalacOptions ++= {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, 12)) =>
@@ -76,13 +75,6 @@ object Settings {
       )
     ),
     licenses += ("WTFPL", url("http://www.wtfpl.net")),
-    homepage := Some(url("https://github.com/danslapman/morphling")),
-    pomIncludeRepository := { _ => false },
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value) Some("snapshots" at nexus + "content/repositories/snapshots")
-      else Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    },
-    publishMavenStyle := true
+    homepage := Some(url("https://github.com/danslapman/morphling"))
   )
 }
