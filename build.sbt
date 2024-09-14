@@ -1,5 +1,7 @@
 ThisBuild / scalaVersion := "2.13.11"
 
+publish / skip := true
+
 val versions = Map(
   "cats"                     -> "2.8.0",
   "circe"                    -> "0.14.2",
@@ -219,5 +221,6 @@ lazy val root = (projectMatrix in file("."))
   .settings(
     crossScalaVersions := Nil,
     publish := {},
-    publishArtifact := false
+    publishArtifact := false,
+    publish / skip := true
   )
