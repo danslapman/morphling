@@ -1,8 +1,7 @@
 package morphling.circe
 
-import io.circe.Encoder
-import io.circe.Json
 import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import morphling.circe.Implicits.*
 import morphling.circe.ToFilter.*
 import morphling.circe.ToJson.*

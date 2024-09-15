@@ -1,11 +1,9 @@
 package cats.scalatest
 
 import cats.data.Validated
-import cats.data.Validated.Invalid
-import cats.data.Validated.Valid
+import cats.data.Validated.{Invalid, Valid}
 import org.scalactic.source
-import org.scalatest.exceptions.StackDepthException
-import org.scalatest.exceptions.TestFailedException
+import org.scalatest.exceptions.{StackDepthException, TestFailedException}
 
 trait ValidatedValues {
   import scala.language.implicitConversions

@@ -1,24 +1,18 @@
 package morphling.tschema
 
-import scala.annotation.implicitNotFound
-
 import cats.*
-import cats.data.Const
 import cats.data.Const.*
-import cats.data.EitherK
+import cats.data.{Const, EitherK}
 import cats.free.*
 import cats.syntax.option.*
 import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
-import ru.tinkoff.tschema.swagger.SwaggerObject
-import ru.tinkoff.tschema.swagger.SwaggerOneOf
-import ru.tinkoff.tschema.swagger.SwaggerPrimitive
-import ru.tinkoff.tschema.swagger.SwaggerProperty
-import ru.tinkoff.tschema.swagger.SwaggerRef
-import ru.tinkoff.tschema.swagger.SwaggerTypeable
+import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerRef, SwaggerTypeable}
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of ToTypeable for ${S}")
 @typeclass

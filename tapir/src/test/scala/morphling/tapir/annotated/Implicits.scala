@@ -1,15 +1,10 @@
 package morphling.tapir.annotated
 
-import cats.Endo
-import cats.~>
-import morphling.protocol.annotated.Non
-import morphling.protocol.annotated.Range
-import morphling.protocol.annotated.Restriction
+import cats.{Endo, ~>}
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.tapir.SchemaPack
-import morphling.tapir.ToSchema
-import sttp.tapir.Schema
-import sttp.tapir.Validator
+import morphling.protocol.annotated.{Non, Range, Restriction}
+import morphling.tapir.{SchemaPack, ToSchema}
+import sttp.tapir.{Schema, Validator}
 
 object Implicits extends SchemaPack {
   implicit val schemaRestriction: (Restriction ~> λ[T => Endo[Schema[T]]]) =

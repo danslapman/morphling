@@ -1,10 +1,8 @@
 package morphling.circe
 
-import cats.scalatest.EitherValues
-import cats.scalatest.ValidatedValues
-import io.circe.Encoder
-import io.circe.Json
+import cats.scalatest.{EitherValues, ValidatedValues}
 import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import morphling.circe.FromJson.*
 import morphling.circe.Implicits.*
 import morphling.circe.ToJson.*

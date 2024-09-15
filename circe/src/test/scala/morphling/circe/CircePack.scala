@@ -2,9 +2,7 @@ package morphling.circe
 
 import cats.data.Const
 import cats.~>
-import io.circe.Decoder
-import io.circe.Encoder
-import io.circe.Json
+import io.circe.{Decoder, Encoder, Json}
 import morphling.protocol.*
 
 trait CircePack {

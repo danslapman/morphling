@@ -1,17 +1,13 @@
 package morphling.circe.annotated
 
-import cats.scalatest.EitherValues
-import cats.scalatest.ValidatedValues
-import io.circe.Encoder
-import io.circe.Json
+import cats.scalatest.{EitherValues, ValidatedValues}
 import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import morphling.circe.FromJson.*
 import morphling.circe.ToJson.*
 import morphling.circe.annotated.Implicits.*
-import morphling.samples.Person
-import morphling.samples.annotated.AnnPerson
-import morphling.samples.annotated.Server
-import morphling.samples.person
+import morphling.samples.annotated.{AnnPerson, Server}
+import morphling.samples.{Person, person}
 import morphling.scalacheck.ToGen.*
 import morphling.scalacheck.annotated.Implicits.*
 import org.scalacheck.Arbitrary

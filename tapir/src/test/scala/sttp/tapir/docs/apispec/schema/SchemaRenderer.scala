@@ -1,7 +1,6 @@
 package sttp.tapir.docs.apispec.schema
 
-import sttp.apispec.ReferenceOr
-import sttp.apispec.Schema as ASchema
+import sttp.apispec.{ReferenceOr, Schema as ASchema}
 import sttp.tapir.Schema
 
 object SchemaRenderer {

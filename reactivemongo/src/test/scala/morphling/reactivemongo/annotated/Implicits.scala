@@ -1,14 +1,9 @@
 package morphling.reactivemongo.annotated
 
-import cats.Endo
-import cats.~>
-import morphling.protocol.annotated.Non
-import morphling.protocol.annotated.Range
-import morphling.protocol.annotated.Restriction
+import cats.{Endo, ~>}
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.reactivemongo.FromBson
-import morphling.reactivemongo.ReactivemongoPack
-import morphling.reactivemongo.ToBson
+import morphling.protocol.annotated.{Non, Range, Restriction}
+import morphling.reactivemongo.{FromBson, ReactivemongoPack, ToBson}
 import reactivemongo.api.bson.*
 
 object Implicits extends ReactivemongoPack {

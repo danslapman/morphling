@@ -1,12 +1,9 @@
 package morphling.scalacheck.annotated
 
-import cats.Endo
-import cats.~>
-import morphling.protocol.annotated.Range
-import morphling.protocol.annotated.Restriction
+import cats.{Endo, ~>}
 import morphling.protocol.annotated.STypeAnn.ASchema
-import morphling.scalacheck.GenPack
-import morphling.scalacheck.ToGen
+import morphling.protocol.annotated.{Range, Restriction}
+import morphling.scalacheck.{GenPack, ToGen}
 import org.scalacheck.Gen
 
 object Implicits extends GenPack {

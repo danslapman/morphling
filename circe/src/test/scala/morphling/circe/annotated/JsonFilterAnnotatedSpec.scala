@@ -1,14 +1,12 @@
 package morphling.circe.annotated
 
-import io.circe.Encoder
-import io.circe.Json
 import io.circe.syntax.*
+import io.circe.{Encoder, Json}
 import morphling.circe.ToFilter.*
 import morphling.circe.ToJson.*
 import morphling.circe.annotated.Implicits.*
-import morphling.samples.Person
 import morphling.samples.annotated.AnnPerson
-import morphling.samples.person
+import morphling.samples.{Person, person}
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 

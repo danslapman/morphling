@@ -1,21 +1,18 @@
 package morphling.circe
 
-import scala.annotation.implicitNotFound
-
 import cats.*
-import cats.data.EitherK
-import cats.data.State
 import cats.data.State.*
+import cats.data.{EitherK, State}
 import cats.free.*
-import io.circe.Encoder
-import io.circe.Json
-import io.circe.JsonObject
 import io.circe.syntax.*
+import io.circe.{Encoder, Json, JsonObject}
 import morphling.*
 import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of ToJson for ${S}")
 @typeclass
