@@ -7,6 +7,7 @@ import cats.~>
 import morphling.protocol.*
 import reactivemongo.api.bson.*
 
+import scala.Float.float2double // scalafix:ok
 import scala.util.Success
 
 trait ReactivemongoPack {
