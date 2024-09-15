@@ -24,15 +24,15 @@ jobs:
         uses: coursier/cache-action@v6
 
       - name: Compile and test
-        run: sbt "project root2_12; test"
+        run: sbt "project root2_12; scalafixAll --check; test"
         if: matrix.scala-version == '2.12'
 
       - name: Compile and test
-        run: sbt "project root; test"
+        run: sbt "project root; scalafixAll --check; test"
         if: matrix.scala-version == '2.13'
 
       - name: Compile and test
-        run: sbt "project root3; test"
+        run: sbt "project root3; scalafixAll --check; test"
         if: matrix.scala-version == '3'
 
   release:

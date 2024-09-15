@@ -36,30 +36,25 @@ object Settings {
           )
       }
     },
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision,
+    scalafixConfig := {
+      (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
+        case Some((2, _)) => scalafixConfig.value
+        case Some((3, _)) => Some(baseDirectory.value.getParentFile.getParentFile.getParentFile / ".scalafix3.conf")
+      }
+    },
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) =>
           Seq(
-            compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.2" cross CrossVersion.full),
+            compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full),
             compilerPlugin(scalafixSemanticdb)
           )
         case _ =>
           Seq.empty[ModuleID]
       }
     },
-    ThisBuild / scalafixDependencies ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, _)) =>
-          Seq(
-            "com.github.liancheng" %% "organize-imports" % "0.6.0"
-          )
-        case _ =>
-          Seq.empty[ModuleID]
-      }
-    },
-    ThisBuild / scalafixDependencies ++= Seq(
-      "org.typelevel" %% "simulacrum-scalafix" % "0.5.4"
-    ),
     scmInfo := Some(
       ScmInfo(
         url("https://github.com/danslapman/morphling"),
