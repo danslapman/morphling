@@ -2,6 +2,7 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 
 import sbt.Keys._
 import sbt._
+import sbtprojectmatrix.ProjectMatrixKeys._
 
 object Settings {
   val common = Seq(
@@ -41,7 +42,7 @@ object Settings {
     scalafixConfig := {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) => scalafixConfig.value
-        case Some((3, _)) => Some(baseDirectory.value.getParentFile.getParentFile.getParentFile / ".scalafix3.conf")
+        case Some((3, _)) => Some(projectMatrixBaseDirectory.value.getParentFile / ".scalafix3.conf")
       }
     },
     libraryDependencies ++= {
