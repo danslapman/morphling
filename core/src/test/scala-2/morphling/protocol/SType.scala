@@ -1,9 +1,8 @@
 package morphling.protocol
 
 import cats.~>
-import morphling.HFunctor
-import morphling.HMutu
 import morphling.Schema.*
+import morphling.{HFunctor, HMutu}
 
 sealed trait SType[F[_], I]
 

@@ -1,30 +1,17 @@
 package morphling.reactivemongo
 
-import scala.annotation.implicitNotFound
-
 import cats.*
 import cats.data.EitherK
 import cats.free.*
-import morphling.Absent
-import morphling.Alt
-import morphling.Constant
-import morphling.HAlgebra
-import morphling.HEnvT
-import morphling.HFix
-import morphling.IsoSchema
-import morphling.OneOfSchema
-import morphling.Optional
-import morphling.PrimSchema
-import morphling.PropSchema
-import morphling.RecordSchema
-import morphling.Required
 import morphling.Schema.Schema
-import morphling.SchemaF
 import morphling.annotated.Schema.AnnotatedSchema
+import morphling.{Absent, Alt, Constant, HAlgebra, HEnvT, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.boolean.*
 import mouse.option.*
 import reactivemongo.api.bson.*
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of FromBson for ${S}")
 @typeclass

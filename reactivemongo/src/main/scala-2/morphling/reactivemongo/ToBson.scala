@@ -1,32 +1,18 @@
 package morphling.reactivemongo
 
-import scala.annotation.implicitNotFound
-import scala.util.Success
-import scala.util.Try
-
 import cats.*
-import cats.data.EitherK
-import cats.data.State
 import cats.data.State.*
+import cats.data.{EitherK, State}
 import cats.free.*
-import morphling.Absent
-import morphling.Alt
-import morphling.Constant
-import morphling.HAlgebra
-import morphling.HFix
-import morphling.IsoSchema
-import morphling.OneOfSchema
-import morphling.Optional
-import morphling.PrimSchema
-import morphling.PropSchema
-import morphling.RecordSchema
-import morphling.Required
 import morphling.Schema.*
-import morphling.SchemaF
 import morphling.annotated.Schema.AnnotatedSchema
+import morphling.{Absent, Alt, Constant, HAlgebra, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.option.*
 import reactivemongo.api.bson.*
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
+import scala.util.{Success, Try}
 
 @implicitNotFound("Could not find an instance of ToBson for ${S}")
 @typeclass

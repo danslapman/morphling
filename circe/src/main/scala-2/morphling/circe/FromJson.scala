@@ -1,19 +1,17 @@
 package morphling.circe
 
-import scala.annotation.implicitNotFound
-
 import cats.*
 import cats.data.EitherK
 import cats.free.*
 import cats.syntax.either.*
-import io.circe.Decoder
-import io.circe.DecodingFailure
-import io.circe.HCursor
+import io.circe.{Decoder, DecodingFailure, HCursor}
 import morphling.*
 import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.boolean.*
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of FromJson for ${S}")
 @typeclass
