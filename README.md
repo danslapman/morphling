@@ -1,4 +1,4 @@
-# morphling [![Release Artifacts][Badge-SonatypeReleases]][Link-SonatypeReleases][![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/danslapman/morphling)
+# morphling [![Release Artifacts][Badge-SonatypeReleases]][Link-SonatypeReleases]
 Cats-based Scala library for free applicative schemas. Core module of morphling
 initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](https://github.com/nuttycom/xenomorph)
 
