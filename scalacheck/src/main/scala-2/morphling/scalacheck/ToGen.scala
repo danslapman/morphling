@@ -1,7 +1,5 @@
 package morphling.scalacheck
 
-import scala.annotation.implicitNotFound
-
 import cats.*
 import cats.data.EitherK
 import cats.free.*
@@ -11,6 +9,8 @@ import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import org.scalacheck.Gen
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of ToGen for ${S}")
 @typeclass

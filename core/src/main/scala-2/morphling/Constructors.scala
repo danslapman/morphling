@@ -1,14 +1,12 @@
 package morphling
 
-import scala.annotation.implicitNotFound
-
 import cats.data.NonEmptyList
 import cats.syntax.list.*
 import shapeless.ops.coproduct.ToHList
-import shapeless.ops.hlist.Align
-import shapeless.ops.hlist.Comapped
-import shapeless.ops.hlist.ToTraversable
-import shapeless.{Prism as _, _}
+import shapeless.ops.hlist.{Align, Comapped, ToTraversable}
+import shapeless.{Prism as _, *}
+
+import scala.annotation.implicitNotFound
 
 /**
  * Implicit proof type

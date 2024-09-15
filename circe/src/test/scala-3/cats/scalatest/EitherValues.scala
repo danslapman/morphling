@@ -1,12 +1,9 @@
 package cats.scalatest
 
-import scala.util.Either
-import scala.util.Left
-import scala.util.Right
-
 import org.scalactic.source
-import org.scalatest.exceptions.StackDepthException
-import org.scalatest.exceptions.TestFailedException
+import org.scalatest.exceptions.{StackDepthException, TestFailedException}
+
+import scala.util.{Either, Left, Right}
 
 trait EitherValues {
   import scala.language.implicitConversions

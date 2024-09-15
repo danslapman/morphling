@@ -4,9 +4,9 @@ import cats.*
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free.*
-import glass.{Property as TProp, _}
+import glass.{Property as TProp, *}
 import morphling.HFix.*
-import shapeless.{Lens as _, Prism as _, _}
+import shapeless.{Lens as _, Prism as _, *}
 
 /**
  * Data types and smart constructors which simplify the creation of schema values.

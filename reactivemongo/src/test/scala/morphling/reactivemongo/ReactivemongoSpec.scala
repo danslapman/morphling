@@ -1,7 +1,5 @@
 package morphling.reactivemongo
 
-import scala.util.Success
-
 import morphling.reactivemongo.FromBson.*
 import morphling.reactivemongo.Implicits.*
 import morphling.reactivemongo.ToBson.*
@@ -14,6 +12,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.Checkers
 import reactivemongo.api.bson.*
+
+import scala.util.Success
 
 class ReactivemongoSpec extends AnyFunSuite with Matchers with TryValues with Checkers {
   test("A value should serialise to BSON") {

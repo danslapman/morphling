@@ -1,10 +1,7 @@
 package morphling.tapir
 
-import scala.annotation.implicitNotFound
-
 import cats.*
-import cats.data.Const
-import cats.data.EitherK
+import cats.data.{Const, EitherK}
 import cats.free.*
 import morphling.*
 import morphling.Schema.*
@@ -12,14 +9,10 @@ import morphling.annotated.Schema.AnnotatedSchema
 import morphling.given
 import mouse.option.*
 import simulacrum.typeclass
-import sttp.tapir.FieldName
-import sttp.tapir.Schema as TapirSchema
-import sttp.tapir.SchemaType
-import sttp.tapir.SchemaType.SCoproduct
-import sttp.tapir.SchemaType.SDiscriminator
-import sttp.tapir.SchemaType.SProduct
-import sttp.tapir.SchemaType.SProductField
-import sttp.tapir.Validator
+import sttp.tapir.SchemaType.{SCoproduct, SDiscriminator, SProduct, SProductField}
+import sttp.tapir.{FieldName, Schema as TapirSchema, SchemaType, Validator}
+
+import scala.annotation.implicitNotFound
 
 @implicitNotFound("Could not find an instance of ToSchema for ${S}")
 @typeclass

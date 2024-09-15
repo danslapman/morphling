@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.13.11"
+ThisBuild / scalaVersion := "2.13.14"
 
 publish / skip := true
 
@@ -15,7 +15,7 @@ val versions = Map(
   "glass"                    -> "0.1.0"
 )
 
-val scalaVersions = Seq("2.12.18", "2.13.11", "3.3.0")
+val scalaVersions = Seq("2.12.20", "2.13.14", "3.3.3")
 
 lazy val morphling = (projectMatrix in file("core"))
   .jvmPlatform(scalaVersions = scalaVersions)

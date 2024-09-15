@@ -1,20 +1,12 @@
 package morphling.circe.annotated
 
 import cats.*
-import cats.data.Const
-import cats.data.Kleisli
+import cats.data.{Const, Kleisli}
 import cats.instances.option.*
-import io.circe.Decoder
-import io.circe.Encoder
-import io.circe.Json
-import morphling.circe.CircePack
-import morphling.circe.FromJson
-import morphling.circe.ToFilter
-import morphling.circe.ToJson
-import morphling.protocol.annotated.Non
-import morphling.protocol.annotated.Range
-import morphling.protocol.annotated.Restriction
+import io.circe.{Decoder, Encoder, Json}
+import morphling.circe.{CircePack, FromJson, ToFilter, ToJson}
 import morphling.protocol.annotated.STypeAnn.ASchema
+import morphling.protocol.annotated.{Non, Range, Restriction}
 
 object Implicits extends CircePack {
   implicit val decoderRestriction: (Restriction ~> λ[T => Endo[Decoder[T]]]) =

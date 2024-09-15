@@ -1,13 +1,13 @@
 package morphling.samples
 
-import java.time.Instant
-
 import cats.syntax.apply.*
 import glass.*
 import glass.macros.*
 import morphling.Schema.*
 import morphling.protocol.SType.*
 import morphling.samples.annotated.AnnPerson
+
+import java.time.Instant
 
 case class Person(
     name: String,

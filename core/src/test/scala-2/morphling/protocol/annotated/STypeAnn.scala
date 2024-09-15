@@ -2,8 +2,7 @@ package morphling.protocol.annotated
 
 import alleycats.EmptyK
 import morphling.HMutu
-import morphling.annotated.Schema.AnnotatedSchema
-import morphling.annotated.Schema.prim
+import morphling.annotated.Schema.{AnnotatedSchema, prim}
 import morphling.protocol.*
 
 object STypeAnn {

@@ -5,7 +5,7 @@ import cats.*
 import cats.arrow.Profunctor
 import cats.data.NonEmptyList
 import cats.free.*
-import glass.{Property as TProp, _}
+import glass.{Property as TProp, *}
 import morphling.*
 import morphling.HFix.*
 import shapeless.HList

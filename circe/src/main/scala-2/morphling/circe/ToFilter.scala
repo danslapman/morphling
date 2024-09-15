@@ -1,21 +1,19 @@
 package morphling.circe
 
-import scala.annotation.implicitNotFound
-
 import cats.*
-import cats.data.Const
-import cats.data.EitherK
+import cats.data.{Const, EitherK}
 import cats.free.*
 import cats.instances.function.*
 import cats.instances.option.*
 import cats.syntax.all.*
-import io.circe.Json
-import io.circe.JsonObject
+import io.circe.{Json, JsonObject}
 import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import simulacrum.typeclass
+
+import scala.annotation.implicitNotFound
 
 /**
  * Allows to filter Json via specific schema

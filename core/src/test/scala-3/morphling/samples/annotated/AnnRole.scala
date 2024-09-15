@@ -6,9 +6,7 @@ import morphling.annotated.Schema
 import morphling.annotated.Schema.*
 import morphling.protocol.annotated.Restriction
 import morphling.protocol.annotated.STypeAnn.*
-import morphling.samples.Administrator
-import morphling.samples.Role
-import morphling.samples.User
+import morphling.samples.{Administrator, Role, User}
 
 object AnnRole {
   val schema: Schema[ASchema, Role] = Schema.unsafeOneOf(
