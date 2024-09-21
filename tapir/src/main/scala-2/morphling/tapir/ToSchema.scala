@@ -143,8 +143,8 @@ object ToSchema {
       override val toSchema: EitherK[P, Q, *] ~> TapirSchema =
         new (EitherK[P, Q, *] ~> TapirSchema) {
           override def apply[A](fa: EitherK[P, Q, A]): TapirSchema[A] = fa.run.fold(
-            ToSchema[P].toSchema(_),
-            ToSchema[Q].toSchema(_),
+            ToSchema.apply[P].toSchema(_),
+            ToSchema.apply[Q].toSchema(_),
           )
         }
     }

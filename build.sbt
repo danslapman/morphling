@@ -56,7 +56,7 @@ lazy val `morphling-scalacheck` = (projectMatrix in file("scalacheck"))
       "org.scalacheck" %% "scalacheck"                      % versions("scalacheck")
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ =>
         Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
@@ -84,7 +84,7 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
       "org.scalatestplus" %% "scalacheck-1-15"                 % versions("scalatestplus-scalacheck") % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ =>
         Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
@@ -104,7 +104,7 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
           compilerPlugin("org.scalamacros" % "paradise"           % versions("paradise") cross CrossVersion.full),
           compilerPlugin("com.olegpy"     %% "better-monadic-for" % versions("bm4"))
         )
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq(
           compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
         )
@@ -128,7 +128,7 @@ lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
       "org.scalatestplus" %% "scalacheck-1-15"                 % versions("scalatestplus-scalacheck") % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ =>
         Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
@@ -151,7 +151,7 @@ lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
           compilerPlugin("org.scalamacros" % "paradise"           % versions("paradise") cross CrossVersion.full),
           compilerPlugin("com.olegpy"     %% "better-monadic-for" % versions("bm4"))
         )
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq(
           compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
         )
@@ -175,10 +175,10 @@ lazy val `morphling-typed-schema` = (projectMatrix in file("typedschema"))
       "org.scalaz"    %% "scalaz-core"                     % "7.2.29"              % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ =>
-        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+        Seq.empty[ModuleID]
     }),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
@@ -206,10 +206,16 @@ lazy val `morphling-tapir` = (projectMatrix in file("tapir"))
       "com.softwaremill.sttp.apispec" %% "openapi-circe" % "0.2.1" % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) =>
+      case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ =>
         Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    }),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
+      case _ =>
+        Seq.empty[ModuleID]
     })
   )
 
