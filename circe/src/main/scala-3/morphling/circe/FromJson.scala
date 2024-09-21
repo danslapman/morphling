@@ -10,12 +10,7 @@ import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import morphling.given
 import mouse.boolean.*
-import simulacrum.typeclass
 
-import scala.annotation.implicitNotFound
-
-@implicitNotFound("Could not find an instance of FromJson for ${S}")
-@typeclass
 trait FromJson[S[_]] extends Serializable {
   def decoder: S ~> Decoder
 
@@ -25,6 +20,7 @@ trait FromJson[S[_]] extends Serializable {
 }
 
 object FromJson {
+  def apply[P[_]](using fj: FromJson[P]): FromJson[P] = fj
 
   given [P[_]: FromJson]: FromJson[Schema[P, _]] =
     new FromJson[Schema[P, _]] {
@@ -129,44 +125,4 @@ object FromJson {
           )
       }
     }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[FromJson]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: FromJson[S]): FromJson[S] = instance
-
-  object ops {
-    implicit def toAllFromJsonOps[S[_], A](target: S[A])(implicit tc: FromJson[S]): AllOps[S, A] {
-      type TypeClassType = FromJson[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = FromJson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: FromJson[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToFromJsonOps extends Serializable {
-    implicit def toFromJsonOps[S[_], A](target: S[A])(implicit tc: FromJson[S]): Ops[S, A] {
-      type TypeClassType = FromJson[S]
-    } = new Ops[S, A] {
-      type TypeClassType = FromJson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToFromJsonOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }
