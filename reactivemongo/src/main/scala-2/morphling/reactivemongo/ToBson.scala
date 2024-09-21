@@ -9,14 +9,12 @@ import morphling.annotated.Schema.AnnotatedSchema
 import morphling.{Absent, Alt, Constant, HAlgebra, HFix, IsoSchema, OneOfSchema, Optional, PrimSchema, PropSchema, RecordSchema, Required, SchemaF}
 import mouse.option.*
 import reactivemongo.api.bson.*
-import simulacrum.typeclass
+import simulacrum_.typeclass
 
-import scala.annotation.implicitNotFound
 import scala.util.{Success, Try}
 
-@implicitNotFound("Could not find an instance of ToBson for ${S}")
 @typeclass
-trait ToBson[S[_]] extends Serializable {
+trait ToBson[S[_]] {
   def writer: S ~> BSONWriter
 }
 
@@ -132,44 +130,4 @@ object ToBson {
           )
       }
     }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[ToBson]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: ToBson[S]): ToBson[S] = instance
-
-  object ops {
-    implicit def toAllToBsonOps[S[_], A](target: S[A])(implicit tc: ToBson[S]): AllOps[S, A] {
-      type TypeClassType = ToBson[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = ToBson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: ToBson[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToToBsonOps extends Serializable {
-    implicit def toToBsonOps[S[_], A](target: S[A])(implicit tc: ToBson[S]): Ops[S, A] {
-      type TypeClassType = ToBson[S]
-    } = new Ops[S, A] {
-      type TypeClassType = ToBson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToToBsonOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }

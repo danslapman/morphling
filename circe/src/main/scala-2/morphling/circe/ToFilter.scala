@@ -11,16 +11,13 @@ import morphling.*
 import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
-import simulacrum.typeclass
-
-import scala.annotation.implicitNotFound
+import simulacrum_.typeclass
 
 /**
  * Allows to filter Json via specific schema
  */
-@implicitNotFound("Could not find an instance of ToFilter for ${S}")
 @typeclass
-trait ToFilter[S[_]] extends Serializable {
+trait ToFilter[S[_]] {
   def filter: S ~> Const[Json => Option[Json], *]
 }
 
@@ -125,44 +122,4 @@ object ToFilter {
     override def combine(x: Subset[Json], y: Subset[Json]): Subset[Json] =
       x &&& y andThen { case (lhs, rhs) => lhs |+| rhs }
   }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[ToFilter]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: ToFilter[S]): ToFilter[S] = instance
-
-  object ops {
-    implicit def toAllToFilterOps[S[_], A](target: S[A])(implicit tc: ToFilter[S]): AllOps[S, A] {
-      type TypeClassType = ToFilter[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = ToFilter[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: ToFilter[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToToFilterOps extends Serializable {
-    implicit def toToFilterOps[S[_], A](target: S[A])(implicit tc: ToFilter[S]): Ops[S, A] {
-      type TypeClassType = ToFilter[S]
-    } = new Ops[S, A] {
-      type TypeClassType = ToFilter[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToToFilterOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }

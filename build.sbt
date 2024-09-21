@@ -8,11 +8,12 @@ val versions = Map(
   "mouse"                    -> "1.0.11",
   "scalacheck"               -> "1.15.3",
   "scalatest"                -> "3.2.11",
-  "simulacrum"               -> "0.5.4",
+  "simulacrum"               -> "1.1.0",
   "paradise"                 -> "2.1.1",
   "bm4"                      -> "0.3.1",
   "scalatestplus-scalacheck" -> "3.2.11.0",
-  "glass"                    -> "0.1.0"
+  "glass"                    -> "0.1.0",
+  "simulacrum-scalafix-annotations" -> "0.5.4"
 )
 
 val scalaVersions = Seq("2.12.20", "2.13.14", "3.3.3")
@@ -52,19 +53,20 @@ lazy val `morphling-scalacheck` = (projectMatrix in file("scalacheck"))
     ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "org.typelevel"  %% "mouse"                           % versions("mouse"),
-      "org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.scalacheck" %% "scalacheck"                      % versions("scalacheck")
     ),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) =>
+        Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
+      case _ =>
+        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    }),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
         Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
       case _ =>
         Seq.empty[ModuleID]
-    }),
-    addCommandAlias(
-      "simulacrum",
-      "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
-    )
+    })
   )
 
 lazy val `morphling-circe` = (projectMatrix in file("circe"))
@@ -77,11 +79,16 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
     libraryDependencies ++= Seq(
       "io.circe"          %% "circe-core"                      % versions("circe"),
       "org.typelevel"     %% "mouse"                           % versions("mouse"),
-      "org.typelevel"     %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.scalatest"     %% "scalatest"                       % versions("scalatest")                % Test,
       "org.scalacheck"    %% "scalacheck"                      % versions("scalacheck")               % Test,
       "org.scalatestplus" %% "scalacheck-1-15"                 % versions("scalatestplus-scalacheck") % Test
     ),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) =>
+        Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
+      case _ =>
+        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    }),
     libraryDependencies ++= {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) =>
@@ -103,11 +110,7 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
         )
       case _ =>
         Seq.empty[ModuleID]
-    }),
-    addCommandAlias(
-      "simulacrum",
-      "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
-    )
+    })
   )
 
 lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
@@ -119,12 +122,17 @@ lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
     ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "org.reactivemongo" %% "reactivemongo-bson-api"          % "1.0.3",
-      "org.typelevel"     %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.typelevel"     %% "mouse"                           % versions("mouse"),
       "org.scalatest"     %% "scalatest"                       % versions("scalatest")                % Test,
       "org.scalacheck"    %% "scalacheck"                      % versions("scalacheck")               % Test,
       "org.scalatestplus" %% "scalacheck-1-15"                 % versions("scalatestplus-scalacheck") % Test
     ),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) =>
+        Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
+      case _ =>
+        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    }),
     libraryDependencies ++= {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) =>
@@ -149,11 +157,7 @@ lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
         )
       case _ =>
         Seq.empty[ModuleID]
-    }),
-    addCommandAlias(
-      "simulacrum",
-      "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
-    )
+    })
   )
 
 lazy val `morphling-typed-schema` = (projectMatrix in file("typedschema"))
@@ -165,22 +169,23 @@ lazy val `morphling-typed-schema` = (projectMatrix in file("typedschema"))
     ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "ru.tinkoff"    %% "typed-schema-swagger"            % "0.14.3",
-      "org.typelevel" %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.typelevel" %% "mouse"                           % versions("mouse"),
       "org.scalatest" %% "scalatest"                       % versions("scalatest") % Test,
       "com.stephenn"  %% "scalatest-circe"                 % "0.0.2"               % Test,
       "org.scalaz"    %% "scalaz-core"                     % "7.2.29"              % Test
     ),
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) =>
+        Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
+      case _ =>
+        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    }),
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, y)) if y < 13 =>
         Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
       case _ =>
         Seq.empty[ModuleID]
-    }),
-    addCommandAlias(
-      "simulacrum",
-      "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
-    )
+    })
   )
 
 lazy val `morphling-tapir` = (projectMatrix in file("tapir"))
@@ -192,7 +197,6 @@ lazy val `morphling-tapir` = (projectMatrix in file("tapir"))
     ThisBuild / parallelExecution := false,
     libraryDependencies ++= Seq(
       "com.softwaremill.sttp.tapir" %% "tapir-core"                      % "1.0.0",
-      "org.typelevel"               %% "simulacrum-scalafix-annotations" % versions("simulacrum"),
       "org.typelevel"               %% "mouse"                           % versions("mouse"),
       "org.scalatest"               %% "scalatest"                       % versions("scalatest")                % Test,
       "org.scalacheck"              %% "scalacheck"                      % versions("scalacheck")               % Test,
@@ -201,10 +205,12 @@ lazy val `morphling-tapir` = (projectMatrix in file("tapir"))
       "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs"              % "1.0.0"                              % Test,
       "com.softwaremill.sttp.apispec" %% "openapi-circe" % "0.2.1" % Test
     ),
-    addCommandAlias(
-      "simulacrum",
-      "scalafixEnable;scalafix AddSerializable;scalafix AddImplicitNotFound;scalafix TypeClassSupport;"
-    )
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) =>
+        Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
+      case _ =>
+        Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
+    })
   )
 
 lazy val root = (projectMatrix in file("."))
