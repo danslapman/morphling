@@ -89,13 +89,10 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
       case _ =>
         Seq("org.typelevel"  %% "simulacrum-scalafix-annotations" % versions("simulacrum-scalafix-annotations"))
     }),
-    libraryDependencies ++= {
+    libraryDependencies += {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
-        case Some((2, _)) =>
-          Seq(
-            "com.ironcorelabs" %% "cats-scalatest" % "3.0.0" % Test
-          )
-        case Some((_, _)) => Seq()
+        case Some((2, _)) => "com.ironcorelabs" %% "cats-scalatest" % "3.1.1" % Test
+        case Some((3, _)) => "com.ironcorelabs" %% "cats-scalatest" % "4.0.0" % Test
       }
     },
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
