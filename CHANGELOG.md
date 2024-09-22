@@ -1,6 +1,6 @@
 ## version 4.0.0
 
-> unreleased
+> 22.09.2024
 
 - simulacrum-scalafix is removed
 - update `glass`
