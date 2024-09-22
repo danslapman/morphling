@@ -18,7 +18,8 @@ object Settings {
             "-deprecation",
             "-Ypartial-unification",
             "-Xsource:3",
-            "-P:kind-projector:underscore-placeholders"
+            "-P:kind-projector:underscore-placeholders",
+            "-Yrangepos"
           )
         case Some((2, 13)) =>
           Seq(
@@ -27,12 +28,14 @@ object Settings {
             "-deprecation",
             "-Ymacro-annotations",
             "-Xsource:3",
-            "-P:kind-projector:underscore-placeholders"
+            "-P:kind-projector:underscore-placeholders",
+            "-Yrangepos"
           )
         case Some((3, _)) =>
           Seq(
             "-Ykind-projector:underscores",
-            "-source:future"
+            "-source:future",
+            "-Yrangepos"
           )
       }
     },
@@ -44,15 +47,20 @@ object Settings {
         case Some((3, _)) => Some(projectMatrixBaseDirectory.value.getParentFile / ".scalafix3.conf")
       }
     },
+    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, y)) if y < 13 =>
+        Seq(compilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full))
+      case _ => Seq.empty[ModuleID]
+    }),
     libraryDependencies ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) =>
           Seq(
             compilerPlugin("org.typelevel" %% "kind-projector" % "0.13.3" cross CrossVersion.full),
-            compilerPlugin(scalafixSemanticdb)
+            compilerPlugin(scalafixSemanticdb),
+            compilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
           )
-        case _ =>
-          Seq.empty[ModuleID]
+        case _ => Seq.empty[ModuleID]
       }
     },
     scmInfo := Some(

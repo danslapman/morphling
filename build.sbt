@@ -9,8 +9,6 @@ val versions = Map(
   "scalacheck"               -> "1.15.3",
   "scalatest"                -> "3.2.11",
   "simulacrum"               -> "1.1.0",
-  "paradise"                 -> "2.1.1",
-  "bm4"                      -> "0.3.1",
   "scalatestplus-scalacheck" -> "3.2.11.0",
   "glass"                    -> "0.3.0"
 )
@@ -37,12 +35,7 @@ lazy val morphling = (projectMatrix in file("core"))
           Seq("com.chuusai" %% "shapeless" % "2.3.3")
         case Some((3, _)) => Seq.empty[ModuleID]
       }
-    },
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
-      case _ => Seq.empty[ModuleID]
-    })
+    }
   )
 
 lazy val `morphling-scalacheck` = (projectMatrix in file("scalacheck"))
@@ -59,11 +52,6 @@ lazy val `morphling-scalacheck` = (projectMatrix in file("scalacheck"))
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
-      case _ => Seq.empty[ModuleID]
-    }),
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
       case _ => Seq.empty[ModuleID]
     })
   )
@@ -92,20 +80,7 @@ lazy val `morphling-circe` = (projectMatrix in file("circe"))
         case Some((2, _)) => "com.ironcorelabs" %% "cats-scalatest" % "3.1.1" % Test
         case Some((3, _)) => "com.ironcorelabs" %% "cats-scalatest" % "4.0.0" % Test
       }
-    },
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(
-          compilerPlugin("org.scalamacros" % "paradise"           % versions("paradise") cross CrossVersion.full),
-          compilerPlugin("com.olegpy"     %% "better-monadic-for" % versions("bm4"))
-        )
-      case Some((2, _)) =>
-        Seq(
-          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
-        )
-      case _ =>
-        Seq.empty[ModuleID]
-    })
+    }
   )
 
 lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
@@ -138,20 +113,7 @@ lazy val `morphling-reactivemongo` = (projectMatrix in file("reactivemongo"))
             "org.reactivemongo" %% "reactivemongo-bson-api" % "1.1.0-RC6"
           )
       }
-    },
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(
-          compilerPlugin("org.scalamacros" % "paradise"           % versions("paradise") cross CrossVersion.full),
-          compilerPlugin("com.olegpy"     %% "better-monadic-for" % versions("bm4"))
-        )
-      case Some((2, _)) =>
-        Seq(
-          compilerPlugin("com.olegpy" %% "better-monadic-for" % versions("bm4"))
-        )
-      case _ =>
-        Seq.empty[ModuleID]
-    })
+    }
   )
 
 lazy val `morphling-typed-schema` = (projectMatrix in file("typedschema"))
@@ -171,12 +133,6 @@ lazy val `morphling-typed-schema` = (projectMatrix in file("typedschema"))
     libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
-      case _ =>
-        Seq.empty[ModuleID]
-    }),
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
       case _ =>
         Seq.empty[ModuleID]
     })
@@ -203,12 +159,6 @@ lazy val `morphling-tapir` = (projectMatrix in file("tapir"))
       case Some((2, _)) =>
         Seq("io.github.leviysoft" %% "simulacrum" % versions("simulacrum"))
       case _ => Seq.empty[ModuleID]
-    }),
-    libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, y)) if y < 13 =>
-        Seq(compilerPlugin("org.scalamacros" % "paradise" % versions("paradise") cross CrossVersion.full))
-      case _ =>
-        Seq.empty[ModuleID]
     })
   )
 
