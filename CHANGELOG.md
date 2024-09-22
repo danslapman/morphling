@@ -1,3 +1,9 @@
+## version 4.0.0
+
+> unreleased
+
+- simulacrum-scalafix is removed
+
 ## version 3.1.0
 
 > 20.10.2022

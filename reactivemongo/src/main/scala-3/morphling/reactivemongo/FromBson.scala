@@ -10,12 +10,7 @@ import morphling.{Absent, Alt, Constant, HAlgebra, HEnvT, HFix, IsoSchema, OneOf
 import mouse.boolean.*
 import mouse.option.*
 import reactivemongo.api.bson.*
-import simulacrum.typeclass
 
-import scala.annotation.implicitNotFound
-
-@implicitNotFound("Could not find an instance of FromBson for ${S}")
-@typeclass
 trait FromBson[S[_]] extends Serializable {
   def reader: S ~> BSONReader
 
@@ -25,6 +20,8 @@ trait FromBson[S[_]] extends Serializable {
 }
 
 object FromBson {
+  def apply[P[_]](using fb: FromBson[P]): FromBson[P] = fb
+
   given [P[_]: FromBson]: FromBson[Schema[P, _]] =
     new FromBson[Schema[P, _]] {
       override val reader: Schema[P, _] ~> BSONReader = new (Schema[P, _] ~> BSONReader) {
@@ -139,44 +136,4 @@ object FromBson {
           )
       }
     }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[FromBson]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: FromBson[S]): FromBson[S] = instance
-
-  object ops {
-    implicit def toAllFromBsonOps[S[_], A](target: S[A])(implicit tc: FromBson[S]): AllOps[S, A] {
-      type TypeClassType = FromBson[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = FromBson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: FromBson[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToFromBsonOps extends Serializable {
-    implicit def toFromBsonOps[S[_], A](target: S[A])(implicit tc: FromBson[S]): Ops[S, A] {
-      type TypeClassType = FromBson[S]
-    } = new Ops[S, A] {
-      type TypeClassType = FromBson[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToFromBsonOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }

@@ -10,13 +10,10 @@ import morphling.Schema.Schema
 import morphling.annotated.Schema.AnnotatedSchema
 import mouse.option.*
 import ru.tinkoff.tschema.swagger.{SwaggerObject, SwaggerOneOf, SwaggerPrimitive, SwaggerProperty, SwaggerRef, SwaggerTypeable}
-import simulacrum.typeclass
+import simulacrum_.typeclass
 
-import scala.annotation.implicitNotFound
-
-@implicitNotFound("Could not find an instance of ToTypeable for ${S}")
 @typeclass
-trait ToTypeable[S[_]] extends Serializable {
+trait ToTypeable[S[_]] {
   def toTypeable: S ~> SwaggerTypeable
 }
 
@@ -161,44 +158,4 @@ object ToTypeable {
           )
         }
     }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[ToTypeable]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: ToTypeable[S]): ToTypeable[S] = instance
-
-  object ops {
-    implicit def toAllToTypeableOps[S[_], A](target: S[A])(implicit tc: ToTypeable[S]): AllOps[S, A] {
-      type TypeClassType = ToTypeable[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = ToTypeable[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: ToTypeable[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToToTypeableOps extends Serializable {
-    implicit def toToTypeableOps[S[_], A](target: S[A])(implicit tc: ToTypeable[S]): Ops[S, A] {
-      type TypeClassType = ToTypeable[S]
-    } = new Ops[S, A] {
-      type TypeClassType = ToTypeable[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToToTypeableOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }

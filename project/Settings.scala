@@ -2,6 +2,7 @@ import scalafix.sbt.ScalafixPlugin.autoImport._
 
 import sbt.Keys._
 import sbt._
+import sbtprojectmatrix.ProjectMatrixKeys._
 
 object Settings {
   val common = Seq(
@@ -12,8 +13,8 @@ object Settings {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, 12)) =>
           Seq(
+            "-Ywarn-unused-import",
             "-language:higherKinds,implicitConversions",
-            "-Ywarn-unused:imports",
             "-deprecation",
             "-Ypartial-unification",
             "-Xsource:3",
@@ -21,8 +22,8 @@ object Settings {
           )
         case Some((2, 13)) =>
           Seq(
+            "-Wunused:imports",
             "-language:higherKinds,implicitConversions",
-            "-Ywarn-unused:imports",
             "-deprecation",
             "-Ymacro-annotations",
             "-Xsource:3",
@@ -31,8 +32,7 @@ object Settings {
         case Some((3, _)) =>
           Seq(
             "-Ykind-projector:underscores",
-            "-source:future",
-            "-Wunused:imports"
+            "-source:future"
           )
       }
     },
@@ -41,7 +41,7 @@ object Settings {
     scalafixConfig := {
       (CrossVersion.partialVersion(scalaVersion.value): @unchecked) match {
         case Some((2, _)) => scalafixConfig.value
-        case Some((3, _)) => Some(baseDirectory.value.getParentFile.getParentFile.getParentFile / ".scalafix3.conf")
+        case Some((3, _)) => Some(projectMatrixBaseDirectory.value.getParentFile / ".scalafix3.conf")
       }
     },
     libraryDependencies ++= {

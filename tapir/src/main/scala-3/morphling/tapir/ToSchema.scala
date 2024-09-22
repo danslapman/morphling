@@ -8,14 +8,9 @@ import morphling.Schema.*
 import morphling.annotated.Schema.AnnotatedSchema
 import morphling.given
 import mouse.option.*
-import simulacrum.typeclass
 import sttp.tapir.SchemaType.{SCoproduct, SDiscriminator, SProduct, SProductField}
 import sttp.tapir.{FieldName, Schema as TapirSchema, SchemaType, Validator}
 
-import scala.annotation.implicitNotFound
-
-@implicitNotFound("Could not find an instance of ToSchema for ${S}")
-@typeclass
 trait ToSchema[S[_]] extends Serializable {
   def toSchema: S ~> TapirSchema
 
@@ -23,6 +18,8 @@ trait ToSchema[S[_]] extends Serializable {
 }
 
 object ToSchema {
+  def apply[P[_]](using ts: ToSchema[P]): ToSchema[P] = ts
+
   given [P[_]: ToSchema]: ToSchema[Schema[P, _]] =
     new ToSchema[Schema[P, _]] {
       override val toSchema: Schema[P, _] ~> TapirSchema = new (Schema[P, _] ~> TapirSchema) {
@@ -148,44 +145,4 @@ object ToSchema {
           p.run.fold(ToSchema[P].toSchema(_), ToSchema[Q].toSchema(_))
       }
     }
-
-  /* ======================================================================== */
-  /* THE FOLLOWING CODE IS MANAGED BY SIMULACRUM; PLEASE DO NOT EDIT!!!!      */
-  /* ======================================================================== */
-
-  /**
-   * Summon an instance of [[ToSchema]] for `S`.
-   */
-  @inline def apply[S[_]](implicit instance: ToSchema[S]): ToSchema[S] = instance
-
-  object ops {
-    implicit def toAllToSchemaOps[S[_], A](target: S[A])(implicit tc: ToSchema[S]): AllOps[S, A] {
-      type TypeClassType = ToSchema[S]
-    } = new AllOps[S, A] {
-      type TypeClassType = ToSchema[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  trait Ops[S[_], A] extends Serializable {
-    type TypeClassType <: ToSchema[S]
-    def self: S[A]
-    val typeClassInstance: TypeClassType
-  }
-  trait AllOps[S[_], A] extends Ops[S, A]
-  trait ToToSchemaOps extends Serializable {
-    implicit def toToSchemaOps[S[_], A](target: S[A])(implicit tc: ToSchema[S]): Ops[S, A] {
-      type TypeClassType = ToSchema[S]
-    } = new Ops[S, A] {
-      type TypeClassType = ToSchema[S]
-      val self: S[A]                       = target
-      val typeClassInstance: TypeClassType = tc
-    }
-  }
-  object nonInheritedOps extends ToToSchemaOps
-
-  /* ======================================================================== */
-  /* END OF SIMULACRUM-MANAGED CODE                                           */
-  /* ======================================================================== */
-
 }
