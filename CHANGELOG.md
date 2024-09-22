@@ -3,6 +3,7 @@
 > unreleased
 
 - simulacrum-scalafix is removed
+- update `glass`
 
 ## version 3.1.0
 

@@ -51,9 +51,8 @@ case object User extends Role {
   val prism = GenSubset[Role, User.type]
 }
 
+@Optics
 case class Administrator(department: String, subordinateCount: Int) extends Role
 object Administrator {
-  val department       = GenContains[Administrator](_.department)
-  val subordinateCount = GenContains[Administrator](_.subordinateCount)
-  val prism            = GenSubset[Role, Administrator]
+  val prism = GenSubset[Role, Administrator]
 }
