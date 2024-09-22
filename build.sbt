@@ -1,5 +1,7 @@
 ThisBuild / scalaVersion := "2.13.14"
 
+publish := {}
+publishArtifact := false
 publish / skip := true
 
 val versions = Map(
