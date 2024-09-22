@@ -1,4 +1,5 @@
 ThisBuild / scalaVersion := "2.13.14"
+ThisBuild / organization := "com.github.danslapman"
 
 publish := {}
 publishArtifact := false
