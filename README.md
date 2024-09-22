@@ -7,7 +7,14 @@ initially was a cats-based port of the excellent Kris Nuttycombe's [xenomorph](h
 All You need is ~~love~~:
 
 ```
-    libraryDependencies += "com.github.danslapman" %% "morphling" % "2.7.0"
+    libraryDependencies ++= Seq(
+      "com.github.danslapman" %% "morphling"               % "4.0.0", //core module
+      "com.github.danslapman" %% "morphling-circe"         % "4.0.0",
+      "com.github.danslapman" %% "morphling-reactivemongo" % "4.0.0",
+      "com.github.danslapman" %% "morphling-typed-schema"  % "4.0.0",
+      "com.github.danslapman" %% "morphling-scalacheck"    % "4.0.0",
+      "com.github.danslapman" %% "morphling-tapir"         % "4.0.0"
+    )
 ```
 
 # Version compatibility table
