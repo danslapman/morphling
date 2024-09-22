@@ -34,8 +34,7 @@ object Settings {
         case Some((3, _)) =>
           Seq(
             "-Ykind-projector:underscores",
-            "-source:future",
-            "-Yrangepos"
+            "-source:future"
           )
       }
     },
