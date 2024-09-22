@@ -18,14 +18,7 @@ case class Person(
     ignored: Option[Any]
 )
 
-object Person {
-  val name                                   = GenContains[Person](_.name)
-  val birthDate                              = GenContains[Person](_.birthDate)
-  val roles                                  = GenContains[Person](_.roles)
-  val updateCounter                          = GenContains[Person](_.updateCounter)
-  val stamp                                  = GenContains[Person](_.stamp)
-  val ignored: Contains[Person, Option[Any]] = GenContains[Person](_.ignored)
-
+object Person extends DeriveContains {
   private val instantIso = Equivalent[Long](Instant.ofEpochMilli(_))(_.toEpochMilli)
 
   val schema: Schema[SSchema, Person] = rec(

@@ -56,8 +56,6 @@ case object User extends Role {
 }
 
 case class Administrator(department: String, subordinateCount: Int) extends Role
-object Administrator {
-  val department       = GenContains[Administrator](_.department)
-  val subordinateCount = GenContains[Administrator](_.subordinateCount)
-  val prism            = GenSubset[Role, Administrator]
+object Administrator extends DeriveContains {
+  val prism = GenSubset[Role, Administrator]
 }
