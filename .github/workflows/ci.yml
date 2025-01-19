@@ -20,6 +20,8 @@ jobs:
           java-version: 17
           check-latest: true
 
+      - uses: sbt/setup-sbt@v1
+
       - name: Coursier cache
         uses: coursier/cache-action@v6
 
@@ -48,6 +50,8 @@ jobs:
           distribution: temurin
           java-version: 17
           check-latest: true
+
+      - uses: sbt/setup-sbt@v1
 
       - name: Coursier cache
         uses: coursier/cache-action@v6
